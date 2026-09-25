@@ -1,0 +1,4 @@
+# for the environment creation 
+python -m venv san
+san\Scripts\activate
+python -m pip install flask-cors
