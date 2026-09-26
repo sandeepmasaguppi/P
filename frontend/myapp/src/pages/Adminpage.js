@@ -23,6 +23,7 @@ import {
   loadAdvocates,
 } from "../data/Advocatesstore";
 import { api, setAdminToken, getAdminToken } from "../data/api";
+import { updateClient, deleteClient } from "../data/Clientsstore";
 import BrandLogo from "../components/BrandLogo";
 import { getMessages, markAsRead, deleteMessage } from "../data/MessageStore";
 import { getQuestions, markQuestionAsRead, deleteQuestion } from "../data/QuestionStore";
@@ -265,6 +266,70 @@ function BookingModal({ booking, onClose }) {
 // ─────────────────────────────────────────────────────────────
 //  SIDEBAR NAVIGATION
 // ─────────────────────────────────────────────────────────────
+
+// Client edit modal (admin)
+function ClientEditModal({ client, onClose, onSave }) {
+  const [form, setForm] = useState({
+    name: client?.name || "",
+    email: client?.email || "",
+    phone: client?.phone || "",
+    city: client?.city || "",
+    status: client?.status || "pending",
+  });
+
+  useEffect(() => setForm({
+    name: client?.name || "",
+    email: client?.email || "",
+    phone: client?.phone || "",
+    city: client?.city || "",
+    status: client?.status || "pending",
+    password: "",
+  }), [client]);
+
+  return (
+    <div className="am-modal-overlay" onClick={onClose}>
+      <div className="am-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="am-modal-header">
+          <h3>Edit client</h3>
+          <button className="am-modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="am-form-row">
+          <label>Name</label>
+          <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        </div>
+        <div className="am-form-row">
+          <label>Email</label>
+          <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        </div>
+        <div className="am-form-row">
+          <label>Phone</label>
+          <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+        </div>
+        <div className="am-form-row">
+          <label>City</label>
+          <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+        </div>
+        <div className="am-form-row">
+          <label>Status</label>
+          <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+            <option value="pending">pending</option>
+            <option value="approved">approved</option>
+            <option value="rejected">rejected</option>
+          </select>
+        </div>
+        <div className="am-form-row">
+          <label>Set password (optional)</label>
+          <input type="text" placeholder="Leave blank to keep current password" value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })} />
+        </div>
+        <div className="am-modal-actions">
+          <button className="am-btn-secondary" onClick={onClose}>Cancel</button>
+          <button className="am-btn-primary" onClick={() => onSave(form)}>Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 
 // ─────────────────────────────────────────────────────────────
@@ -928,6 +993,8 @@ export default function AdminPage() {
   const [editing, setEditing] = useState(null);       // advocate being edited, or null
   const [adding, setAdding] = useState(false);         // add-new modal open?
   const [deleting, setDeleting] = useState(null);      // advocate pending delete confirm
+  const [editingClient, setEditingClient] = useState(null);
+  const [deletingClient, setDeletingClient] = useState(null);
   const [openMessage, setOpenMessage] = useState(null); // message being viewed
   const [deletingMsg, setDeletingMsg] = useState(null); // message pending delete confirm
   const [openQuestion, setOpenQuestion] = useState(null);
@@ -1035,6 +1102,16 @@ export default function AdminPage() {
 
   const handleApproveClient = (id) => withApi(() => api(`/api/clients/${Number(id)}/status`, { method: "POST", body: { status: "approved" }, token: getAdminToken() }), "Client approved");
   const handleRejectClient  = (id) => withApi(() => api(`/api/clients/${Number(id)}/status`, { method: "POST", body: { status: "rejected" }, token: getAdminToken() }), "Client rejected");
+
+  const handleEditClient = (client) => setEditingClient(client);
+  const handleSaveClient = (form) => {
+    const payload = { ...form };
+    if (!payload.password) delete payload.password; // don't send empty password
+    return withApi(() => updateClient(editingClient.id, payload), "Client updated").then(() => setEditingClient(null));
+  };
+
+  const handleConfirmDeleteClient = () =>
+    withApi(() => deleteClient(deletingClient.id), "Client deleted").then(() => setDeletingClient(null));
 
   const handleApprove = (id) => withApi(() => approveAdvocate(id), "Advocate approved");
   const handleReject  = (id) => withApi(() => rejectAdvocate(id), "Advocate rejected");
@@ -1346,6 +1423,10 @@ export default function AdminPage() {
                             <button className="am-btn-reject" onClick={() => handleRejectClient(c.id)}>✕ Reject</button>
                           </div>
                         )}
+                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                          <button className="am-btn-secondary" onClick={() => handleEditClient(c)}>Edit</button>
+                          <button className="am-btn-danger" onClick={() => setDeletingClient(c)}>Delete</button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1570,6 +1651,22 @@ export default function AdminPage() {
           itemName="this legal question"
           onCancel={() => setDeletingQuestion(null)}
           onConfirm={handleConfirmDeleteQuestion}
+        />
+      )}
+      {editingClient && (
+        <ClientEditModal
+          client={editingClient}
+          onClose={() => setEditingClient(null)}
+          onSave={handleSaveClient}
+        />
+      )}
+
+      {deletingClient && (
+        <ConfirmDeleteModal
+          label="Delete this client?"
+          itemName={`${deletingClient.name}'s account`}
+          onCancel={() => setDeletingClient(null)}
+          onConfirm={handleConfirmDeleteClient}
         />
       )}
       {reqModal && (

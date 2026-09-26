@@ -159,10 +159,61 @@ function migratePasswords() {
 }
 
 // ── Avatars ───────────────────────────────────────────────────
-function saveAvatar(name, avatarData, id) {
+function removeUploadFile(avatarUrl) {
+  if (!avatarUrl || typeof avatarUrl !== "string") return;
+  const rel = avatarUrl.replace(/^\/uploads\//, "");
+  if (!rel || rel === avatarUrl) return;
+  const fullPath = path.join(UPLOAD_DIR, path.basename(rel));
+  if (fullPath.startsWith(UPLOAD_DIR) && fs.existsSync(fullPath)) {
+    fs.unlinkSync(fullPath);
+  }
+}
+
+function deleteAvatarFilesForId(name, id, currentAvatarUrl) {
+  const slug = String(name || "advocate")
+    .replace(/^adv\.\s*/i, "").trim().toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "advocate";
+  const fileNames = new Set();
+
+  if (currentAvatarUrl) fileNames.add(path.basename(String(currentAvatarUrl).replace(/^\/uploads\//, "")));
+  [".png", ".jpg", ".jpeg", ".webp"].forEach((ext) => {
+    fileNames.add(`${slug}-${id}${ext}`);
+    fileNames.add(`${slug}-${id}.jpeg`);
+    fileNames.add(`${slug}-${id}.jpg`);
+    fileNames.add(`${slug}-${id}.png`);
+    fileNames.add(`${slug}-${id}.webp`);
+  });
+
+  try {
+    const entries = fs.readdirSync(UPLOAD_DIR, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isFile()) continue;
+      const fileName = entry.name;
+      const match = fileName.match(/^(.*)-([0-9]+)\.(png|jpe?g|webp)$/i);
+      if (!match) continue;
+      if (String(match[2]) === String(id)) {
+        fileNames.add(fileName);
+      }
+    }
+  } catch (err) {
+    // ignore missing upload dir
+  }
+
+  fileNames.forEach((fileName) => {
+    if (!fileName) return;
+    const target = path.join(UPLOAD_DIR, path.basename(fileName));
+    if (target.startsWith(UPLOAD_DIR) && fs.existsSync(target)) {
+      fs.unlinkSync(target);
+    }
+  });
+}
+
+function saveAvatar(name, avatarData, id, currentAvatarUrl = "") {
   if (!String(avatarData || "").startsWith("data:image/")) return null;
   const match = String(avatarData).match(/^data:image\/(png|jpeg|jpg|webp);base64,(.+)$/);
   if (!match) throw new HttpError(400, "Unsupported avatar image format");
+
+  deleteAvatarFilesForId(name, id, currentAvatarUrl);
 
   const extension = match[1] === "jpeg" ? "jpg" : match[1];
   const slug = String(name || "advocate")
@@ -295,6 +346,7 @@ async function registerClient(payload) {
     phone: payload.phone || "",
     city: payload.city || "",
     passwordHash: hashPassword(payload.password),
+    sessionVersion: 0,
     status: "pending",
     createdAt: new Date().toISOString(),
   };
@@ -333,8 +385,9 @@ function clientLogin(payload) {
     err.extra = { status: client.status };
     throw err;
   }
-  const { passwordHash, ...safe } = client;
-  return { client: safe };
+  const { passwordHash, sessionVersion, ...safe } = client;
+  const token = signToken({ sub: client.id, role: "client", ver: sessionVersion || 0 });
+  return { client: safe, token };
 }
 
 function adminLogin(payload) {
@@ -355,8 +408,15 @@ function updateAdvocate(id, payload) {
 
   const merged = { ...current, ...buildAdvocateRecord({ ...current, ...payload, email }, current.id, payload.status || current.status) };
   merged.passwordHash = payload.password ? hashPassword(payload.password) : current.passwordHash;
-  const avatar = saveAvatar(merged.name, payload.avatarData, current.id);
-  if (avatar) merged.avatar = avatar;
+
+  if (payload.avatarData === null || payload.avatar === null) {
+    removeUploadFile(current.avatar);
+    merged.avatar = "";
+  } else if (payload.avatarData) {
+    const avatar = saveAvatar(merged.name, payload.avatarData, current.id, current.avatar || "");
+    if (avatar) merged.avatar = avatar;
+  }
+
   if (payload.lastBookingAt) merged.lastBookingAt = payload.lastBookingAt;
 
   list[index] = merged;
@@ -406,9 +466,22 @@ async function route(request, response) {
     const auth = authFromRequest(request);
     if (!auth) throw new HttpError(401, "Not logged in");
     if (auth.role === "admin") return send(request, response, 200, { role: "admin", email: ADMIN_EMAIL });
-    const advocate = loadAdvocates().find((a) => Number(a.id) === Number(auth.sub));
-    if (!advocate) throw new HttpError(401, "Account no longer exists");
-    return send(request, response, 200, { role: "advocate", advocate: toPublic(advocate) });
+    if (auth.role === "advocate") {
+      const advocate = loadAdvocates().find((a) => Number(a.id) === Number(auth.sub));
+      if (!advocate) throw new HttpError(401, "Account no longer exists");
+      return send(request, response, 200, { role: "advocate", advocate: toPublic(advocate) });
+    }
+    if (auth.role === "client") {
+      const client = loadClients().find((c) => Number(c.id) === Number(auth.sub));
+      if (!client) throw new HttpError(401, "Account no longer exists");
+      // token contains a `ver` we issue; ensure it matches server-side sessionVersion
+      const tokenVer = Number(auth.ver || 0);
+      const serverVer = Number(client.sessionVersion || 0);
+      if (tokenVer !== serverVer) throw new HttpError(401, "Session expired");
+      const { passwordHash, sessionVersion, ...safe } = client;
+      return send(request, response, 200, { role: "client", client: safe });
+    }
+    throw new HttpError(401, "Not logged in");
   }
 
   // Registration (public)
@@ -468,6 +541,53 @@ async function route(request, response) {
       // Only return minimal public fields to advocates
       const pub = { id: safe.id, name: safe.name, city: safe.city, phone: safe.phone };
       return send(request, response, 200, pub);
+    }
+    // Admin: update client
+    if (method === "PUT") {
+      requireAdmin(request);
+      const body = await readBody(request);
+      const clients = loadClients();
+      const idx = clients.findIndex(c => Number(c.id) === Number(id));
+      if (idx === -1) throw new HttpError(404, "Client not found");
+
+      // If email provided, validate and ensure uniqueness
+      if (body.email !== undefined) {
+        const email = normalizeEmail(body.email);
+        if (!isValidEmail(email)) throw new HttpError(400, "A valid email is required");
+        if (clients.some((c, i) => i !== idx && normalizeEmail(c.email) === email)) throw new HttpError(409, "Email already in use");
+        clients[idx].email = email;
+      }
+
+      // Update allowed fields
+      if (body.name !== undefined) clients[idx].name = String(body.name).trim();
+      if (body.phone !== undefined) clients[idx].phone = body.phone || "";
+      if (body.city !== undefined) clients[idx].city = body.city || "";
+      if (body.status !== undefined) {
+        if (!["approved","pending","rejected"].includes(body.status)) throw new HttpError(400, "Invalid status");
+        clients[idx].status = body.status;
+      }
+
+      // Allow admin to set/reset client password
+      if (body.password !== undefined) {
+        if (String(body.password).length < 6) throw new HttpError(400, "Password must be at least 6 characters");
+        clients[idx].passwordHash = hashPassword(body.password);
+        // Invalidate existing client sessions by bumping sessionVersion
+        clients[idx].sessionVersion = (Number(clients[idx].sessionVersion) || 0) + 1;
+      }
+
+      saveClients(clients);
+      const { passwordHash, ...safe } = clients[idx];
+      return send(request, response, 200, safe);
+    }
+
+    // Admin: delete client
+    if (method === "DELETE") {
+      requireAdmin(request);
+      const clients = loadClients();
+      const remaining = clients.filter(c => Number(c.id) !== Number(id));
+      if (remaining.length === clients.length) throw new HttpError(404, "Client not found");
+      saveClients(remaining);
+      return send(request, response, 200, { ok: true });
     }
   }
 

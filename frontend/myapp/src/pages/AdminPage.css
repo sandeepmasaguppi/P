@@ -322,20 +322,21 @@
 
 /* ── Panel: tabs + section ───────────────────────────────── */
 .am-panel {
-  background: var(--adm-bg-card);
-  border: 1px solid var(--adm-border);
-  border-radius: var(--adm-radius);
-  box-shadow: var(--adm-shadow);
+  background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.96) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 22px;
+  box-shadow: 0 20px 40px -26px rgba(15, 23, 42, 0.28);
   overflow: hidden;
 }
 
 .am-tabs {
   display: flex;
-  gap: 4px;
-  padding: 8px 12px 0;
-  border-bottom: 1px solid var(--adm-border);
+  gap: 6px;
+  padding: 14px 16px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
   overflow-x: auto;
   scrollbar-width: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(248,250,252,0.2));
 }
 .am-tabs::-webkit-scrollbar { display: none; }
 
@@ -343,7 +344,7 @@
   background: transparent;
   border: 0;
   border-bottom: 2px solid transparent;
-  padding: 10px 14px;
+  padding: 11px 14px 12px;
   font-family: var(--adm-font-body);
   font-size: 0.875rem;
   font-weight: 500;
@@ -353,22 +354,23 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  border-radius: 12px 12px 0 0;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
-.am-tab:hover { color: var(--adm-text-main); }
-.am-tab.active { color: var(--adm-text-main); font-weight: 600; border-bottom-color: var(--adm-accent); }
+.am-tab:hover { color: var(--adm-text-main); background: rgba(15, 118, 110, 0.04); }
+.am-tab.active { color: var(--adm-text-main); font-weight: 700; border-bottom-color: var(--adm-accent); background: rgba(15, 118, 110, 0.04); }
 
 .am-tab-badge {
-  background: var(--adm-accent-soft);
+  background: linear-gradient(135deg, #ecfeff 0%, #ccfbf1 100%);
   color: var(--adm-accent);
   border: 1px solid #99f6e4;
   font-size: 0.7rem;
   font-weight: 700;
-  padding: 0.05rem 0.45rem;
+  padding: 0.1rem 0.45rem;
   border-radius: 999px;
 }
 
-.am-section { padding: 20px; }
+.am-section { padding: 22px; }
 /* bookings / requests tabs render inline-styled blocks directly in the panel */
 .am-panel > div:not(.am-tabs):not(.am-section) { padding: 20px; }
 
@@ -382,9 +384,13 @@
 .am-toolbar {
   display: flex;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   flex-wrap: wrap;
   align-items: center;
+  background: linear-gradient(180deg, #f8fafc 0%, #f3f7fb 100%);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  padding: 12px;
 }
 
 .am-search,
@@ -392,31 +398,38 @@
   font-family: var(--adm-font-body);
   font-size: 0.875rem;
   color: var(--adm-text-main);
-  background: #f8fafc;
-  border: 1px solid var(--adm-border);
-  border-radius: 8px;
-  padding: 0.6rem 0.9rem;
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 10px;
+  padding: 0.72rem 0.92rem;
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 .am-search { flex: 1; min-width: 220px; }
-.am-search:focus, .am-status-filter:focus { border-color: var(--adm-accent-2); box-shadow: 0 0 0 3px var(--adm-accent-ring); background: #fff; }
+.am-search:focus, .am-status-filter:focus { border-color: var(--adm-accent-2); box-shadow: 0 0 0 3px var(--adm-accent-ring); background: #fff; transform: translateY(-1px); }
 
 /* ── Pending approvals ───────────────────────────────────── */
 .am-pending-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
+  gap: 18px;
 }
 
 .am-pending-card {
-  background: #fff;
-  border: 1px solid var(--adm-border);
-  border-radius: var(--adm-radius);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 18px;
   padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  box-shadow: 0 12px 30px -25px rgba(15, 23, 42, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.am-pending-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(45, 212, 191, 0.45);
+  box-shadow: 0 18px 36px -26px rgba(15, 118, 110, 0.3);
 }
 
 .am-row-main { display: flex; align-items: center; gap: 12px; min-width: 0; }
@@ -466,21 +479,25 @@
 .am-pending-actions, .am-row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* ── Advocate rows ───────────────────────────────────────── */
-.am-list { display: flex; flex-direction: column; gap: 8px; }
+.am-list { display: flex; flex-direction: column; gap: 10px; }
 
 .am-row {
-  background: #fff;
-  border: 1px solid var(--adm-border);
-  border-radius: 10px;
-  padding: 12px 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
-.am-row:hover { border-color: #cbd5e1; box-shadow: var(--adm-shadow); }
+.am-row:hover {
+  border-color: rgba(20, 184, 166, 0.28);
+  box-shadow: 0 14px 26px -24px rgba(15, 23, 42, 0.28);
+  transform: translateY(-1px);
+}
 .am-row-contact { font-size: 0.8rem; color: var(--adm-text-muted); }
 
 .am-status-pill {
@@ -564,16 +581,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #fff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   padding: 12px 14px 12px 20px;
-  border-radius: 10px;
-  border: 1px solid var(--adm-border);
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
   position: relative;
   cursor: pointer;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
-.am-msg-row:hover { border-color: #cbd5e1; box-shadow: var(--adm-shadow); }
-.am-msg-row.unread { background: var(--adm-accent-soft); border-color: #99f6e4; }
+.am-msg-row:hover { border-color: rgba(20, 184, 166, 0.28); box-shadow: 0 14px 26px -24px rgba(15, 23, 42, 0.28); transform: translateY(-1px); }
+.am-msg-row.unread { background: linear-gradient(180deg, rgba(240,253,250,0.95) 0%, rgba(255,255,255,0.98) 100%); border-color: rgba(45, 212, 191, 0.4); }
 
 .am-msg-dot { width: 8px; height: 8px; background: var(--adm-accent-2); border-radius: 50%; position: absolute; left: 8px; }
 
@@ -673,6 +690,52 @@
   background: #f8fafc;
   flex-wrap: wrap;
 }
+
+/* Client edit form rows (small helpers used by AdminPage client modal) */
+.am-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0 1.5rem;
+}
+.am-form-row label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--adm-text-main);
+}
+.am-form-row input,
+.am-form-row select,
+.am-form-row textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+  font-family: var(--adm-font-body);
+  font-size: 0.95rem;
+  color: var(--adm-text-main);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.am-form-row input:focus, .am-form-row select:focus, .am-form-row textarea:focus {
+  border-color: var(--adm-accent-2);
+  box-shadow: 0 0 0 3px var(--adm-accent-ring);
+}
+
+/* Danger button style used for client delete in list */
+.am-btn-danger {
+  font-family: var(--adm-font-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fff;
+  color: var(--adm-danger);
+  border: 1px solid #fecaca;
+}
+.am-btn-danger:hover { background: #fff2f2; }
 
 .am-msg-detail { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; }
 .am-detail-row { font-size: 0.9rem; color: var(--adm-text-main); }
@@ -865,10 +928,11 @@
 
 /* request cards */
 .am-req-card {
-  background: #fff;
-  border: 1px solid var(--adm-border);
-  border-radius: var(--adm-radius);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
   overflow: hidden;
+  box-shadow: 0 12px 28px -26px rgba(15, 23, 42, 0.28);
 }
 
 .am-req-head {
@@ -876,8 +940,8 @@
   align-items: center;
   gap: 12px;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--adm-border);
-  background: linear-gradient(90deg, #ffffff 0%, #f6f9fb 100%);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  background: linear-gradient(90deg, #ffffff 0%, #f5f9fb 100%);
   flex-wrap: wrap;
 }
 .am-req-head-text { flex: 1; min-width: 180px; }

@@ -19,6 +19,7 @@ const API_BASE = "";
 // Key used to remember who's logged in (read by a Client Dashboard page)
 const SESSION_KEY = "law4u_client_id";
 const CLIENT_OBJ_KEY = "law4u_client";
+const CLIENT_TOKEN_KEY = "law4u_client_token";
 
 // ── Helpers ───────────────────────────────────────────────────
 function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
@@ -133,14 +134,17 @@ export default function Login() {
         }
 
         const client = data.client;
+        const token = data.token;
 
-        // Success — remember which client is logged in
+        // Success — remember which client is logged in and save token
         if (form.remember) {
           localStorage.setItem(SESSION_KEY, String(client.id));
           localStorage.setItem(CLIENT_OBJ_KEY, JSON.stringify(client));
+          if (token) localStorage.setItem(CLIENT_TOKEN_KEY, token);
         } else {
           sessionStorage.setItem(SESSION_KEY, String(client.id));
           sessionStorage.setItem(CLIENT_OBJ_KEY, JSON.stringify(client));
+          if (token) sessionStorage.setItem(CLIENT_TOKEN_KEY, token);
         }
 
         showToast(`Welcome back, ${client.name}! 🎉`, "success");

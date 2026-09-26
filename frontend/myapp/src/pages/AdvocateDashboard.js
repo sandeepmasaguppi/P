@@ -5,10 +5,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./AdvocateDashboard.css";
-import { getAdvocateById, logoutAdvocate } from "../data/Advocatesstore";
+import { getAdvocateById, logoutAdvocate, updateAdvocate } from "../data/Advocatesstore";
 import BrandLogo from "../components/BrandLogo";
 import Chatbot from "./Chatbot";
-import { api, getAdvocateToken } from "../data/api";
+import { api, getAdvocateToken, assetUrl } from "../data/api";
 
 
 const SESSION_KEY  = "law4u_advocate_id";
@@ -128,75 +128,73 @@ function RequestCard({ req, onAccept, onDecline, onSaveStage }) {
                 <span className={`ad-stage-pill ${req.caseStage.toLowerCase().replace(" ", "-")}`}>
                   ✓ Current Case Status: {req.caseStage}
                 </span>
-                <button className="ad-btn-secondary" onClick={() => { setShowSavedAlert(false); setIsEditing(true); }}>
-                  Edit Status ✎
-                </button>
               </div>
             </div>
-          ) : (
-            <>
-              <label htmlFor={`case-stage-${req.id}`} className="ad-label">Case status</label>
-              <select
-                id={`case-stage-${req.id}`}
-                value={caseStage}
-                onChange={event => setCaseStage(event.target.value)}
-                className="ad-select"
-              >
-                <option value="Start Case">Start Case</option>
-                <option value="Case Progress">Case Progress</option>
-                <option value="Close Case">Close Case</option>
-              </select>
-              
-              <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
-                <button className="ad-btn-primary" onClick={() => { onSaveStage(req.id, caseStage); setIsEditing(false); setShowSavedAlert(true); }}>
-                  Save Status
-                </button>
-                {req.isSaved && (
-                  <button className="ad-btn-secondary" onClick={() => setIsEditing(false)}>Cancel</button>
-                )}
-              </div>
-            </>
-          )}
+          ) : null}
         </div>
       )}
     </div>
   );
 }
 
+// Main Advocate dashboard component
 export default function AdvocateDashboard() {
+  // component state and memoized advocate record
   const navigate = useNavigate();
-  const [advocateId, setAdvocateId] = useState(null);
-  const [requests, setRequests]     = useState([]);
-  const [activeNav, setActiveNav]   = useState("dashboard");
-  const [filter, setFilter]         = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [ready, setReady]           = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const advocateId = Number(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || 0);
+  const [advocateVersion, setAdvocateVersion] = useState(0);
+  const advocate = useMemo(() => (advocateId ? getAdvocateById(advocateId) : null), [advocateId, advocateVersion]);
 
-  // Earnings Overrides State: { [reqId]: { clientName, requestedAt, amount, paymentStatus } }
+  // UI state used across the dashboard
+  const [ready, setReady] = useState(true);
+  const [requests, setRequests] = useState([]);
   const [earningsOverrides, setEarningsOverrides] = useState({});
-  const [activeMenuId, setActiveMenuId] = useState(null);
-  const [editingEarningId, setEditingEarningId] = useState(null);
-  const [editForm, setEditForm] = useState({ clientName: "", requestedAt: "", amount: "", paymentStatus: "" });
-  const [conversations, setConversations] = useState([]); // { clientId, key, lastMsg, clientName }
+  const [conversations, setConversations] = useState([]);
   const [activeConv, setActiveConv] = useState(null);
   const [convMessages, setConvMessages] = useState([]);
   const [convInput, setConvInput] = useState("");
+  const [activeNav, setActiveNav] = useState("dashboard");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeMenuId, setActiveMenuId] = useState(null);
+  const [editingEarningId, setEditingEarningId] = useState(null);
+  const [editForm, setEditForm] = useState({ clientName: "", requestedAt: "", amount: "", paymentStatus: "Paid / Completed" });
+  const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [profileForm, setProfileForm] = useState(null);
+  const [isProfileEditing, setIsProfileEditing] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMsg, setProfileMsg] = useState("");
+
+  // Initialize profile form when advocate loads or changes
+  useEffect(() => {
+    if (!advocate) return;
+    setProfileForm({
+      name: advocate.name || "",
+      city: advocate.city || "",
+      phone: advocate.phone || "",
+      speciality: advocate.speciality || "",
+      practiceArea: advocate.practiceArea || "",
+      court: advocate.court || "",
+      barCouncil: advocate.barCouncil || "",
+      barId: advocate.barId || "",
+      experience: advocate.experience || "",
+      fee: advocate.fee || "",
+      availability: advocate.availability || "",
+      bio: advocate.bio || "",
+      languages: Array.isArray(advocate.languages) ? advocate.languages.join(", ") : (advocate.languages || ""),
+      avatarData: null,
+    });
+    setIsProfileEditing(false);
+  }, [advocate]);
 
   useEffect(() => {
-    const idStr = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
-    if (!idStr) {
-      navigate("/login");
-      return;
-    }
-    setAdvocateId(Number(idStr));
-    setReady(true);
-  }, [navigate]);
+    const refreshFromCache = () => {
+      setAdvocateVersion((v) => v + 1);
+    };
 
-  const advocate = useMemo(
-    () => (advocateId ? getAdvocateById(advocateId) : null),
-    [advocateId]
-  );
+    window.addEventListener("law4u_advocates_updated", refreshFromCache);
+    return () => window.removeEventListener("law4u_advocates_updated", refreshFromCache);
+  }, []);
 
   useEffect(() => {
     if (ready && advocate && advocate.status !== "approved") {
@@ -378,6 +376,54 @@ export default function AdvocateDashboard() {
     saveEarningsOverrides(allOverrides);
     setEarningsOverrides({ ...currentAdvOverrides });
     setEditingEarningId(null);
+  };
+
+  // Avatar file -> data URL
+  const handleAvatarFileChange = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setProfileForm(prev => ({ ...(prev||{}), avatarData: e.target.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!advocateId || !profileForm) return;
+    setProfileSaving(true);
+    setProfileMsg("");
+    try {
+      const payload = {
+        name: profileForm.name,
+        city: profileForm.city,
+        phone: profileForm.phone,
+        speciality: profileForm.speciality,
+        practiceArea: profileForm.practiceArea,
+        court: profileForm.court,
+        barCouncil: profileForm.barCouncil,
+        barId: profileForm.barId,
+        experience: profileForm.experience,
+        fee: profileForm.fee,
+        availability: profileForm.availability,
+        bio: profileForm.bio,
+        languages: profileForm.languages ? profileForm.languages.split(",").map(s => s.trim()).filter(Boolean) : [],
+      };
+      if (profileForm.avatarData) payload.avatarData = profileForm.avatarData;
+
+      await updateAdvocate(advocateId, payload);
+      setProfileMsg("Profile updated successfully");
+      setAdvocateVersion(v => v + 1);
+      // reflect returned values by reloading local form from cache (use getAdvocateById)
+      const updated = getAdvocateById(advocateId);
+      if (updated) {
+        setProfileForm(prev => ({ ...prev, languages: Array.isArray(updated.languages) ? updated.languages.join(", ") : (updated.languages||"") }));
+      }
+    } catch (err) {
+      setProfileMsg(err.message || "Save failed");
+    } finally {
+      setProfileSaving(false);
+      setTimeout(() => setProfileMsg(""), 3000);
+    }
   };
 
   const handleLogout = () => {
@@ -750,73 +796,95 @@ export default function AdvocateDashboard() {
 
           {/* VIEW: CHAT */}
           {activeNav === "chat" && (
-            <div className="ad-fade-in" style={{ display: "flex", gap: 16 }}>
-              <aside style={{ width: 320, borderRight: "1px solid #e6eef8", paddingRight: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <h2 style={{ margin: 0 }}>Chats</h2>
+            <div className="ad-fade-in ad-chat-shell">
+              <aside className="ad-chat-contacts">
+                <div className="ad-chat-contacts-header">
+                  <h2>Chats</h2>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div className="ad-chat-list">
                   {conversations.length === 0 && <div className="ad-empty">No chats yet — clients will appear here when they message.</div>}
                   {conversations.map(conv => (
-                    <button key={conv.key} onClick={() => {
-                      setActiveConv(conv);
-                      const raw = localStorage.getItem(conv.key);
-                      setConvMessages(raw ? JSON.parse(raw) : []);
-                    }}
-                      style={{ display: "flex", alignItems: "center", gap: 10, padding: 10, borderRadius: 8, border: activeConv && activeConv.key === conv.key ? "2px solid #2563eb" : "1px solid #e2e8f0", background: "#fff" }}>
-                      <div style={{ width: 44, height: 44, borderRadius: 22, background: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>{(conv.clientName||"").split(" ").map(s=>s[0]).slice(0,2).join("")}</div>
-                      <div style={{ flex: 1, textAlign: "left" }}>
-                        <div style={{ fontWeight: 700 }}>{conv.clientName}</div>
-                        <div style={{ fontSize: 12, color: "#64748b" }}>{conv.lastMsg ? conv.lastMsg.text.slice(0,60) : "Start conversation"}</div>
+                    <button
+                      key={conv.key}
+                      className={`ad-chat-item ${activeConv && activeConv.key === conv.key ? "active" : ""}`}
+                      onClick={() => {
+                        setActiveConv(conv);
+                        const raw = localStorage.getItem(conv.key);
+                        setConvMessages(raw ? JSON.parse(raw) : []);
+                      }}
+                    >
+                      <div className="ad-chat-item-avatar">
+                        {(conv.clientName || "").split(" ").map(s => s[0]).slice(0, 2).join("")}
                       </div>
-                      <div style={{ textAlign: "right", fontSize: 12, color: "#94a3b8" }}>{conv.lastMsg ? new Date(conv.lastMsg.t).toLocaleTimeString() : ""}</div>
+                      <div className="ad-chat-item-meta">
+                        <div className="ad-chat-item-row">
+                          <span className="ad-chat-name">{conv.clientName}</span>
+                          <span className="ad-chat-time">
+                            {conv.lastMsg ? new Date(conv.lastMsg.t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
+                          </span>
+                        </div>
+                        <div className="ad-chat-snippet">
+                          {conv.lastMsg ? conv.lastMsg.text.slice(0, 60) : "Start conversation"}
+                        </div>
+                      </div>
                     </button>
                   ))}
                 </div>
               </aside>
 
-              <section style={{ flex: 1, display: "flex", flexDirection: "column", height: "70vh" }}>
+              <section className="ad-conversation-panel">
                 {!activeConv ? (
-                  <div style={{ padding: 24 }} className="ad-empty">Select a conversation to view messages.</div>
+                  <div className="ad-empty ad-empty-chat">Select a conversation to view messages.</div>
                 ) : (
                   <>
-                    <div style={{ padding: 12, borderBottom: "1px solid #e6eef8", display: "flex", alignItems: "center", gap: 12 }}>
-                      <div style={{ width: 48, height: 48, borderRadius: 24, background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>{(activeConv.clientName||"").split(" ").map(s=>s[0]).slice(0,2).join("")}</div>
-                      <div>
-                        <div style={{ fontWeight: 800 }}>{activeConv.clientName}</div>
-                        <div style={{ fontSize: 12, color: "#64748b" }}>Client ID: {activeConv.clientId}</div>
+                    <div className="ad-conversation-header">
+                      <div className="ad-chat-item-avatar ad-chat-header-avatar">
+                        {(activeConv.clientName || "").split(" ").map(s => s[0]).slice(0, 2).join("")}
+                      </div>
+                      <div className="ad-conversation-header-text">
+                        <div className="ad-conversation-title">{activeConv.clientName}</div>
+                        <div className="ad-conversation-subtitle">Client ID: {activeConv.clientId}</div>
                       </div>
                     </div>
 
-                    <div style={{ padding: 16, overflowY: "auto", flex: 1, background: "#f8fafc" }}>
+                    <div className="ad-conversation-body">
                       {convMessages.length === 0 ? (
-                        <div style={{ textAlign: "center", color: "#94a3b8", marginTop: 20 }}>No messages yet. Reply to start.</div>
+                        <div className="ad-empty ad-empty-chat">No messages yet. Reply to start.</div>
                       ) : (
                         convMessages.map((m, i) => (
-                          <div key={i} style={{ display: "flex", justifyContent: m.from === "advocate" ? "flex-end" : "flex-start", margin: "6px 0" }}>
-                            <div style={{ background: m.from === "advocate" ? "#2563eb" : "#f1f5f9", color: m.from === "advocate" ? "#fff" : "#111827", padding: "8px 12px", borderRadius: 14, maxWidth: 560 }}>
+                          <div key={i} className={`ad-message-row ${m.from === "advocate" ? "outgoing" : "incoming"}`}>
+                            <div className={`ad-message-bubble ${m.from === "advocate" ? "outgoing" : "incoming"}`}>
                               {m.text}
-                              <div style={{ fontSize: 10, color: m.from === "advocate" ? "rgba(255,255,255,.7)" : "#64748b", marginTop: 6 }}>{new Date(m.t).toLocaleString()}</div>
+                              <div className="ad-message-time">{new Date(m.t).toLocaleString()}</div>
                             </div>
                           </div>
                         ))
                       )}
                     </div>
 
-                    <div style={{ display: "flex", gap: 8, padding: 12, borderTop: "1px solid #e6eef8" }}>
-                      <input value={convInput} onChange={(e) => setConvInput(e.target.value)} placeholder={`Message ${activeConv.clientName}…`} style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid #e2e8f0" }} />
-                      <button onClick={() => {
-                        if (!convInput.trim()) return;
-                        const k = activeConv.key;
-                        const raw = localStorage.getItem(k);
-                        const msgs = raw ? JSON.parse(raw) : [];
-                        const next = [...msgs, { from: "advocate", text: convInput.trim(), t: new Date().toISOString() }];
-                        localStorage.setItem(k, JSON.stringify(next));
-                        setConvMessages(next);
-                        setConvInput("");
-                        // refresh conversations list
-                        setConversations(prev => prev.map(p => p.key === k ? { ...p, lastMsg: next[next.length-1] } : p));
-                      }} style={{ padding: "10px 16px", borderRadius: 8, background: "#2563eb", color: "#fff", border: "none" }}>Send</button>
+                    <div className="ad-message-composer">
+                      <input
+                        value={convInput}
+                        onChange={(e) => setConvInput(e.target.value)}
+                        placeholder={`Message ${activeConv.clientName}…`}
+                        className="ad-chat-input"
+                      />
+                      <button
+                        className="ad-chat-send-btn"
+                        onClick={() => {
+                          if (!convInput.trim()) return;
+                          const k = activeConv.key;
+                          const raw = localStorage.getItem(k);
+                          const msgs = raw ? JSON.parse(raw) : [];
+                          const next = [...msgs, { from: "advocate", text: convInput.trim(), t: new Date().toISOString() }];
+                          localStorage.setItem(k, JSON.stringify(next));
+                          setConvMessages(next);
+                          setConvInput("");
+                          setConversations(prev => prev.map(p => p.key === k ? { ...p, lastMsg: next[next.length - 1] } : p));
+                        }}
+                      >
+                        Send
+                      </button>
                     </div>
                   </>
                 )}
@@ -1037,8 +1105,119 @@ export default function AdvocateDashboard() {
             </div>
           )}
 
-          {/* VIEW: PROFILE & SETTINGS */}
-          {["profile", "settings"].includes(activeNav) && (
+          {/* VIEW: PROFILE */}
+          {activeNav === "profile" && (
+            <div className="ad-fade-in">
+              <div className="ad-card" style={{ padding: "24px" }}>
+                <h2 style={{ marginTop: 0 }}>My Profile</h2>
+                <p style={{ color: "#64748b", marginTop: "4px" }}>Update your public profile. Click Save to persist changes.</p>
+
+                {!profileForm ? (
+                  <div className="ad-empty" style={{ marginTop: 20 }}>Loading profile…</div>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
+                    <div style={{ gridColumn: "1 / 2", display: "flex", flexDirection: "column", gap: 8 }}>
+                      <label className="ad-label">Full name</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.name} onChange={e => setProfileForm({...profileForm, name: e.target.value})} />
+
+                      <label className="ad-label">City</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.city} onChange={e => setProfileForm({...profileForm, city: e.target.value})} />
+
+                      <label className="ad-label">Phone</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone: e.target.value})} />
+
+                      <label className="ad-label">Speciality</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.speciality} onChange={e => setProfileForm({...profileForm, speciality: e.target.value})} />
+
+                      <label className="ad-label">Practice area</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.practiceArea} onChange={e => setProfileForm({...profileForm, practiceArea: e.target.value})} />
+
+                      <label className="ad-label">Court</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.court} onChange={e => setProfileForm({...profileForm, court: e.target.value})} />
+
+                      <label className="ad-label">Bar Council</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.barCouncil} onChange={e => setProfileForm({...profileForm, barCouncil: e.target.value})} />
+
+                      <label className="ad-label">Bar ID</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.barId} onChange={e => setProfileForm({...profileForm, barId: e.target.value})} />
+                    </div>
+
+                    <div style={{ gridColumn: "2 / 3", display: "flex", flexDirection: "column", gap: 8 }}>
+                      <label className="ad-label">Experience</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.experience} onChange={e => setProfileForm({...profileForm, experience: e.target.value})} />
+
+                      <label className="ad-label">Fee</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.fee} onChange={e => setProfileForm({...profileForm, fee: e.target.value})} />
+
+                      <label className="ad-label">Availability</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.availability} onChange={e => setProfileForm({...profileForm, availability: e.target.value})} />
+
+                      <label className="ad-label">Languages (comma separated)</label>
+                      <input className="ad-input" disabled={!isProfileEditing} value={profileForm.languages} onChange={e => setProfileForm({...profileForm, languages: e.target.value})} />
+
+                      <label className="ad-label">Bio</label>
+                      <textarea className="ad-input" rows={6} disabled={!isProfileEditing} value={profileForm.bio} onChange={e => setProfileForm({...profileForm, bio: e.target.value})} />
+
+                      <label className="ad-label">Profile photo</label>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <input type="file" accept="image/*" disabled={!isProfileEditing} onChange={(e) => handleAvatarFileChange(e.target.files && e.target.files[0])} />
+                        {profileForm.avatarData ? (
+                          <img src={profileForm.avatarData} alt="preview" style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover" }} />
+                        ) : (advocate && advocate.avatar) ? (
+                          <img src={assetUrl ? assetUrl(advocate.avatar) : advocate.avatar} alt="avatar" style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover" }} />
+                        ) : (
+                          <div style={{ width: 64, height: 64, borderRadius: 8, background: "#e6eef8", display: "flex", alignItems: "center", justifyContent: "center" }}>{(advocate&&advocate.name||"").split(" ").map(s=>s[0]).slice(0,2).join("")}</div>
+                        )}
+                      </div>
+
+                      <div style={{ display: "flex", gap: 8, marginTop: 12, alignItems: "center" }}>
+                        <button
+                          className="ad-btn-primary"
+                          onClick={async () => {
+                            if (!isProfileEditing) { setIsProfileEditing(true); return; }
+                            await handleSaveProfile();
+                            setIsProfileEditing(false);
+                          }}
+                          disabled={profileSaving}
+                        >
+                          {isProfileEditing ? (profileSaving ? "Saving…" : "Save") : "Edit Profile"}
+                        </button>
+
+                        {isProfileEditing ? (
+                          <button className="ad-btn-secondary" onClick={() => {
+                            // revert local edits
+                            setProfileForm({
+                              name: advocate.name || "",
+                              city: advocate.city || "",
+                              phone: advocate.phone || "",
+                              speciality: advocate.speciality || "",
+                              practiceArea: advocate.practiceArea || "",
+                              court: advocate.court || "",
+                              barCouncil: advocate.barCouncil || "",
+                              barId: advocate.barId || "",
+                              experience: advocate.experience || "",
+                              fee: advocate.fee || "",
+                              availability: advocate.availability || "",
+                              bio: advocate.bio || "",
+                              languages: Array.isArray(advocate.languages) ? advocate.languages.join(", ") : (advocate.languages || ""),
+                              avatarData: null,
+                            });
+                            setIsProfileEditing(false);
+                          }}>Cancel</button>
+                        ) : (
+                          <button className="ad-btn-secondary" onClick={() => setActiveNav("dashboard")}>Return to Dashboard</button>
+                        )}
+                      </div>
+                      {profileMsg && <div style={{ marginTop: 8, color: profileMsg.includes("failed") ? "#991b1b" : "#166534" }}>{profileMsg}</div>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* VIEW: SETTINGS */}
+          {activeNav === "settings" && (
             <div className="ad-fade-in">
               <div className="ad-card" style={{ padding: "40px", textAlign: "center" }}>
                 <div style={{ fontSize: "48px", marginBottom: "16px" }}>

@@ -19,9 +19,27 @@ import { api, getAdminToken, getAdvocateToken, setAdvocateToken } from "./api";
 
 const CACHE_KEY = "law4u_advocates_cache";
 const LEGACY_KEY = "law4u_advocates"; // pre-API store (held plain passwords) — purge it
+const RATINGS_KEY = "law4u_advocate_ratings";
 
 let cache = null;
 const listeners = new Set();
+
+function readRatings() {
+  try {
+    const raw = localStorage.getItem(RATINGS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeRatings(data) {
+  try {
+    localStorage.setItem(RATINGS_KEY, JSON.stringify(data));
+  } catch {
+    // ignore quota issues
+  }
+}
 
 function readCache() {
   try {
@@ -37,6 +55,9 @@ function setCache(list) {
   cache = Array.isArray(list) ? list : [];
   try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch { /* quota */ }
   listeners.forEach((fn) => fn(cache));
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("law4u_advocates_updated"));
+  }
 }
 
 // ── Read (sync, from cache) ──────────────────────────────────
@@ -53,6 +74,57 @@ export function getAdvocateById(id) {
 export function getAdvocateByEmail(email) {
   const e = String(email || "").trim().toLowerCase();
   return getAdvocates().find((a) => String(a.email).toLowerCase() === e) || null;
+}
+
+export function getAdvocateRatingSummary(id) {
+  const advocateId = Number(id);
+  const ratings = readRatings();
+  const record = ratings[advocateId] || { total: 0, count: 0, votes: {} };
+  const baseRating = Number(getAdvocateById(advocateId)?.rating || 0);
+  const avg = record.count ? Number((record.total / record.count).toFixed(1)) : baseRating;
+  return {
+    rating: avg,
+    count: record.count,
+    total: record.total,
+    votes: record.votes || {},
+  };
+}
+
+export function setAdvocateRating(id, clientId, score) {
+  const advocateId = Number(id);
+  const voterId = Number(clientId);
+  const safeScore = Math.min(5, Math.max(1, Number(score) || 1));
+  const ratings = readRatings();
+  const record = ratings[advocateId] || { total: 0, count: 0, votes: {} };
+  const previous = record.votes && Object.prototype.hasOwnProperty.call(record.votes, String(voterId)) ? Number(record.votes[String(voterId)]) : null;
+
+  if (previous !== null) {
+    record.total -= previous;
+  }
+
+  record.votes[String(voterId)] = safeScore;
+  record.total += safeScore;
+  record.count = Object.keys(record.votes).length;
+
+  ratings[advocateId] = record;
+  writeRatings(ratings);
+
+  const updated = getAdvocates();
+  const advocate = updated.find((item) => Number(item.id) === advocateId);
+  if (advocate) {
+    advocate.rating = record.count ? Number((record.total / record.count).toFixed(1)) : 0;
+    advocate.ratingCount = record.count;
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(updated)); } catch {}
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("law4u_advocates_updated"));
+    }
+  }
+
+  return {
+    rating: record.count ? Number((record.total / record.count).toFixed(1)) : 0,
+    count: record.count,
+    votes: record.votes,
+  };
 }
 
 export function subscribeAdvocates(fn) {

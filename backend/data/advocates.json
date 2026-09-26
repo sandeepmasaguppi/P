@@ -9,8 +9,8 @@
     "rating": 4.9,
     "cases": 340,
     "fee": "₹2,500 / consult",
-    "phone": "+91 98765 43210",
-    "email": "priya.sharma@advocateshub.in",
+    "phone": "9876524321",
+    "email": "priya@advocateshub.in",
     "languages": [
       "English",
       "Hindi",
@@ -20,10 +20,10 @@
     "bio": "Handles bail, FIR disputes, and criminal appeals with a strong courtroom record and practical guidance for clients.",
     "avatar": "/uploads/chetan.png",
     "status": "approved",
-    "passwordHash": "scrypt$7b87a70eef8ec86b524ebe7dc9462bf0$79553f04d661a57caf85c6448ede658ce2e2dce0bf0390da6cc07e971f640781bf4c6ca507230712db9b69f939af0a8656272fda2c81e35dfdb7a9976e96aba0",
+    "passwordHash": "scrypt$4d402b98d250e06311bf3347eb55504d$3b411fac0e09cd7866b90d0f7c78ba147572e89f70fc2ebe63f9c5d5e8222005a3d4447f8cf8ea7a2ab7da41a8e689669a2ba63afe8afd2e5642f41949efb82f",
     "court": "",
     "barCouncil": "",
-    "barId": ""
+    "barId": "New4324"
   },
   {
     "id": 2,
@@ -1904,7 +1904,7 @@
   },
   {
     "id": 88,
-    "name": "santosh",
+    "name": "santosh malaji",
     "city": "Gokak",
     "practiceArea": "Banking Law",
     "speciality": "Banking Law",
@@ -1920,7 +1920,7 @@
     "languages": [],
     "availability": "Not available",
     "bio": "jkb",
-    "avatar": "/uploads/santosh-88.jpg",
+    "avatar": "/uploads/santosh-malaji-88.jpg",
     "status": "approved",
     "passwordHash": "scrypt$0bd2fd23b49143a2c38ca331343cc420$a435509400225209063fb419054ea12e70aabe53cf137f63d80e5408b8cc6e944a8521030165752ebbdb3acb00ef3497a471f0a0da6a70c03da6ee311510174a"
   },
@@ -1939,8 +1939,10 @@
     "fee": "1500",
     "phone": "8884393044",
     "email": "chetan@gmail.com",
-    "languages": [],
-    "availability": "Not available",
+    "languages": [
+      "Kannada English"
+    ],
+    "availability": "Available",
     "bio": "HI",
     "avatar": "/uploads/chetan-v-chandaragi-89.jpg",
     "status": "approved",

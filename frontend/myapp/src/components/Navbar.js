@@ -149,10 +149,8 @@ export default function Navbar() {
           <Link to="/signup" className="lw-nav-link" onClick={handleLinkClick}>Lawyer Signup</Link>
           <Link to="/admin" className="lw-nav-link" onClick={handleLinkClick}>Admin</Link>
           <br></br>
-          <Link to="/login" className="lw-btn-login" onClick={handleLinkClick}>Login</Link>
-          <Link to="/client-login" className="lw-btn-login" onClick={handleLinkClick} style={{ marginLeft: 8 }}>Client Login</Link>
-          <br></br>
-          <Link to="/signup" className="lw-btn-register" onClick={handleLinkClick}>Register</Link>
+          <Link to="/login" className="lw-nav-link" onClick={handleLinkClick} style={{ marginLeft: 40 }}>Advocate Login</Link>
+          <Link to="/client-login" className="lw-nav-link" onClick={handleLinkClick}>   Client Login</Link>
         </div>
       </div>
     </nav>
