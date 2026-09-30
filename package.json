@@ -1,0 +1,13 @@
+{
+  "name": "advocates-hub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AdvocatesHub Fullstack Application",
+  "scripts": {
+    "start": "npm start --prefix frontend/myapp",
+    "frontend": "npm start --prefix frontend/myapp",
+    "backend": "node backend/server.js",
+    "server": "node backend/server.js",
+    "build": "npm run build --prefix frontend/myapp"
+  }
+}

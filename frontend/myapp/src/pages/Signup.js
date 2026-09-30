@@ -11,11 +11,19 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerAdvocate } from "../data/Advocatesstore";
 import { registerClient } from "../data/Clientsstore";
+import {
+  COURT_LEVELS,
+  HIGH_COURT_BENCHES,
+  KARNATAKA_DISTRICTS_TALUKS,
+  getDistricts,
+  getTaluksForDistrict,
+  buildTargetCourt,
+} from "../data/CourtsData";
 import "./Signup.css";
 
 // ── Data from JSON ────────────────────────────────────────────
 const CITIES = [
-  // =========================
+  // =====================a====
   // A
   // =========================
   "Afzalpur",
@@ -275,17 +283,11 @@ const PRACTICE_AREAS = [
 ];
 
 const COURTS = [
-  "District Court","High Court","Supreme Court",
-  "Family Court","Consumer Forum","Labour Court",
-  "Civil Court","Criminal Court","Revenue Court",
+  "District Court","High Court","Supreme Court","Taluk Court"
 ];
 
 const BAR_COUNCILS = [
-  "Bar Council of India","Bar Council of Karnataka",
-  "Bar Council of Maharashtra","Bar Council of Delhi",
-  "Bar Council of Tamil Nadu","Bar Council of Telangana",
-  "Bar Council of Kerala","Bar Council of Gujarat",
-  "Bar Council of Rajasthan","Bar Council of UP",
+  "Bar Council of India","Bar Council of Karnataka"
 ];
 
 const EXPERIENCE_YEARS = [
@@ -459,10 +461,164 @@ export default function Signup() {
   // ── Advocate form ─────────────────────────────────────────
   const [adv, setAdv] = useState({
     fullName:"", email:"", phone:"", password:"", confirmPw:"",
-    barId:"", speciality:"", court:"", barCouncil:"",
+    barId:"", speciality:"", specialities:[],
+    courtLevel:"", district:"", taluk:"", bench:"", court:"",
+    barCouncil:"",
     experience:"", city:"", fee:"", bio:"", avatarData:"", agreeTerms: false,
   });
   const [advErr, setAdvErr] = useState({});
+  const [customArea, setCustomArea] = useState("");
+
+  const handleCourtLevelChange = (level) => {
+    setAdv(prev => {
+      let nextDistrict = prev.district;
+      let nextTaluk = prev.taluk;
+      let nextBench = prev.bench;
+      let nextCity = prev.city;
+
+      if (level === "Supreme Court") {
+        nextDistrict = "New Delhi";
+        nextTaluk = "New Delhi";
+        nextBench = "";
+        nextCity = "New Delhi";
+      } else if (level === "High Court") {
+        nextDistrict = "";
+        nextTaluk = "";
+        if (!nextBench) nextBench = HIGH_COURT_BENCHES[0];
+        nextCity = nextBench.includes("Dharwad") ? "Dharwad" : (nextBench.includes("Kalaburagi") ? "Kalaburagi" : "Bengaluru");
+      } else {
+        nextBench = "";
+        if (nextDistrict === "New Delhi") nextDistrict = "";
+        if (nextTaluk === "New Delhi") nextTaluk = "";
+      }
+
+      const computedCourt = buildTargetCourt({
+        courtLevel: level,
+        district: nextDistrict,
+        taluk: nextTaluk,
+        bench: nextBench,
+      });
+
+      return {
+        ...prev,
+        courtLevel: level,
+        district: nextDistrict,
+        taluk: nextTaluk,
+        bench: nextBench,
+        court: computedCourt,
+        city: nextCity || nextTaluk || nextDistrict || prev.city,
+      };
+    });
+    setAdvErr(p => ({ ...p, courtLevel: "", court: "", district: "", taluk: "" }));
+  };
+
+  const handleDistrictChange = (dist) => {
+    setAdv(prev => {
+      const taluks = getTaluksForDistrict(dist);
+      const nextTaluk = taluks.includes(prev.taluk) ? prev.taluk : (taluks.length > 0 ? taluks[0] : "");
+      const nextCity = nextTaluk || dist || "";
+      const computedCourt = buildTargetCourt({
+        courtLevel: prev.courtLevel,
+        district: dist,
+        taluk: nextTaluk,
+        bench: prev.bench,
+      });
+      return {
+        ...prev,
+        district: dist,
+        taluk: nextTaluk,
+        court: computedCourt,
+        city: nextCity,
+      };
+    });
+    setAdvErr(p => ({ ...p, district: "", court: "" }));
+  };
+
+  const handleTalukChange = (tlk) => {
+    setAdv(prev => {
+      const computedCourt = buildTargetCourt({
+        courtLevel: prev.courtLevel,
+        district: prev.district,
+        taluk: tlk,
+        bench: prev.bench,
+      });
+      return {
+        ...prev,
+        taluk: tlk,
+        court: computedCourt,
+        city: tlk || prev.district || prev.city,
+      };
+    });
+    setAdvErr(p => ({ ...p, taluk: "", court: "" }));
+  };
+
+  const handleBenchChange = (bnch) => {
+    setAdv(prev => {
+      const computedCourt = buildTargetCourt({
+        courtLevel: prev.courtLevel,
+        district: prev.district,
+        taluk: prev.taluk,
+        bench: bnch,
+      });
+      const nextCity = bnch.includes("Dharwad") ? "Dharwad" : (bnch.includes("Kalaburagi") ? "Kalaburagi" : "Bengaluru");
+      return {
+        ...prev,
+        bench: bnch,
+        court: computedCourt,
+        city: nextCity,
+      };
+    });
+    setAdvErr(p => ({ ...p, court: "" }));
+  };
+
+  const handleTogglePracticeArea = (area) => {
+    if (!area) return;
+    setAdv(prev => {
+      const current = Array.isArray(prev.specialities) && prev.specialities.length > 0
+        ? prev.specialities
+        : (prev.speciality ? prev.speciality.split(/,\s*/).map(s => s.trim()).filter(Boolean) : []);
+      const exists = current.includes(area);
+      const next = exists ? current.filter(x => x !== area) : [...current, area];
+      return {
+        ...prev,
+        specialities: next,
+        speciality: next.join(", "),
+      };
+    });
+    setAdvErr(p => ({ ...p, speciality: "" }));
+  };
+
+  const handleAddCustomPracticeArea = (customName) => {
+    const trimmed = (customName || "").trim();
+    if (!trimmed) return;
+    setAdv(prev => {
+      const current = Array.isArray(prev.specialities) && prev.specialities.length > 0
+        ? prev.specialities
+        : (prev.speciality ? prev.speciality.split(/,\s*/).map(s => s.trim()).filter(Boolean) : []);
+      if (current.some(x => x.toLowerCase() === trimmed.toLowerCase())) return prev;
+      const next = [...current, trimmed];
+      return {
+        ...prev,
+        specialities: next,
+        speciality: next.join(", "),
+      };
+    });
+    setAdvErr(p => ({ ...p, speciality: "" }));
+  };
+
+  const handleRemovePracticeArea = (area) => {
+    setAdv(prev => {
+      const current = Array.isArray(prev.specialities) && prev.specialities.length > 0
+        ? prev.specialities
+        : (prev.speciality ? prev.speciality.split(/,\s*/).map(s => s.trim()).filter(Boolean) : []);
+      const next = current.filter(x => x !== area);
+      return {
+        ...prev,
+        specialities: next,
+        speciality: next.join(", "),
+      };
+    });
+  };
 
   // Auto-dismiss toast
   useEffect(() => {
@@ -502,18 +658,29 @@ export default function Signup() {
 
   // ── Fill from JSON advocate ───────────────────────────────
   const fillAdvocate = (a) => {
+    const specs = a.speciality
+      ? a.speciality.split(/,\s*|&\s*/).map(s => s.trim()).filter(Boolean)
+      : [];
+    const courtLevel = a.courtLevel || (a.court?.includes("High Court") ? "High Court" : (a.court?.includes("Supreme Court") ? "Supreme Court" : "Taluk / JMFC / Civil Court"));
+    const district = a.district || (a.city && KARNATAKA_DISTRICTS_TALUKS[a.city] ? a.city : "Belagavi");
+    const taluk = a.taluk || a.city || "Gokak";
+    const computedCourt = a.court || buildTargetCourt({ courtLevel, district, taluk });
     setAdv(p => ({
       ...p,
-      fullName:   a.name,
-      email:      a.email,
-      phone:      a.phone,
-      city:       a.city,
-      speciality: a.speciality,
-      experience: a.experience,
-      barId:      a.barId,
-      court:      a.court,
-      fee:        a.fee,
-      bio:        a.bio,
+      fullName:     a.name,
+      email:        a.email,
+      phone:        a.phone,
+      city:         a.city || taluk || district,
+      speciality:   a.speciality,
+      specialities: specs.length > 0 ? specs : [a.speciality].filter(Boolean),
+      experience:   a.experience,
+      barId:        a.barId,
+      courtLevel,
+      district,
+      taluk,
+      court:        computedCourt,
+      fee:          a.fee,
+      bio:          a.bio,
     }));
     setAdvErr({});
     setShowDemoAdvocates(false);
@@ -545,9 +712,21 @@ export default function Signup() {
     if (!adv.phone.trim())          e.phone     = "Phone is required";
     else if (!isValidPhone(adv.phone)) e.phone  = "Enter valid 10-digit phone";
     if (!adv.barId.trim())          e.barId     = "Bar enrollment number is required";
-    if (!adv.speciality)            e.speciality = "Select a practice area";
-    if (!adv.court)                 e.court      = "Select primary court";
-    if (!adv.city)                  e.city       = "Select your city";
+    
+    const specsList = (adv.specialities && adv.specialities.length > 0)
+      ? adv.specialities
+      : (adv.speciality ? adv.speciality.split(/,\s*/).map(s => s.trim()).filter(Boolean) : []);
+    if (specsList.length === 0)     e.speciality = "Please select or add at least 1 practice area";
+    
+    if (!adv.courtLevel)            e.courtLevel = "Select level of court";
+    if (adv.courtLevel !== "Supreme Court" && adv.courtLevel !== "High Court" && !adv.district) {
+      e.district = "Select district";
+    }
+    if ((adv.courtLevel === "Taluk / JMFC / Civil Court" || adv.courtLevel === "Revenue Court / Land Tribunal") && !adv.taluk) {
+      e.taluk = "Select taluk";
+    }
+    if (!adv.court)                 e.court      = "Target court is required";
+    if (!adv.city && !adv.taluk && !adv.district) e.city = "City or district is required";
     if (!adv.avatarData)            e.avatarData  = "Profile image is required";
     if (!adv.password)              e.password   = "Password is required";
     else if (adv.password.length<6) e.password   = "Min 6 characters";
@@ -586,21 +765,30 @@ export default function Signup() {
 
         } else {
           const emailLower = adv.email.trim().toLowerCase();
+          const specsList = (adv.specialities && adv.specialities.length > 0)
+            ? adv.specialities
+            : (adv.speciality ? adv.speciality.split(/,\s*/).map(s => s.trim()).filter(Boolean) : []);
+          const finalSpeciality = specsList.join(", ");
 
           await registerAdvocate({
-            name:       adv.fullName.trim(),
-            email:      emailLower,
-            password:   adv.password,
-            phone:      adv.phone.trim(),
-            barId:      adv.barId.trim(),
-            speciality: adv.speciality,
-            court:      adv.court,
-            barCouncil: adv.barCouncil,
-            experience: adv.experience,
-            city:       adv.city,
-            fee:        adv.fee || "Not specified",
-            bio:        adv.bio,
-            avatarData: adv.avatarData, // stored server-side; status starts as "pending"
+            name:          adv.fullName.trim(),
+            email:         emailLower,
+            password:      adv.password,
+            phone:         adv.phone.trim(),
+            barId:         adv.barId.trim(),
+            speciality:    finalSpeciality,
+            practiceArea:  finalSpeciality,
+            practiceAreas: specsList,
+            courtLevel:    adv.courtLevel,
+            district:      adv.district,
+            taluk:         adv.taluk,
+            court:         adv.court,
+            barCouncil:    adv.barCouncil,
+            experience:    adv.experience,
+            city:          adv.city || adv.taluk || adv.district,
+            fee:           adv.fee || "",
+            bio:           adv.bio,
+            avatarData:    adv.avatarData, // stored server-side; status starts as "pending"
           });
 
           setSuccessName(adv.fullName);
@@ -811,47 +999,384 @@ export default function Signup() {
               </Field>
             </div>
 
-            <div className="su-grid-2">
-              <Field label="Primary Practice Area" required error={advErr.speciality}>
-                <Select icon="⚖️" value={adv.speciality} onChange={e => setA("speciality", e.target.value)}
-                  error={advErr.speciality} disabled={loading}>
-                  <option value="">Select speciality</option>
-                  {PRACTICE_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
-                </Select>
-              </Field>
+            {/* 1. Primary Practice Area(s) & Fields of Expertise — 1 or more with Add & Show */}
+            <div className="su-field" style={{ marginBottom: 6 }}>
+              <label className="su-label" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
+                <span style={{ fontWeight: 700, color: "#1e293b", fontSize: 13.5 }}>
+                  Practice Area &amp; Fields of Expertise <span className="su-req">*</span>
+                </span>
+                {adv.specialities && adv.specialities.length > 0 && (
+                  <span style={{ fontSize: 12, color: "#166534", background: "#dcfce7", padding: "2px 8px", borderRadius: 12, fontWeight: 700, border: "1px solid #bbf7d0" }}>
+                    ✓ {adv.specialities.length} {adv.specialities.length === 1 ? "field selected" : "fields selected"}
+                  </span>
+                )}
+              </label>
 
-              <Field label="Primary Court" required error={advErr.court}>
-                <Select icon="🏛️" value={adv.court} onChange={e => setA("court", e.target.value)}
-                  error={advErr.court} disabled={loading}>
-                  <option value="">Select court</option>
-                  {COURTS.map(c => <option key={c} value={c}>{c}</option>)}
-                </Select>
-              </Field>
+              {/* Selected practice areas displayed as interactive tags */}
+              {adv.specialities && adv.specialities.length > 0 ? (
+                <div style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 8,
+                  margin: "4px 0 10px 0",
+                  background: "#f8fafc",
+                  padding: "12px 14px",
+                  borderRadius: 12,
+                  border: "1px solid #e2e8f0",
+                  boxShadow: "inset 0 1px 2px rgba(0,0,0,0.03)"
+                }}>
+                  <div style={{ width: "100%", fontSize: 11.5, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
+                    Selected Fields of Expertise (Click ✕ to remove):
+                  </div>
+                  {adv.specialities.map((item) => (
+                    <span
+                      key={item}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        background: "linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)",
+                        color: "#ffffff",
+                        padding: "6px 14px",
+                        borderRadius: 20,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        boxShadow: "0 2px 4px rgba(30, 58, 138, 0.2)",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      <span>⚖️ {item}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePracticeArea(item)}
+                        style={{
+                          background: "rgba(255,255,255,0.22)",
+                          border: "none",
+                          color: "#ffffff",
+                          borderRadius: "50%",
+                          width: 18,
+                          height: 18,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          fontSize: 11,
+                          lineHeight: 1,
+                          padding: 0,
+                          fontWeight: 700,
+                        }}
+                        title={`Remove ${item}`}
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <div style={{
+                  padding: "10px 14px",
+                  background: "#f8fafc",
+                  border: "1px dashed #cbd5e1",
+                  borderRadius: 10,
+                  fontSize: 12.5,
+                  color: "#64748b",
+                  marginBottom: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}>
+                  <span>ℹ️</span>
+                  <span>No practice areas selected yet. Pick from the list below or add a custom field.</span>
+                </div>
+              )}
+
+              {/* Selector and Custom Add Row */}
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <div style={{ flex: "1 1 240px" }}>
+                  <Select
+                    icon="⚖️"
+                    value=""
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleTogglePracticeArea(e.target.value);
+                      }
+                    }}
+                    error={advErr.speciality}
+                    disabled={loading}
+                  >
+                    <option value="">+ Choose Practice Area to add…</option>
+                    {PRACTICE_AREAS.filter(a => !(adv.specialities || []).includes(a)).map(a => (
+                      <option key={a} value={a}>{a}</option>
+                    ))}
+                  </Select>
+                </div>
+
+                <div style={{ display: "flex", gap: 6, flex: "1 1 240px" }}>
+                  <input
+                    type="text"
+                    placeholder="Or type custom expertise (e.g. RERA, NCLT)"
+                    value={customArea}
+                    onChange={(e) => setCustomArea(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (customArea.trim()) {
+                          handleAddCustomPracticeArea(customArea);
+                          setCustomArea("");
+                        }
+                      }
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: "9px 12px",
+                      borderRadius: 10,
+                      border: "1px solid #cbd5e1",
+                      fontSize: 13,
+                      background: "#f8fafc",
+                    }}
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    className="su-btn-secondary"
+                    onClick={() => {
+                      if (customArea.trim()) {
+                        handleAddCustomPracticeArea(customArea);
+                        setCustomArea("");
+                      }
+                    }}
+                    style={{ padding: "8px 16px", fontSize: 13, whiteSpace: "nowrap", borderRadius: 10, fontWeight: 600 }}
+                    disabled={loading}
+                  >
+                    + Add Field
+                  </button>
+                </div>
+              </div>
+
+              {advErr.speciality && <p className="su-field-err" style={{ marginTop: 6 }}>⚠ {advErr.speciality}</p>}
+            </div>
+
+            {/* ── 3 Dependent Court & Jurisdiction Sections ──────────────── */}
+            <div style={{
+              background: "#ffffff",
+              border: "1px solid #cbd5e1",
+              borderLeft: "5px solid #2563eb",
+              borderRadius: 14,
+              padding: "18px 20px",
+              margin: "12px 0 18px 0",
+              boxShadow: "0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03)",
+            }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                gap: 8,
+                marginBottom: 6,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 20 }}>🏛️</span>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: "#0f172a" }}>
+                      Court Hierarchy &amp; Jurisdiction
+                    </div>
+                    <div style={{ fontSize: 12, color: "#64748b" }}>
+                      Select the 3 levels below — Target Court is determined automatically
+                    </div>
+                  </div>
+                </div>
+                <span style={{
+                  fontSize: 11,
+                  background: "#eff6ff",
+                  color: "#1d4ed8",
+                  padding: "4px 12px",
+                  borderRadius: 20,
+                  fontWeight: 700,
+                  border: "1px solid #bfdbfe",
+                }}>
+                  3 Dependent Steps
+                </span>
+              </div>
+
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                gap: 12,
+                marginTop: 14,
+              }}>
+                {/* 1st Section: Level of Court */}
+                <Field label="Step 1: Level of Court" required error={advErr.courtLevel}>
+                  <Select
+                    icon="⚖️"
+                    value={adv.courtLevel}
+                    onChange={(e) => handleCourtLevelChange(e.target.value)}
+                    error={advErr.courtLevel}
+                    disabled={loading}
+                  >
+                    <option value="">-- Choose Court Level --</option>
+                    {COURT_LEVELS.map((lvl) => (
+                      <option key={lvl} value={lvl}>{lvl}</option>
+                    ))}
+                  </Select>
+                </Field>
+
+                {/* Conditional Branch for High Court / Supreme Court or District + Taluk */}
+                {adv.courtLevel === "High Court" ? (
+                  <div style={{ gridColumn: "span 2" }}>
+                    <Field label="Step 2: High Court Bench" required>
+                      <Select
+                        icon="🏛️"
+                        value={adv.bench || HIGH_COURT_BENCHES[0]}
+                        onChange={(e) => handleBenchChange(e.target.value)}
+                        disabled={loading}
+                      >
+                        {HIGH_COURT_BENCHES.map((b) => (
+                          <option key={b} value={b}>{b}</option>
+                        ))}
+                      </Select>
+                    </Field>
+                  </div>
+                ) : adv.courtLevel === "Supreme Court" ? (
+                  <div style={{ gridColumn: "span 2" }}>
+                    <Field label="Step 2: Jurisdiction &amp; Location">
+                      <Input
+                        icon="📍"
+                        value="Supreme Court of India (New Delhi)"
+                        readOnly
+                        disabled
+                        style={{ background: "#f8fafc", color: "#334155", fontWeight: 600 }}
+                      />
+                    </Field>
+                  </div>
+                ) : (
+                  <>
+                    {/* 2nd Section: District */}
+                    <Field label="Step 2: District" required error={advErr.district}>
+                      <Select
+                        icon="🗺️"
+                        value={adv.district}
+                        onChange={(e) => handleDistrictChange(e.target.value)}
+                        error={advErr.district}
+                        disabled={loading}
+                      >
+                        <option value="">-- Select District --</option>
+                        {getDistricts().map((d) => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
+                      </Select>
+                    </Field>
+
+                    {/* 3rd Section: Taluk (Dependent on District) */}
+                    <Field
+                      label="Step 3: Taluk"
+                      required={adv.courtLevel === "Taluk / JMFC / Civil Court" || adv.courtLevel === "Revenue Court / Land Tribunal"}
+                      error={advErr.taluk}
+                      hint={!adv.district ? "Choose district first" : undefined}
+                    >
+                      <Select
+                        icon="📍"
+                        value={adv.taluk}
+                        onChange={(e) => handleTalukChange(e.target.value)}
+                        error={advErr.taluk}
+                        disabled={loading || !adv.district}
+                      >
+                        <option value="">
+                          {!adv.district ? "Select District first" : "-- Select Taluk --"}
+                        </option>
+                        {getTaluksForDistrict(adv.district).map((t) => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </Select>
+                    </Field>
+                  </>
+                )}
+              </div>
+
+              {/* Target Court Output Banner — Only what was selected! */}
+              {adv.court ? (
+                <div style={{
+                  marginTop: 14,
+                  background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
+                  border: "1px solid #86efac",
+                  borderRadius: 12,
+                  padding: "12px 16px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#166534", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+                      🎯 Target Court Jurisdiction (Selected &amp; Linked)
+                    </div>
+                    <span style={{ fontSize: 11.5, background: "#dcfce7", color: "#15803d", padding: "2px 8px", borderRadius: 12, fontWeight: 700 }}>
+                      ✓ Verified Jurisdiction
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: 15, fontWeight: 800, color: "#0f172a" }}>
+                    🏛️ {adv.court}
+                  </div>
+
+                  {/* Summary Chips: ONLY what is selected! */}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 2 }}>
+                    {adv.courtLevel && (
+                      <span style={{ fontSize: 12, background: "#ffffff", color: "#1e3a8a", padding: "3px 10px", borderRadius: 16, fontWeight: 600, border: "1px solid #bfdbfe" }}>
+                        ⚖️ Level: <strong>{adv.courtLevel}</strong>
+                      </span>
+                    )}
+                    {adv.district && (
+                      <span style={{ fontSize: 12, background: "#ffffff", color: "#065f46", padding: "3px 10px", borderRadius: 16, fontWeight: 600, border: "1px solid #a7f3d0" }}>
+                        🗺️ District: <strong>{adv.district}</strong>
+                      </span>
+                    )}
+                    {adv.taluk && (
+                      <span style={{ fontSize: 12, background: "#ffffff", color: "#7c2d12", padding: "3px 10px", borderRadius: 16, fontWeight: 600, border: "1px solid #fed7aa" }}>
+                        📍 Taluk: <strong>{adv.taluk}</strong>
+                      </span>
+                    )}
+                    {adv.city && (
+                      <span style={{ fontSize: 12, background: "#ffffff", color: "#475569", padding: "3px 10px", borderRadius: 16, fontWeight: 600, border: "1px solid #cbd5e1" }}>
+                        🏙️ Base Location: <strong>{adv.city}</strong>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div style={{
+                  marginTop: 12,
+                  padding: "10px 14px",
+                  background: "#f8fafc",
+                  border: "1px dashed #cbd5e1",
+                  borderRadius: 10,
+                  fontSize: 12.5,
+                  color: "#64748b",
+                }}>
+                  👉 Please choose <strong>Level of Court</strong> and <strong>District</strong> above to set the target court jurisdiction.
+                </div>
+              )}
+
+              {advErr.court && <p className="su-field-err" style={{ marginTop: 6 }}>⚠ {advErr.court}</p>}
             </div>
 
             <div className="su-grid-2">
+              <Field label="City / Location Name" required error={advErr.city} hint="Auto-filled from Taluk/District or customize">
+                <Input
+                  icon="📍"
+                  placeholder="e.g. Gokak, Belagavi"
+                  value={adv.city}
+                  onChange={(e) => setA("city", e.target.value)}
+                  error={advErr.city}
+                  disabled={loading}
+                />
+              </Field>
+
               <Field label="Years of Experience" error={advErr.experience}>
-                <Select icon="📅" value={adv.experience} onChange={e => setA("experience", e.target.value)} disabled={loading}>
+                <Select icon="📅" value={adv.experience} onChange={(e) => setA("experience", e.target.value)} disabled={loading}>
                   <option value="">Select experience</option>
-                  {EXPERIENCE_YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-                </Select>
-              </Field>
-
-              <Field label="City / Location" required error={advErr.city}>
-                <Select icon="📍" value={adv.city} onChange={e => setA("city", e.target.value)}
-                  error={advErr.city} disabled={loading}>
-                  <option value="">Select city</option>
-                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {EXPERIENCE_YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
                 </Select>
               </Field>
             </div>
-
-            <Field label="Consultation Fee" error={advErr.fee}
-              hint="e.g. ₹1500/hr or ₹500/consultation">
-              <Input icon="💰" placeholder="e.g. ₹2000/hr"
-                value={adv.fee} onChange={e => setA("fee", e.target.value)}
-                disabled={loading} />
-            </Field>
 
             <Field label="Short Bio" error={advErr.bio}
               hint="A brief description about your expertise (max 300 chars)">

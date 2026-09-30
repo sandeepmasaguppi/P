@@ -260,7 +260,15 @@ export default function Profile() {
               <div>
                 <h1 className="lw-profile-name">{advocate.name}</h1>
                 <div className="lw-profile-spec">{advocate.speciality}</div>
-                <div className="lw-profile-meta">{advocate.city} · {advocate.experience} Experience</div>
+                <div className="lw-profile-meta" style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginTop: 4 }}>
+                  <span>📍 {advocate.city}</span>
+                  {advocate.experience && <span>· {advocate.experience} Experience</span>}
+                  {advocate.court && (
+                    <span style={{ background: "rgba(255,255,255,0.25)", color: "#ffffff", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
+                      🏛️ {advocate.court}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -272,21 +280,50 @@ export default function Profile() {
             <div className="lw-profile-stats-grid">
               <div className="lw-stat-box">
                 <span className="lw-stat-title">Rating</span>
-                <span className="lw-stat-value">⭐ {advocate.rating}</span>
+                <span className="lw-stat-value">⭐ {advocate.rating || 5.0}</span>
               </div>
               <div className="lw-stat-box">
                 <span className="lw-stat-title">Cases Handled</span>
-                <span className="lw-stat-value">{advocate.cases}+</span>
+                <span className="lw-stat-value">{advocate.cases ? `${advocate.cases}+` : "100+"}</span>
               </div>
               <div className="lw-stat-box">
-                <span className="lw-stat-title">Consultation Fee</span>
-                <span className="lw-stat-value">{advocate.fee}</span>
+                <span className="lw-stat-title">Experience</span>
+                <span className="lw-stat-value">{advocate.experience || "5+ Years"}</span>
               </div>
               <div className="lw-stat-box">
-                <span className="lw-stat-title">Availability</span>
-                <span className="lw-stat-value">{advocate.availability}</span>
+                <span className="lw-stat-title">Location</span>
+                <span className="lw-stat-value">{advocate.district || advocate.city || "Karnataka"}</span>
               </div>
             </div>
+
+            {/* Court Jurisdiction Section */}
+            {(advocate.court || advocate.courtLevel || advocate.district) && (
+              <div className="lw-profile-section">
+                <h3 className="lw-profile-subtitle">Court Jurisdiction</h3>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 13 }}>
+                  {advocate.court && (
+                    <div style={{ background: "#eff6ff", color: "#1e40af", padding: "6px 14px", borderRadius: 10, fontWeight: 700, border: "1px solid #bfdbfe" }}>
+                      🏛️ Court: {advocate.court}
+                    </div>
+                  )}
+                  {advocate.courtLevel && (
+                    <div style={{ background: "#f8fafc", color: "#334155", padding: "6px 14px", borderRadius: 10, fontWeight: 600, border: "1px solid #e2e8f0" }}>
+                      ⚖️ Level: {advocate.courtLevel}
+                    </div>
+                  )}
+                  {advocate.district && (
+                    <div style={{ background: "#f8fafc", color: "#334155", padding: "6px 14px", borderRadius: 10, fontWeight: 600, border: "1px solid #e2e8f0" }}>
+                      🗺️ District: {advocate.district}
+                    </div>
+                  )}
+                  {advocate.taluk && (
+                    <div style={{ background: "#f8fafc", color: "#334155", padding: "6px 14px", borderRadius: 10, fontWeight: 600, border: "1px solid #e2e8f0" }}>
+                      📍 Taluk: {advocate.taluk}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* About Section */}
             <div className="lw-profile-section">

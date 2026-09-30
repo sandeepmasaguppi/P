@@ -39,9 +39,9 @@ function AdvocateDetails({ advocate }) {
 
       <div className="tta-summary">
         <div><small>Rating</small><strong>⭐ {advocate.rating}</strong></div>
-        <div><small>Cases</small><strong>{advocate.cases}</strong></div>
-        <div><small>Fee</small><strong>{advocate.fee}</strong></div>
-        <div><small>Availability</small><strong>{advocate.availability}</strong></div>
+        <div><small>Cases</small><strong>{advocate.cases ? `${advocate.cases}+` : "100+"}</strong></div>
+        <div><small>Experience</small><strong>{advocate.experience || "5+ Years"}</strong></div>
+        <div><small>Location</small><strong>{advocate.district || advocate.city || "Karnataka"}</strong></div>
       </div>
 
       <p className="tta-bio">{advocate.bio}</p>

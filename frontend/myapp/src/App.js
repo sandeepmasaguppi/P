@@ -7,6 +7,8 @@ import Profile from './pages/Profile';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import ClientLogin from './pages/clientlogin';
+import ClientMainPage from './pages/clientmainpage';
+import ClarityGuide from './pages/ClarityGuide';
 import AdvocateDashboard from './pages/AdvocateDashboard';
 import ClientDashboard from './pages/ClientDashboard';
 import AdvocatesList from './pages/AdvocatesList';
@@ -21,6 +23,7 @@ import BareActs from "./pages/BareActs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermOfUse";
 import TalkToAdvocate from "./pages/TalkToAdvocate";
+import Chatbot from "./pages/Chatbot";
 
 function App() {
   const location = useLocation();
@@ -53,10 +56,14 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/client-login" element={<ClientLogin />} />
+        <Route path="/client-main" element={<ClientMainPage />} />
+        <Route path="/client-mainpage" element={<ClientMainPage />} />
+        <Route path="/clarity-guide" element={<ClarityGuide />} />
         <Route path="/client-dashboard" element={<ClientDashboard />} />
         <Route path="/advocate-dashboard" element={<AdvocateDashboard />} />
         <Route path="/download" element={<div style={{padding: "100px"}}>Download Apps Page Content</div>} />
       </Routes>
+      <Chatbot />
     </div>
   );
 }

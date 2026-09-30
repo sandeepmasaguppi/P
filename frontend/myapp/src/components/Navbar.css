@@ -1,74 +1,238 @@
-/* ============================================================
-   Navbar.css — Advocates Hub Navigation Stylesheet
-   Supports: Desktop, Laptops, Tablets, and Mobile Phones
-   ============================================================ */
+/* ==========================================================================
+   Navbar.css — Law4u / Advocates Hub
+   Full-width navigation · English + Kannada · desktop hover menus · mobile drawer
+   ========================================================================== */
 
-/* ── Global Box-Sizing Reset ── */
-*, 
-*::before, 
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;500;600;700&display=swap");
 
-/* ============================================================
-   1. Base Navbar Layout & Container (.lw-navbar)
-   ============================================================ */
+/* --------------------------------------------------------------------------
+   Tokens
+   -------------------------------------------------------------------------- */
 .lw-navbar {
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  --lw-green-900: #0b2b28;
+  --lw-green-800: #0f3d39;
+  --lw-green-700: #17524c;
+  --lw-brass-600: #a97722;
+  --lw-brass-500: #c08a2c;
+  --lw-brass-100: #f6ecd6;
+  --lw-ink: #17201f;
+  --lw-ink-soft: #55625f;
+  --lw-line: #e2e7e4;
+  --lw-surface: #ffffff;
+  --lw-surface-tint: #f5f8f6;
+
+  --lw-font: "Manrope", "Noto Sans Kannada", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --lw-radius: 10px;
+  --lw-shadow: 0 18px 40px -12px rgba(11, 43, 40, 0.28), 0 2px 6px rgba(11, 43, 40, 0.08);
+  --lw-bp: 991px; /* documentation only — media queries below use this value */
+
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   width: 100%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--lw-font);
+  color: var(--lw-ink);
+  background: var(--lw-surface);
+  box-sizing: border-box;
 }
 
-.lw-nav-inner {
-  max-width: 1280px;
-  margin: 0 auto;
+.lw-navbar *,
+.lw-navbar *::before,
+.lw-navbar *::after {
+  box-sizing: border-box;
+}
+
+.lw-navbar a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.lw-navbar button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Keyboard focus — visible everywhere */
+.lw-navbar a:focus-visible,
+.lw-navbar button:focus-visible {
+  outline: 2px solid var(--lw-brass-500);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   Top utility strip
+   -------------------------------------------------------------------------- */
+.lw-nav-top-strip {
+  width: 100%;
+  background: var(--lw-green-900);
+  color: #e8efec;
+  font-size: 0.8rem;
+}
+
+.lw-nav-top-inner {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 clamp(16px, 3vw, 40px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 0 24px;
-  height: 64px;
-  position: relative;
 }
 
-/* ============================================================
-   2. Branding & Logo Styles (.lw-logo)
-   ============================================================ */
-.lw-logo {
+.lw-nav-top-left {
+  min-width: 0;
+}
+
+.lw-nav-top-tagline {
+  display: block;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lw-nav-top-right {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-shrink: 0;
+}
+
+/* Auth links in the strip */
+.lw-nav-top-auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lw-top-auth-link {
+  font-weight: 600;
+  padding: 4px 0;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.lw-top-auth-link:hover {
+  color: #f3d79a;
+  border-bottom-color: #f3d79a;
+}
+
+.lw-top-auth-sep {
+  opacity: 0.35;
+}
+
+/* --------------------------------------------------------------------------
+   Language switcher
+   -------------------------------------------------------------------------- */
+.lw-nav-lang {
   display: flex;
   align-items: center;
   gap: 10px;
-  text-decoration: none;
-  flex-shrink: 0;
-  transition: opacity 0.2s ease;
 }
 
-.lw-logo:hover {
-  opacity: 0.9;
+.lw-nav-lang-label {
+  font-weight: 500;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.lw-nav-lang-pills {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+}
+
+.lw-nav-lang-pill {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lw-nav-lang-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.lw-nav-lang-pill.active {
+  background: var(--lw-brass-500);
+  color: #1b1405;
+}
+
+/* Only one switcher is visible at a time */
+.lw-nav-lang-mobile {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Main bar
+   -------------------------------------------------------------------------- */
+.lw-nav-inner {
+  position: relative;
+  width: 100%;
+  min-height: 68px;
+  padding: 0 clamp(16px, 3vw, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: var(--lw-surface);
+  border-bottom: 1px solid var(--lw-line);
+  box-shadow: 0 1px 0 rgba(11, 43, 40, 0.03);
+}
+
+/* Logo */
+.lw-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .lw-logo-tagline {
-  font-size: 13px;
-  color: #6b7280;
-  margin-left: 6px;
-  font-weight: 400;
-  border-left: 1px solid #d1d5db;
-  padding-left: 8px;
+  padding-left: 12px;
+  border-left: 2px solid var(--lw-brass-500);
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--lw-ink-soft);
+  max-width: 110px;
 }
 
-/* ============================================================
-   3. Navigation Links Container (.lw-nav-links)
-   ============================================================ */
+/* Hamburger — hidden on desktop */
+.lw-menu-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--lw-green-800);
+  background: var(--lw-surface-tint);
+  border: 1px solid var(--lw-line);
+  border-radius: var(--lw-radius);
+  transition: background 0.15s ease;
+}
+
+.lw-menu-toggle:hover {
+  background: var(--lw-brass-100);
+}
+
+/* --------------------------------------------------------------------------
+   Nav links (desktop)
+   -------------------------------------------------------------------------- */
 .lw-nav-links {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
   flex: 1;
 }
@@ -78,121 +242,257 @@
 }
 
 .lw-nav-link {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-  font-size: 14px;
-  color: #374151;
-  text-decoration: none;
-  border: none;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 0.93rem;
+  font-weight: 600;
+  color: var(--lw-ink);
   background: transparent;
-  cursor: pointer;
-  border-radius: 6px;
-  font-family: inherit;
-  font-weight: 500;
+  border: 0;
+  border-radius: var(--lw-radius);
   white-space: nowrap;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
-.lw-nav-link:hover, 
-.lw-nav-link.active {
-  color: #2563eb;
-  background-color: #eff6ff;
-}
-
-.lw-arrow {
-  font-size: 10px;
-  margin-top: 1px;
+/* Brass underline that answers hover / open state */
+.lw-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 4px;
+  height: 2px;
+  background: var(--lw-brass-500);
+  transform: scaleX(0);
+  transform-origin: left;
   transition: transform 0.2s ease;
 }
 
-/* ============================================================
-   4. Desktop Authentication Section (.lw-nav-auth)
-   ============================================================ */
-.lw-nav-auth {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-  align-items: center;
+.lw-nav-link:hover,
+.lw-nav-link.active {
+  color: var(--lw-green-800);
 }
 
-.lw-btn-login {
-  padding: 7px 18px;
-  border-radius: 6px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #2563eb;
-  border: 1.5px solid #2563eb;
-  background-color: #ffffff;
-  text-decoration: none;
-  transition: all 0.15s ease;
-  text-align: center;
-  cursor: pointer;
-  white-space: nowrap;
+.lw-nav-link:hover::after,
+.lw-nav-link.active::after {
+  transform: scaleX(1);
 }
 
-.lw-btn-login:hover {
-  background-color: #eff6ff;
+/* Dropdown chevron (the <span class="lw-arrow"> is empty in the markup) */
+.lw-arrow {
+  width: 7px;
+  height: 7px;
+  margin-top: -3px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease, margin 0.2s ease;
 }
 
-.lw-btn-register {
-  padding: 7px 18px;
-  border-radius: 6px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #ffffff;
-  background-color: #2563eb;
-  border: 1.5px solid #2563eb;
-  text-decoration: none;
-  transition: all 0.15s ease;
-  text-align: center;
-  cursor: pointer;
-  white-space: nowrap;
+.lw-has-drop.active .lw-arrow {
+  margin-top: 3px;
+  transform: rotate(225deg);
 }
 
-.lw-btn-register:hover {
-  background-color: #1d4ed8;
-  border-color: #1d4ed8;
-}
-
-/* ============================================================
-   5. Hamburger Menu Toggle Button (.lw-menu-toggle)
-   ============================================================ */
-.lw-menu-toggle {
-  display: none;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  font-size: 24px;
-  color: #374151;
-  border-radius: 4px;
-  transition: background-color 0.15s ease;
-}
-
-.lw-menu-toggle:hover {
-  background-color: #f3f4f6;
-}
-
-/* ============================================================
-   6. Standard Dropdown Menu Component (.lw-dropdown)
-   ============================================================ */
+/* --------------------------------------------------------------------------
+   Simple dropdown
+   -------------------------------------------------------------------------- */
 .lw-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
+  top: 100%;
   left: 0;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  min-width: 220px;
-  z-index: 200;
-  padding: 6px;
-  animation: lw-dropAnim 0.15s ease forwards;
+  min-width: 240px;
+  padding: 8px;
+  background: var(--lw-surface);
+  border: 1px solid var(--lw-line);
+  border-top: 3px solid var(--lw-brass-500);
+  border-radius: 0 0 var(--lw-radius) var(--lw-radius);
+  box-shadow: var(--lw-shadow);
+  z-index: 20;
+  animation: lw-drop-in 0.16s ease-out;
 }
 
-@keyframes lw-dropAnim {
+/* Invisible bridge so the pointer can travel from button to menu */
+.lw-dropdown::before,
+.lw-mega-menu::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -14px;
+  height: 14px;
+}
+
+.lw-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: background 0.12s ease;
+}
+
+.lw-dropdown-item:hover,
+.lw-dropdown-item:focus-visible {
+  background: var(--lw-surface-tint);
+}
+
+.lw-dd-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  font-size: 1.05rem;
+  background: var(--lw-brass-100);
+  border-radius: 8px;
+}
+
+.lw-dd-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--lw-ink);
+}
+
+.lw-dd-desc {
+  margin-top: 2px;
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: var(--lw-ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Mega menu — Find A Lawyer
+   -------------------------------------------------------------------------- */
+.lw-mega-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: min(600px, 92vw);
+  padding: 20px;
+  background: var(--lw-surface);
+  border: 1px solid var(--lw-line);
+  border-top: 3px solid var(--lw-brass-500);
+  border-radius: 0 0 var(--lw-radius) var(--lw-radius);
+  box-shadow: var(--lw-shadow);
+  z-index: 20;
+  animation: lw-drop-in 0.16s ease-out;
+}
+
+.lw-mega-title {
+  margin-bottom: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--lw-green-800);
+}
+
+.lw-mega-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.lw-mega-card {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  grid-template-areas:
+    "icon label"
+    "icon desc";
+  column-gap: 12px;
+  row-gap: 2px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--lw-line);
+  border-radius: var(--lw-radius);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.lw-mega-card:hover,
+.lw-mega-card:focus-visible {
+  border-color: var(--lw-brass-500);
+  background: var(--lw-brass-100);
+}
+
+.lw-mega-icon {
+  grid-area: icon;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  background: var(--lw-surface-tint);
+  border-radius: 10px;
+}
+
+.lw-mega-card:hover .lw-mega-icon {
+  background: var(--lw-surface);
+}
+
+.lw-mega-card-label {
+  grid-area: label;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--lw-ink);
+}
+
+.lw-mega-card-desc {
+  grid-area: desc;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--lw-ink-soft);
+}
+
+.lw-mega-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--lw-line);
+}
+
+.lw-mega-all {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--lw-green-700);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.lw-mega-all:hover {
+  border-bottom-color: var(--lw-green-700);
+}
+
+.lw-mega-talk {
+  padding: 10px 18px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--lw-green-800);
+  border: 0;
+  border-radius: 999px;
+  transition: background 0.15s ease;
+}
+
+.lw-mega-talk:hover {
+  background: var(--lw-green-700);
+}
+
+/* Mobile-only auth block is hidden on desktop */
+.lw-mobile-auth-links,
+.lw-mobile-only {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Entrance for menus (answers a user action, so it's kept short)
+   -------------------------------------------------------------------------- */
+@keyframes lw-drop-in {
   from {
     opacity: 0;
     transform: translateY(-6px);
@@ -203,306 +503,219 @@
   }
 }
 
-.lw-dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  text-decoration: none;
-  border-radius: 7px;
-  transition: background-color 0.12s ease;
-  color: #374151;
-}
-
-.lw-dropdown-item:hover {
-  background-color: #f3f4f6;
-}
-
-.lw-dd-icon {
-  font-size: 17px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.lw-dd-label {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.lw-dd-desc {
-  font-size: 11.5px;
-  color: #9ca3af;
-  margin-top: 1px;
-}
-
-/* ============================================================
-   7. Lawyer Mega Menu Layout Component (.lw-mega-menu)
-   ============================================================ */
-.lw-mega-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: -20px;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.13);
-  width: 480px;
-  z-index: 200;
-  padding: 20px;
-  animation: lw-dropAnim 0.15s ease forwards;
-}
-
-.lw-mega-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: #9ca3af;
-  margin-bottom: 12px;
-}
-
-.lw-mega-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.lw-mega-card {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 12px;
-  border-radius: 9px;
-  border: 1px solid #f3f4f6;
-  text-decoration: none;
-  transition: all 0.15s ease;
-  background-color: #fafafa;
-}
-
-.lw-mega-card:hover {
-  background-color: #eff6ff;
-  border-color: #bfdbfe;
-}
-
-.lw-mega-icon {
-  font-size: 22px;
-  margin-bottom: 4px;
-}
-
-.lw-mega-card-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.lw-mega-card-desc {
-  font-size: 11.5px;
-  color: #9ca3af;
-  line-height: 1.3;
-}
-
-.lw-mega-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 14px;
-  border-top: 1px solid #f3f4f6;
-}
-
-.lw-mega-all {
-  font-size: 13px;
-  font-weight: 600;
-  color: #2563eb;
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-
-.lw-mega-all:hover {
-  text-decoration: underline;
-  color: #1d4ed8;
-}
-
-.lw-mega-talk {
-  background-color: #2563eb;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  padding: 9px 18px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background-color 0.15s ease;
-}
-
-.lw-mega-talk:hover {
-  background-color: #1d4ed8;
-}
-
-.lw-navbar a:hover,
-.lw-navbar a:hover * {
-  text-decoration: none;
-}
-
-
-/* ============================================================
-   8. Responsive Media Queries (Tablets, Laptops & Mobile)
-   ============================================================ */
-
-/* --- Laptops and Small Desktops (Below 1024px) --- */
-@media (max-width: 1024px) {
-  .lw-nav-inner {
-    padding: 0 16px;
-    gap: 16px;
-  }
-  
-  .lw-nav-links {
-    gap: 2px;
-  }
-  
+/* --------------------------------------------------------------------------
+   Medium desktops — tighten things up
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
   .lw-logo-tagline {
     display: none;
   }
+
+  .lw-nav-link {
+    padding: 10px 10px;
+    font-size: 0.88rem;
+  }
+
+  .lw-nav-lang-label {
+    display: none;
+  }
 }
 
-/* --- Tablets & Mobile Phones (Below 768px) --- */
-@media (max-width: 768px) {
-  /* Reveal Hamburger Button */
-  .lw-menu-toggle {
-    display: block !important;
-  }
-
-  /* Hide Desktop Right-Hand Auth Block from Upper Bar */
-  .lw-nav-inner > .lw-nav-auth {
-    display: none !important;
-  }
-
-  /* Mobile Drawer Container Styling */
-  .lw-nav-links {
+/* --------------------------------------------------------------------------
+   Tablet & mobile — hamburger drawer
+   -------------------------------------------------------------------------- */
+@media (max-width: 991px) {
+  /* Strip is replaced by the switcher + auth links inside the drawer */
+  .lw-nav-top-strip {
     display: none;
+  }
+
+  .lw-nav-inner {
+    min-height: 62px;
+  }
+
+  .lw-logo-tagline {
+    display: block;
+  }
+
+  .lw-menu-toggle {
+    display: inline-flex;
+  }
+
+  .lw-nav-links {
     position: absolute;
-    top: 64px;
+    top: 100%;
     left: 0;
-    width: 100%;
-    background-color: #ffffff !important;
+    right: 0;
+    display: none;
     flex-direction: column;
     align-items: stretch;
-    padding: 20px;
-    border-bottom: 1px solid #e5e7eb;
-    box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.12);
-    gap: 8px;
-    max-height: calc(100vh - 64px);
+    justify-content: flex-start;
+    gap: 2px;
+    max-height: calc(100vh - 62px);
+    max-height: calc(100dvh - 62px);
     overflow-y: auto;
-    z-index: 1100;
+    padding: 12px clamp(16px, 3vw, 40px) 24px;
+    background: var(--lw-surface);
+    border-bottom: 3px solid var(--lw-brass-500);
+    box-shadow: 0 24px 40px -16px rgba(11, 43, 40, 0.35);
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* Active state class toggle for menu open */
   .lw-nav-links.active {
-    display: flex !important;
+    display: flex;
+    animation: lw-drop-in 0.16s ease-out;
+  }
+
+  .lw-nav-item {
+    width: 100%;
   }
 
   .lw-nav-link {
-    color: #374151 !important;
     width: 100%;
     justify-content: space-between;
-    padding: 12px 14px;
-    font-size: 15px;
-    border-radius: 8px;
+    padding: 14px 12px;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--lw-line);
+    border-radius: 0;
   }
 
-  .lw-nav-link:hover, 
+  .lw-nav-link::after {
+    display: none;
+  }
+
+  .lw-nav-link:hover,
   .lw-nav-link.active {
-    background-color: #f3f4f6;
-    color: #2563eb !important;
+    background: var(--lw-surface-tint);
   }
 
-  /* --- Mobile Authentication Set Injection Below Admin --- */
-  .lw-nav-links .lw-nav-auth {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-    width: 100% !important;
-    margin-top: 8px !important;
-    padding-top: 16px !important;
-    border-top: 1px solid #e5e7eb !important;
-  }
-
-  .lw-nav-links .lw-btn-login,
-  .lw-nav-links .lw-btn-register {
-    display: block !important;
-    width: 100% !important;
-    text-align: center !important;
-    padding: 12px 16px !important;
-    font-size: 14px !important;
-    border-radius: 8px !important;
-  }
-
-  /* Mobile Mega Menu Reflow */
+  /* Menus open inline inside the drawer */
+  .lw-dropdown,
   .lw-mega-menu {
-    position: static !important;
-    width: 100% !important;
-    box-shadow: none !important;
-    border: none !important;
-    padding: 8px 0 !important;
-    background-color: transparent !important;
-    animation: none !important;
+    position: static;
+    width: 100%;
+    min-width: 0;
+    margin: 4px 0 8px;
+    padding: 8px;
+    box-shadow: none;
+    border: 1px solid var(--lw-line);
+    border-left: 3px solid var(--lw-brass-500);
+    border-radius: var(--lw-radius);
+    animation: none;
+  }
+
+  .lw-dropdown::before,
+  .lw-mega-menu::before {
+    display: none;
+  }
+
+  .lw-mega-menu {
+    padding: 14px;
   }
 
   .lw-mega-grid {
-    grid-template-columns: 1fr !important;
-    gap: 8px;
-  }
-
-  .lw-mega-card {
-    background-color: #f9fafb !important;
-    border-color: #e5e7eb !important;
-  }
-
-  .lw-mega-card-label {
-    color: #1f2937 !important;
-  }
-
-  .lw-mega-card-desc {
-    color: #6b7280 !important;
+    grid-template-columns: 1fr;
   }
 
   .lw-mega-footer {
     flex-direction: column;
-    gap: 12px;
     align-items: stretch;
+    text-align: center;
   }
 
   .lw-mega-talk {
     width: 100%;
+    padding: 12px 18px;
+  }
+
+  /* Language switcher moves into the drawer */
+  .lw-nav-lang-top {
+    display: none;
+  }
+
+  .lw-nav-lang-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 4px 12px 14px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--lw-line);
+    color: var(--lw-ink);
+  }
+
+  .lw-nav-lang-mobile .lw-nav-lang-label {
+    display: inline;
+    font-size: 0.8rem;
+    color: var(--lw-ink-soft);
+    opacity: 1;
+  }
+
+  .lw-nav-lang-mobile .lw-nav-lang-pills {
+    border-color: var(--lw-line);
+    background: var(--lw-surface-tint);
+  }
+
+  .lw-nav-lang-mobile .lw-nav-lang-pill {
+    font-size: 0.85rem;
+    padding: 7px 16px;
+  }
+
+  .lw-nav-lang-mobile .lw-nav-lang-pill:hover {
+    background: rgba(15, 61, 57, 0.08);
+  }
+
+  .lw-nav-lang-mobile .lw-nav-lang-pill.active {
+    background: var(--lw-green-800);
+    color: #fff;
+  }
+
+  /* Login shortcuts at the bottom of the drawer */
+  .lw-mobile-auth-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .lw-mobile-only {
+    display: inline-flex;
+    justify-content: center;
+    padding: 12px;
+    font-size: 0.92rem;
+    color: var(--lw-green-800);
+    border: 1px solid var(--lw-green-800);
+    border-radius: var(--lw-radius);
     text-align: center;
-    padding: 11px 16px;
   }
 
-  /* Mobile Dropdown Reflow */
-  .lw-dropdown {
-    position: static !important;
-    box-shadow: none !important;
-    border: none !important;
-    width: 100% !important;
-    background-color: #f9fafb !important;
-    padding: 8px !important;
-    margin-top: 4px;
+  .lw-mobile-only:hover {
+    background: var(--lw-green-800);
+    color: #fff;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Small phones
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .lw-logo-tagline {
+    display: none;
+  }
+
+  .lw-mobile-auth-links {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Respect reduced-motion preferences
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .lw-navbar *,
+  .lw-navbar *::before,
+  .lw-navbar *::after {
     animation: none !important;
-  }
-
-  .lw-dropdown-item {
-    padding: 10px 12px;
-  }
-
-  .lw-dd-label {
-    color: #1f2937 !important;
-  }
-
-  .lw-dd-desc {
-    color: #6b7280 !important;
+    transition: none !important;
   }
 }

@@ -291,7 +291,10 @@ const getAvatarColor = (name = "") => {
 const matchesPractice = (person, practices) => {
   if (!practices.length) return true;
   const personPractice = normalize(person.practiceArea || person.speciality || "");
-  return practices.some((practice) => personPractice === normalize(practice));
+  return practices.some((practice) => {
+    const norm = normalize(practice);
+    return personPractice === norm || personPractice.includes(norm);
+  });
 };
 
 function AdvocateAvatar({ advocate }) {
@@ -328,7 +331,7 @@ function AdvocateAvatar({ advocate }) {
   );
 }
 
-export default function AdvocatesList() {
+export default function AdvocatesList({ lang: propLang } = {}) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const category = normalize(searchParams.get("cat"));
@@ -338,6 +341,34 @@ export default function AdvocatesList() {
   const [city, setCity] = useState(queryCity);
   const [practice, setPractice] = useState(queryPractice);
   const [showAllAdvocates, setShowAllAdvocates] = useState(false);
+
+  const [lang, setLang] = useState(() => {
+    try {
+      return propLang || localStorage.getItem("law4u_home_lang") || "en";
+    } catch {
+      return "en";
+    }
+  });
+
+  useEffect(() => {
+    if (propLang) setLang(propLang);
+  }, [propLang]);
+
+  useEffect(() => {
+    const handleLang = (e) => {
+      if (e?.detail) setLang(e.detail);
+      else {
+        try {
+          setLang(localStorage.getItem("law4u_home_lang") || "en");
+        } catch {}
+      }
+    };
+    window.addEventListener("law4u_lang_change", handleLang);
+    return () => window.removeEventListener("law4u_lang_change", handleLang);
+  }, []);
+
+  const isKn = lang === "kn";
+
 
   // Keep track of all items that match the filters
   const [filteredResults, setFilteredResults] = useState(() =>
@@ -395,7 +426,9 @@ export default function AdvocatesList() {
       {/* ── Search Bar Section ── */}
       <section className="lw-search-section">
   <p className="lw-search-headline">
-    Hire India's best and most trusted lawyers for District Court, High Court, and Supreme Court cases with Advocates Hub
+    {isKn
+      ? "ಅಡ್ವೊಕೇಟ್ಸ್ ಹಬ್ ಮೂಲಕ ಜಿಲ್ಲಾ ನ್ಯಾಯಾಲಯ, ಹೈಕೋರ್ಟ್ ಮತ್ತು ಸುಪ್ರೀಂ ಕೋರ್ಟ್ ಪ್ರಕರಣಗಳಿಗೆ ಭಾರತದ ಅತ್ಯುತ್ತಮ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ ವಕೀಲರನ್ನು ನೇಮಿಸಿಕೊಳ್ಳಿ"
+      : "Hire India's best and most trusted lawyers for District Court, High Court, and Supreme Court cases with Advocates Hub"}
   </p>
   <div className="lw-search-bar">
     <div className="lw-search-field">
@@ -405,7 +438,7 @@ export default function AdvocatesList() {
         onChange={e => setCity(e.target.value)} // Only updates state now
         className="lw-select"
       >
-        <option value="">Select City</option>
+        <option value="">{isKn ? "ನಗರವನ್ನು ಆಯ್ಕೆಮಾಡಿ" : "Select City"}</option>
         {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
       </select>
     </div>
@@ -416,14 +449,16 @@ export default function AdvocatesList() {
         onChange={e => setPractice(e.target.value)} // Only updates state now
         className="lw-select"
       >
-        <option value="">Select Practice Areas</option>
+        <option value="">{isKn ? "ಕಾರ್ಯಾಚರಣೆಯ ಕ್ಷೇತ್ರವನ್ನು ಆಯ್ಕೆಮಾಡಿ" : "Select Practice Areas"}</option>
         {PRACTICE_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
       </select>
     </div>
-    <button className="lw-search-btn" onClick={handleSearch}>SEARCH</button>
+    <button className="lw-search-btn" onClick={handleSearch}>
+      {isKn ? "ಹುಡುಕಿ" : "SEARCH"}
+    </button>
   </div>
   <div className="lw-popular-searches">
-    <strong>Popular Searches: </strong>
+    <strong>{isKn ? "ಜನಪ್ರಿಯ ಹುಡುಕಾಟಗಳು: " : "Popular Searches: "}</strong>
     {POPULAR.map((p, i) => (
       <span key={p}>
         <span className="lw-popular-tag" onClick={() => handlePopularClick(p)}>{p}</span>
@@ -438,19 +473,25 @@ export default function AdvocatesList() {
         <div className="lw-section-inner">
           <div className="lw-section-head lw-flex-between">
             <div>
-              <h2 className="lw-section-title">Meet Our Advocates</h2>
+              <h2 className="lw-section-title">
+                {isKn ? "ನಮ್ಮ ವಕೀಲರನ್ನು ಭೇಟಿ ಮಾಡಿ" : "Meet Our Advocates"}
+              </h2>
             </div>
             {/* Show button ONLY if there are more than 6 matches in total */}
             {filteredResults.length > 6 && (
               <button className="lw-btn-primary" onClick={handleSeeMoreAdvocates}>
-                {showAllAdvocates ? "See Less Advocates" : "See More Advocates"} ›
+                {showAllAdvocates
+                  ? (isKn ? "ಕಡಿಮೆ ವಕೀಲರನ್ನು ನೋಡಿ" : "See Less Advocates")
+                  : (isKn ? "ಇನ್ನಷ್ಟು ವಕೀಲರನ್ನು ನೋಡಿ" : "See More Advocates")} ›
               </button>
             )}
           </div>
 
           {displayedList.length === 0 ? (
             <div className="lw-no-results">
-              No advocates found for the selected city and practice area.
+              {isKn
+                ? "ಆಯ್ಕೆಮಾಡಿದ ನಗರ ಮತ್ತು ವಕಾಲತ್ತು ಕ್ಷೇತ್ರಕ್ಕೆ ಯಾವುದೇ ವಕೀಲರು ಕಂಡುಬಂದಿಲ್ಲ."
+                : "No advocates found for the selected city and practice area."}
             </div>
           ) : (
             <div className="lw-advocates-grid">
@@ -471,7 +512,7 @@ export default function AdvocatesList() {
 
                   <div className="lw-adv-stats">
                     <span className="lw-adv-rating">⭐ {adv.rating}</span>
-                    <span className="lw-adv-cases">{adv.cases} cases</span>
+                    <span className="lw-adv-cases">{adv.cases} {isKn ? "ಪ್ರಕರಣಗಳು" : "cases"}</span>
                   </div>
 
                   <button
@@ -481,7 +522,7 @@ export default function AdvocatesList() {
                       navigate(`/profile/${adv.id}`);
                     }}
                   >
-                    Consult Now
+                    {isKn ? "ಸಂಪರ್ಕಿಸಿ" : "Consult Now"}
                   </button>
                 </div>
               ))}

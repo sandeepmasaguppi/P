@@ -150,7 +150,7 @@ export default function Login() {
         showToast(`Welcome back, ${client.name}! 🎉`, "success");
         setLoading(false);
 
-        setTimeout(() => navigate("/client-dashboard"), 700);
+        setTimeout(() => navigate("/client-main"), 700);
       } catch (err) {
         console.error(err);
         showToast("Could not reach the server. Please try again.", "error");

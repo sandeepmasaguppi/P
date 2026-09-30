@@ -7,7 +7,6 @@ import { useNavigate, Link } from "react-router-dom";
 import "./AdvocateDashboard.css";
 import { getAdvocateById, logoutAdvocate, updateAdvocate } from "../data/Advocatesstore";
 import BrandLogo from "../components/BrandLogo";
-import Chatbot from "./Chatbot";
 import { api, getAdvocateToken, assetUrl } from "../data/api";
 
 
@@ -465,8 +464,8 @@ export default function AdvocateDashboard() {
     );
   }
 
-  // Dashboard-tile helpers. `availability` is free text in the store, so match on the word.
-  const isAvailable = /available/i.test(advocate.availability || "") && !/not/i.test(advocate.availability || "");
+  // Dashboard-tile helpers. Available by default unless explicitly marked unavailable.
+  const isAvailable = !advocate.availability || (/available/i.test(advocate.availability) && !/not/i.test(advocate.availability));
   const profileDone = PROFILE_FIELDS.filter(f => Boolean(advocate[f.key])).length;
 
   const filterOptions = [
@@ -564,7 +563,7 @@ export default function AdvocateDashboard() {
               <div className="ad-sidebar-name">{advocate.name}</div>
               <div className="ad-sidebar-role">
                 <i className={`ad-sidebar-dot ${isAvailable ? "on" : ""}`} />
-                {advocate.availability}
+                {advocate.availability && !/not/i.test(advocate.availability) ? advocate.availability : "Available"}
               </div>
             </div>
           </div>
@@ -594,9 +593,9 @@ export default function AdvocateDashboard() {
                   {advocate.bio && advocate.bio.length > 3 && <p className="ad-tile-bio">{advocate.bio}</p>}
                   <div className="ad-tile-id-bottom">
                     <span className={`ad-avail-pill ${isAvailable ? "on" : ""}`}>
-                      <i /> {advocate.availability}
+                      <i /> {advocate.availability && !/not/i.test(advocate.availability) ? advocate.availability : "Available"}
                     </span>
-                    {!isAvailable && <span className="ad-tile-hint">Clients can't book you while unavailable</span>}
+                    {!isAvailable && <span className="ad-tile-hint">Currently unavailable for bookings</span>}
                   </div>
                 </div>
 
@@ -1235,10 +1234,7 @@ export default function AdvocateDashboard() {
           )}
 
         </main>
-
       </div>
-         {/* ── FLOATING CHATBOT — renders on every page via App.js ── */}
-            <Chatbot />
     </div>
   );
 }

@@ -1,32 +1,52 @@
-// Navbar.js — Law4u Navigation
+// Navbar.js — Law4u 100% Full-Width Navigation with English & Kannada Language Switcher
 import React, { useState, useRef, useEffect } from "react";
 import "./Navbar.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import BrandLogo from "./BrandLogo";
 
-const LAWYER_CATEGORIES = [
+const LAWYER_CATEGORIES_EN = [
   { icon: "👨‍👩‍👧", label: "Person / Family", desc: "Divorce, custody, marriage, adoption", path: "/find-lawyer?cat=family" },
   { icon: "🔒", label: "Criminal / Property", desc: "FIR, bail, property disputes, theft", path: "/find-lawyer?cat=criminal" },
   { icon: "⚖️", label: "Civil / Debt Matter", desc: "Civil suits, debt recovery, contracts", path: "/find-lawyer?cat=civil" },
   { icon: "🏢", label: "Corporate Law", desc: "Company, GST, tax, compliance", path: "/find-lawyer?cat=corporate" },
 ];
 
-const LEGAL_ADVICE = [
-  { icon: "❓", label: "Ask a Question",    path: "/legal-advice/ask-question" },
-  { icon: "📋", label: "Legal Documents",    path: "/legal-advice/documents" },
-  { icon: "🏛️", label: "Bare Acts",          path: "/legal-advice/bare-acts" },
-  { icon: "📰", label: "Legal News",         path: "/legal-advice/news" },
+const LAWYER_CATEGORIES_KN = [
+  { icon: "👨‍👩‍👧", label: "ವ್ಯಕ್ತಿ / ಕುಟುಂಬ", desc: "ವಿಚ್ಛೇದನ, ಪಾಲನೆ, ವಿವಾಹ, ದತ್ತು", path: "/find-lawyer?cat=family" },
+  { icon: "🔒", label: "ಕ್ರಿಮಿನಲ್ / ಆಸ್ತಿ", desc: "ಎಫ್‌ಐಆರ್, ಜಾಮೀನು, ಆಸ್ತಿ ವಿವಾದಗಳು", path: "/find-lawyer?cat=criminal" },
+  { icon: "⚖️", label: "ಸಿವಿಲ್ / ಸಾಲ ಪ್ರಕರಣ", desc: "ಸಿವಿಲ್ ದಾವೆಗಳು, ಸಾಲ ವಸೂಲಾತಿ, ಒಪ್ಪಂದಗಳು", path: "/find-lawyer?cat=civil" },
+  { icon: "🏢", label: "ಕಾರ್ಪೊರೇಟ್ ಕಾನೂನು", desc: "ಕಂಪನಿ, ಜಿಎಸ್‌ಟಿ, ತೆರಿಗೆ, ನಿಯಮಾವಳಿ", path: "/find-lawyer?cat=corporate" },
 ];
 
-const ABOUT = [
-  { icon: "ℹ️", label: "About Us",  path: "/aboutus" },
-  { icon: "📞", label: "Contact",   path: "/Contact" },
-  { icon: "🤝", label: "Partners",  path: "/Partners" },
+const LEGAL_ADVICE_EN = [
+  { icon: "❓", label: "Ask a Question", path: "/legal-advice/ask-question" },
+  { icon: "📋", label: "Legal Documents", path: "/legal-advice/documents" },
+  { icon: "🏛️", label: "Bare Acts", path: "/legal-advice/bare-acts" },
+  { icon: "📰", label: "Legal News", path: "/legal-advice/news" },
+];
+
+const LEGAL_ADVICE_KN = [
+  { icon: "❓", label: "ಪ್ರಶ್ನೆ ಕೇಳಿ", path: "/legal-advice/ask-question" },
+  { icon: "📋", label: "ಕಾನೂನು ದಾಖಲೆಗಳು", path: "/legal-advice/documents" },
+  { icon: "🏛️", label: "ಕಾನೂನು ಕಾಯಿದೆಗಳು", path: "/legal-advice/bare-acts" },
+  { icon: "📰", label: "ಕಾನೂನು ಸುದ್ದಿಗಳು", path: "/legal-advice/news" },
+];
+
+const ABOUT_EN = [
+  { icon: "ℹ️", label: "About Us", path: "/aboutus" },
+  { icon: "📞", label: "Contact", path: "/Contact" },
+  { icon: "🤝", label: "Partners", path: "/Partners" },
+];
+
+const ABOUT_KN = [
+  { icon: "ℹ️", label: "ನಮ್ಮ ಬಗ್ಗೆ", path: "/aboutus" },
+  { icon: "📞", label: "ಸಂಪರ್ಕಿಸಿ", path: "/Contact" },
+  { icon: "🤝", label: "ಪಾಲುದಾರರು", path: "/Partners" },
 ];
 
 function Dropdown({ items, onClose }) {
   return (
-    <div className="lw-dropdown" onClick={e => e.stopPropagation()}>
+    <div className="lw-dropdown" onClick={(e) => e.stopPropagation()}>
       {items.map((item) => (
         <Link key={item.label} to={item.path} className="lw-dropdown-item" onClick={onClose}>
           <span className="lw-dd-icon">{item.icon}</span>
@@ -40,13 +60,17 @@ function Dropdown({ items, onClose }) {
   );
 }
 
-function LawyerMegaMenu({ onClose }) {
+function LawyerMegaMenu({ onClose, isKn }) {
   const navigate = useNavigate();
+  const categories = isKn ? LAWYER_CATEGORIES_KN : LAWYER_CATEGORIES_EN;
+
   return (
-    <div className="lw-mega-menu" onClick={e => e.stopPropagation()}>
-      <div className="lw-mega-title">Find A Lawyer By Category</div>
+    <div className="lw-mega-menu" onClick={(e) => e.stopPropagation()}>
+      <div className="lw-mega-title">
+        {isKn ? "ವಿಭಾಗವಾರು ವಕೀಲರನ್ನು ಹುಡುಕಿ" : "Find A Lawyer By Category"}
+      </div>
       <div className="lw-mega-grid">
-        {LAWYER_CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <Link key={cat.label} to={cat.path} className="lw-mega-card" onClick={onClose}>
             <span className="lw-mega-icon">{cat.icon}</span>
             <div className="lw-mega-card-label">{cat.label}</div>
@@ -56,10 +80,16 @@ function LawyerMegaMenu({ onClose }) {
       </div>
       <div className="lw-mega-footer">
         <Link to="/find-lawyer" className="lw-mega-all" onClick={onClose}>
-          View All Lawyers →
+          {isKn ? "ಎಲ್ಲಾ ವಕೀಲರನ್ನು ನೋಡಿ →" : "View All Lawyers →"}
         </Link>
-        <button className="lw-mega-talk" onClick={() => { onClose(); navigate("/talk-to-advocate"); }}>
-          Talk to a Lawyer Now
+        <button
+          className="lw-mega-talk"
+          onClick={() => {
+            onClose();
+            navigate("/talk-to-advocate");
+          }}
+        >
+          {isKn ? "ಈಗಲೇ ವಕೀಲರೊಂದಿಗೆ ಮಾತನಾಡಿ" : "Talk to a Lawyer Now"}
         </button>
       </div>
     </div>
@@ -68,10 +98,42 @@ function LawyerMegaMenu({ onClose }) {
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState(null);
-  
-  //Fixed: Mobile menu state properly placed inside the component function
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navRef = useRef(null);
+  const location = useLocation();
+
+  const [lang, setLang] = useState(() => {
+    try {
+      return localStorage.getItem("law4u_home_lang") || "en";
+    } catch {
+      return "en";
+    }
+  });
+
+  useEffect(() => {
+    const handleLang = (e) => {
+      if (e?.detail) setLang(e.detail);
+      else {
+        try {
+          setLang(localStorage.getItem("law4u_home_lang") || "en");
+        } catch {}
+      }
+    };
+    window.addEventListener("law4u_lang_change", handleLang);
+    window.addEventListener("storage", handleLang);
+    return () => {
+      window.removeEventListener("law4u_lang_change", handleLang);
+      window.removeEventListener("storage", handleLang);
+    };
+  }, []);
+
+  const handleLangChange = (newLang) => {
+    setLang(newLang);
+    try {
+      localStorage.setItem("law4u_home_lang", newLang);
+      window.dispatchEvent(new CustomEvent("law4u_lang_change", { detail: newLang }));
+    } catch {}
+  };
 
   useEffect(() => {
     function handleClick(e) {
@@ -81,10 +143,9 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const toggle = (menu) => setOpenMenu(prev => prev === menu ? null : menu);
+  const toggle = (menu) => setOpenMenu((prev) => (prev === menu ? null : menu));
 
   // If a client is logged in and on client pages, hide the global navbar
-  const location = useLocation();
   const clientId = Number(localStorage.getItem("law4u_client_id") || sessionStorage.getItem("law4u_client_id") || 0);
   if (clientId && (location.pathname === "/client-dashboard" || location.pathname.startsWith("/client"))) {
     return null;
@@ -96,61 +157,137 @@ export default function Navbar() {
     setIsMobileMenuOpen(false);
   };
 
+  const isKn = lang === "kn";
+  const legalAdviceItems = isKn ? LEGAL_ADVICE_KN : LEGAL_ADVICE_EN;
+  const aboutItems = isKn ? ABOUT_KN : ABOUT_EN;
+
+  const renderLanguageSwitcher = (extraClass = "") => (
+    <div className={`lw-nav-lang ${extraClass}`}>
+      <span className="lw-nav-lang-label">
+        🌐 {isKn ? "ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ:" : "Choose Language:"}
+      </span>
+      <div className="lw-nav-lang-pills">
+        <button
+          type="button"
+          className={`lw-nav-lang-pill ${lang === "en" ? "active" : ""}`}
+          onClick={() => handleLangChange("en")}
+        >
+          English
+        </button>
+        <button
+          type="button"
+          className={`lw-nav-lang-pill ${lang === "kn" ? "active" : ""}`}
+          onClick={() => handleLangChange("kn")}
+        >
+          ಕನ್ನಡ (Kannada)
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <nav className="lw-navbar" ref={navRef}>
+      {/* ── 100% Width Top Utility Bar ── */}
+      <div className="lw-nav-top-strip">
+        <div className="lw-nav-top-inner">
+          <div className="lw-nav-top-left">
+            <span className="lw-nav-top-tagline">
+              ⚖️ {isKn ? "ಅಡ್ವೊಕೇಟ್ಸ್ ಹಬ್ – ಭಾರತದ ವಿಶ್ವಾಸಾರ್ಹ ಕಾನೂನು ವೇದಿಕೆ" : "Advocates Hub – India's Most Trusted Legal Platform"}
+            </span>
+          </div>
+          <div className="lw-nav-top-right">
+            {renderLanguageSwitcher("lw-nav-lang-top")}
+            <div className="lw-nav-top-auth">
+              <Link to="/login" className="lw-top-auth-link" onClick={handleLinkClick}>
+                {isKn ? "ವಕೀಲರ ಲಾಗಿನ್" : "Advocate Login"}
+              </Link>
+              <span className="lw-top-auth-sep">|</span>
+              <Link to="/client-login" className="lw-top-auth-link" onClick={handleLinkClick}>
+                {isKn ? "ಗ್ರಾಹಕರ ಲಾಗಿನ್" : "Client Login"}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main 100% Full-Width Navbar ── */}
       <div className="lw-nav-inner">
         {/* Logo */}
         <Link to="/" className="lw-logo" onClick={handleLinkClick}>
           <BrandLogo size={34} />
-          <span className="lw-logo-tagline">Best Legal Platform</span>
+          <span className="lw-logo-tagline">
+            {isKn ? "ಅತ್ಯುತ್ತಮ ಕಾನೂನು ವೇದಿಕೆ" : "Best Legal Platform"}
+          </span>
         </Link>
 
         {/* Hamburger Menu Toggle Button for Mobile/Tabs */}
         <button 
           className="lw-menu-toggle" 
-          onClick={() => setIsMobileMenuOpen(prev => !prev)}
+          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
           aria-label="Toggle navigation menu"
         >
           {isMobileMenuOpen ? "✕" : "☰"}
         </button>
 
-        {/* Nav links (Applies 'active' class when mobile menu is toggled open) */}
-        <div className={`lw-nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
-          <Link to="/" className="lw-nav-link" onClick={handleLinkClick}>Home</Link>
+        {/* Nav links (100% fluid) */}
+        <div className={`lw-nav-links ${isMobileMenuOpen ? "active" : ""}`}>
+          {/* Mobile Language Switcher inside drawer */}
+          {renderLanguageSwitcher("lw-nav-lang-mobile")}
+
+          <Link to="/" className="lw-nav-link" onClick={handleLinkClick}>
+            {isKn ? "ಮುಖಪುಟ" : "Home"}
+          </Link>
 
           {/* Find A Lawyer */}
           <div className="lw-nav-item">
-            <button className={`lw-nav-link lw-has-drop ${openMenu === "lawyer" ? "active" : ""}`}
-              onMouseOver={() => toggle("lawyer")}>
-              Find A Lawyer <span className="lw-arrow"></span>
+            <button
+              className={`lw-nav-link lw-has-drop ${openMenu === "lawyer" ? "active" : ""}`}
+              onMouseOver={() => toggle("lawyer")}
+            >
+              {isKn ? "ವಕೀಲರನ್ನು ಹುಡುಕಿ" : "Find A Lawyer"} <span className="lw-arrow"></span>
             </button>
-            {openMenu === "lawyer" && <LawyerMegaMenu onClose={handleLinkClick} />}
+            {openMenu === "lawyer" && <LawyerMegaMenu onClose={handleLinkClick} isKn={isKn} />}
           </div>
 
           {/* Legal Advice */}
           <div className="lw-nav-item">
-            <button className={`lw-nav-link lw-has-drop ${openMenu === "advice" ? "active" : ""}`}
-              onMouseOver={() => toggle("advice")}>
-              Legal Advice <span className="lw-arrow"></span>
+            <button
+              className={`lw-nav-link lw-has-drop ${openMenu === "advice" ? "active" : ""}`}
+              onMouseOver={() => toggle("advice")}
+            >
+              {isKn ? "ಕಾನೂನು ಸಲಹೆ" : "Legal Advice"} <span className="lw-arrow"></span>
             </button>
-            {openMenu === "advice" && <Dropdown items={LEGAL_ADVICE} onClose={handleLinkClick} />}
+            {openMenu === "advice" && <Dropdown items={legalAdviceItems} onClose={handleLinkClick} />}
           </div>
 
           {/* About */}
           <div className="lw-nav-item">
-            <button className={`lw-nav-link lw-has-drop ${openMenu === "about" ? "active" : ""}`}
-              onMouseOver={() => toggle("about")}>
-              About <span className="lw-arrow"></span>
+            <button
+              className={`lw-nav-link lw-has-drop ${openMenu === "about" ? "active" : ""}`}
+              onMouseOver={() => toggle("about")}
+            >
+              {isKn ? "ನಮ್ಮ ಬಗ್ಗೆ" : "About"} <span className="lw-arrow"></span>
             </button>
-            {openMenu === "about" && <Dropdown items={ABOUT} onClose={handleLinkClick} />}
+            {openMenu === "about" && <Dropdown items={aboutItems} onClose={handleLinkClick} />}
           </div>
 
           {/* Lawyer Signup & Admin links */}
-          <Link to="/signup" className="lw-nav-link" onClick={handleLinkClick}>Lawyer Signup</Link>
-          <Link to="/admin" className="lw-nav-link" onClick={handleLinkClick}>Admin</Link>
-          <br></br>
-          <Link to="/login" className="lw-nav-link" onClick={handleLinkClick} style={{ marginLeft: 40 }}>Advocate Login</Link>
-          <Link to="/client-login" className="lw-nav-link" onClick={handleLinkClick}>   Client Login</Link>
+          <Link to="/signup" className="lw-nav-link" onClick={handleLinkClick}>
+            {isKn ? "ವಕೀಲರ ನೋಂದಣಿ" : "Lawyer Signup"}
+          </Link>
+          <Link to="/admin" className="lw-nav-link" onClick={handleLinkClick}>
+            {isKn ? "ಅಡ್ಮಿನ್" : "Admin"}
+          </Link>
+
+          {/* Mobile direct auth links inside drawer */}
+          <div className="lw-mobile-auth-links">
+            <Link to="/login" className="lw-nav-link lw-mobile-only" onClick={handleLinkClick}>
+              {isKn ? "ವಕೀಲರ ಲಾಗಿನ್" : "Advocate Login"}
+            </Link>
+            <Link to="/client-login" className="lw-nav-link lw-mobile-only" onClick={handleLinkClick}>
+              {isKn ? "ಗ್ರಾಹಕರ ಲಾಗಿನ್" : "Client Login"}
+            </Link>
+          </div>
         </div>
       </div>
     </nav>
