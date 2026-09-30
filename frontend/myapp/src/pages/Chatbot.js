@@ -17,6 +17,8 @@ const PRIMARY_CHAT_API = "http://localhost:5001/chat";
 const FALLBACK_CHAT_API = "/api/chat";
 
 const QUICK_ACTIONS_EN = [
+  { label: "💬 I have questions",   msg: "I have some questions" },
+  { label: "💡 Legal Advice",       msg: "I need legal advice"   },
   { label: "🔍 Find Advocates",     msg: "Show all advocates"    },
   { label: "⚖️ Criminal Lawyers",   msg: "Show criminal lawyers" },
   { label: "👨‍👩‍👧 Family Lawyers", msg: "Show family lawyers"   },
@@ -28,6 +30,8 @@ const QUICK_ACTIONS_EN = [
 ];
 
 const QUICK_ACTIONS_KN = [
+  { label: "💬 ನನಗೆ ಪ್ರಶ್ನೆಗಳಿವೆ",   msg: "ನನಗೆ ಕೆಲವು ಪ್ರಶ್ನೆಗಳಿವೆ" },
+  { label: "💡 ಕಾನೂನು ಸಲಹೆ",        msg: "ಕಾನೂನು ಸಲಹೆ ಬೇಕು"       },
   { label: "🔍 ಎಲ್ಲಾ ವಕೀಲರು",        msg: "ಎಲ್ಲಾ ವಕೀಲರು"           },
   { label: "⚖️ ಕ್ರಿಮಿನಲ್ ವಕೀಲರು",    msg: "ಕ್ರಿಮಿನಲ್ ವಕೀಲರು"       },
   { label: "👨‍👩‍👧 ಕೌಟುಂಬಿಕ ವಕೀಲರು",  msg: "ಕೌಟುಂಬಿಕ ವಕೀಲರು"       },
@@ -167,14 +171,14 @@ export default function Chatbot() {
       return {
         id:   Date.now(),
         role: "bot",
-        text: "👋 ನಮಸ್ಕಾರ! ನಾನು **AdvocateHub AI ಸಹಾಯಕ**.\n\nನಾನು ನಿಮಗೆ ಈ ಕೆಳಗಿನವುಗಳಲ್ಲಿ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ:\n• 🔍 **ವಕೀಲರ ಹುಡುಕಾಟ:** ಹೆಸರು (ಉದಾ: Shankar, Priya), ಊರು ಅಥವಾ ಕೋರ್ಟ್\n• ⚖️ **ಕಾನೂನು ಮಾರ್ಗದರ್ಶಿ (Clarity Guide):** ಅಪಘಾತ, ವಿಚ್ಛೇದನ, ಆಸ್ತಿ, ಚೆಕ್ ಬೌನ್ಸ್ ಇತ್ಯಾದಿ\n• 🧭 **ಪುಟಗಳ ಭೇಟಿ:** Bare Acts, Legal Documents ಇತ್ಯಾದಿ\n• 🎙️ **ಧ್ವನಿ ಸಂದೇಶ:** ಕನ್ನಡ ಅಥವಾ ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಮಾತನಾಡಿ!\n\nನಿಮ್ಮ ಪ್ರಶ್ನೆ ಏನು?",
+        text: "👋 ನಮಸ್ಕಾರ! ನಾನು **AdvocateHub AI ಸಹಾಯಕ**.\n\nನಾನು ನಿಮಗೆ ಈ ಕೆಳಗಿನವುಗಳಲ್ಲಿ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ:\n• 💬 **ಕಾನೂನು ಪ್ರಶ್ನೆ & ಸಲಹೆ:** *'ನನಗೆ ಕೆಲವು ಪ್ರಶ್ನೆಗಳಿವೆ'* ಅಥವಾ *'ಕಾನೂನು ಸಲಹೆ ಬೇಕು'* ಎಂದು ಕೇಳಿ\n• 🔍 **ವಕೀಲರ ಹುಡುಕಾಟ:** ಹೆಸರು (ಉದಾ: Shankar, Priya), ಊರು ಅಥವಾ ಕೋರ್ಟ್\n• ⚖️ **ಕಾನೂನು ಮಾರ್ಗದರ್ಶಿ:** ಅಪಘಾತ, ವಿಚ್ಛೇದನ, ಆಸ್ತಿ, ಚೆಕ್ ಬೌನ್ಸ್, ಬೇಲ್ ಇತ್ಯಾದಿ\n• 🧭 **ಪುಟಗಳ ಭೇಟಿ:** Bare Acts, Legal Documents ಇತ್ಯಾದಿ\n• 🎙️ **ಧ್ವನಿ ಸಂದೇಶ:** ಕನ್ನಡ ಅಥವಾ ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಮಾತನಾಡಿ!\n\nನಿಮ್ಮ ಪ್ರಶ್ನೆ ಅಥವಾ ಪರಿಸ್ಥಿತಿ ಏನು?",
         type: "text",
       };
     }
     return {
       id:   Date.now(),
       role: "bot",
-      text: "👋 Hi! I'm the **AdvocateHub Assistant**.\n\nI can help you:\n• 🔍 **Find advocates live:** Search by name (e.g. Shankar, Priya), city, or court\n• ⚖️ **Legal Clarity Guide:** Ask about road accidents, bail, divorce, property disputes, etc.\n• 🧭 **Navigate** to Bare Acts, Documents, or Profiles\n• 🎙️ **Voice-to-Text:** Speak in Kannada or English using the mic!\n\nWhat can I help you with?",
+      text: "👋 Hi! I'm the **AdvocateHub Assistant**.\n\nI can help you:\n• 💬 **Legal Advice & Inquiries:** Just say *'I have some questions'* or ask for legal advice\n• 🔍 **Find advocates live:** Search by name (e.g. Shankar, Priya), city, or court\n• ⚖️ **Legal Clarity Guide:** Ask about road accidents, bail, divorce, property disputes, etc.\n• 🧭 **Navigate** to Bare Acts, Documents, or Profiles\n• 🎙️ **Voice-to-Text:** Speak in Kannada or English using the mic!\n\nWhat can I help you with?",
       type: "text",
     };
   }, []);
@@ -303,22 +307,8 @@ export default function Chatbot() {
     try {
       let data = null;
 
-      // 1. Try Primary Python Flask API (port 5001)
+      // 1. Try Node server.js API (/api/chat on port 5000)
       try {
-        const res = await fetch(PRIMARY_CHAT_API, {
-          method:  "POST",
-          headers: { "Content-Type": "application/json" },
-          body:    JSON.stringify({ message: msg, lang }),
-        });
-        if (res.ok) {
-          data = await res.json();
-        }
-      } catch {
-        // Primary port 5001 unreachable, silently fallback to port 5000 backend
-      }
-
-      // 2. Fallback to Node server.js API (/api/chat on port 5000)
-      if (!data) {
         const resFallback = await fetch(FALLBACK_CHAT_API, {
           method:  "POST",
           headers: { "Content-Type": "application/json" },
@@ -327,6 +317,22 @@ export default function Chatbot() {
         if (resFallback.ok) {
           data = await resFallback.json();
         }
+      } catch {
+        // Backend /api/chat error, will try secondary
+      }
+
+      // 2. Secondary fallback to port 5001 if configured
+      if (!data) {
+        try {
+          const res = await fetch(PRIMARY_CHAT_API, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ message: msg, lang }),
+          });
+          if (res.ok) {
+            data = await res.json();
+          }
+        } catch {}
       }
 
       if (!data) {

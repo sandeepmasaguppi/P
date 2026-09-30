@@ -671,6 +671,204 @@ async function route(request, response) {
       profileUrl: `/profile/${adv.id}`,
     });
 
+    const topAdvs = advocates.slice(0, 4);
+
+    // 0. Conversational Intents & Proactive Legal Advice
+    // ----------------------------------------------------
+    // A) Questions Intent ("I have some questions", "I have a question", "got doubts", etc.)
+    const isQuestionIntent =
+      /\b(i\s*have\s*(some\s*|a\s*)?(questions?|doubts?|queries|inquiry)|have\s*(some\s*|a\s*)?questions?|some\s*questions?|got\s*(some\s*|a\s*)?questions?|ask\s*(a\s*)?question|ask\s*something|questions?\s*to\s*ask|want\s*to\s*ask|can\s*i\s*ask|any\s*questions?)\b/i.test(cleanQ) ||
+      /^(questions?|doubts?|queries|questionnaire)$/i.test(cleanQ) ||
+      /(ಪ್ರಶ್ನೆ|ಸಂದೇಹ|ಡೌಟ್)/u.test(msg);
+
+    if (isQuestionIntent) {
+      const reply = isKn
+        ? `👋 **ನಿಮ್ಮ ಎಲ್ಲಾ ಕಾನೂನು ಪ್ರಶ್ನೆಗಳಿಗೆ ಮಾರ್ಗದರ್ಶನ ಮತ್ತು ಸಲಹೆ ನೀಡಲು ನಾನು ಸಿದ್ಧನಿದ್ದೇನೆ.**\n\nನಿಮ್ಮ ಯಾವುದೇ ಕಾನೂನು ಸಮಸ್ಯೆ ಅಥವಾ ಸಂದೇಹವನ್ನು ಮುಕ್ತವಾಗಿ ಕೇಳಿ. ನಾನು ನಿಮಗೆ ಈ ಕೆಳಗಿನಂತೆ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ:\n\n📌 **ನೀವು ಕೇಳಬಹುದಾದ ಮುಖ್ಯ ಕಾನೂನು ವಿಷಯಗಳು:**\n• 👨‍👩‍👧 **ಕೌಟುಂಬಿಕ ವಿಷಯಗಳು:** ವಿಚ್ಛೇದನ ಅರ್ಜಿ, ಜೀವನಾಂಶ (Maintenance), ಮಕ್ಕಳ ಪಾಲನೆ, ಕೌಟುಂಬಿಕ ಕಲಹ\n• ⚖️ **ಕ್ರಿಮಿನಲ್ ಮತ್ತು ಜಾಮೀನು:** ನಿರೀಕ್ಷಣಾ ಜಾಮೀನು (Bail), ನಿಯಮಿತ ಬೇಲ್, ಎಫ್‌ಐಆರ್ (FIR), ಪೊಲೀಸ್ ತನಿಖೆ\n• 🏠 **ಆಸ್ತಿ ಮತ್ತು ಭೂವಿವಾದ:** ಜಮೀನು ವಿವಾದ, ಭಾಗಪತ್ರ, ಕ್ರಯಪತ್ರ ಪರಿಶೀಲನೆ, ಬಾಡಿಗೆದಾರರ ವಿವಾದ\n• 📜 **ಹಣಕಾಸು ಮತ್ತು ಚೆಕ್ ಬೌನ್ಸ್:** ಚೆಕ್ ಬೌನ್ಸ್ ಕೇಸ್ (Sec 138), ಹಣ ವಸೂಲಾತಿ, ಒಪ್ಪಂದ ಉಲ್ಲಂಘನೆ\n• 🚗 **ವಾಹನ ಅಪಘಾತ & ಪರಿಹಾರ:** ಮೋಟಾರು ಅಪಘಾತ ಪರಿಹಾರ (MACT), ವಿಮೆ ಕ್ಲೈಮ್\n• 🛡️ **ಗ್ರಾಹಕ ವೇದಿಕೆ & ಸಿವಿಲ್:** ಗ್ರಾಹಕರ ಹಕ್ಕುಗಳ ರಕ್ಷಣೆ, ತಡೆಯಾಜ್ಞೆ (Injunction), ಮಾನನಷ್ಟ ನೋಟಿಸ್\n\n💡 **ಪ್ರಮುಖ ಕಾನೂನು ಸಲಹೆ:**\n1. **ನಿಖರ ವಿವರ ನೀಡಿ:** ಘಟನೆಯ ದಿನಾಂಕಗಳು ಮತ್ತು ಸತ್ಯಾಂಶಗಳನ್ನು ಸಂಕ್ಷಿಪ್ತವಾಗಿ ತಿಳಿಸಿ.\n2. **ದಾಖಲೆಗಳನ್ನು ಸಿದ್ಧವಿಟ್ಟುಕೊಳ್ಳಿ:** ನೋಟಿಸ್, ಒಪ್ಪಂದ, ಎಫ್‌ಐಆರ್ ಅಥವಾ ರಸೀದಿಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.\n3. **ಪರಿಣಿತ ವಕೀಲರ ಸಂಪರ್ಕ:** ನ್ಯಾಯಾಲಯದಲ್ಲಿ ಸಮರ್ಥ ವಾದ ಮಂಡನೆಗೆ ಪರಿಶೀಲಿತ ವಕೀಲರೊಂದಿಗೆ ಸಮಾಲೋಚನೆ ನಡೆಸಿ.\n\n👉 *ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಅಥವಾ ಪರಿಸ್ಥಿತಿಯನ್ನು ಕೆಳಗೆ ಟೈಪ್ ಮಾಡಿ, ಅಥವಾ ನಿಮ್ಮ ಊರಿನ ಹೆಸರನ್ನು ತಿಳಿಸಿ!*`
+        : `👋 **I am here to guide and advise you with all your legal questions.**\n\nPlease feel free to ask me anything about your legal situation. Here is how I can advise and assist you:\n\n📌 **Common Legal Matters You Can Ask About:**\n• 👨‍👩‍👧 **Family & Matrimonial:** Divorce proceedings, maintenance/alimony, child custody, domestic disputes\n• ⚖️ **Criminal & Bail:** Anticipatory bail, regular bail, police complaints, FIR quashing\n• 🏠 **Property & Land:** Land boundary disputes, title verification, partition, tenant eviction\n• 📜 **Financial & Commercial:** Cheque bounce (Sec 138 NI Act), loan recovery, contract breaches\n• 🚗 **Accidents & Claims:** Motor accident compensation (MACT), vehicle insurance claims\n• 🛡️ **Consumer & Civil:** Consumer forum disputes, stay orders/injunctions, civil suits\n\n💡 **Practical Legal Advice:**\n1. **State your issue:** Share what happened, key dates, and what resolution you seek.\n2. **Organize documents:** Keep agreements, receipts, messages, or legal notices ready.\n3. **Consult a specialist advocate:** Connect with our verified advocates below for direct legal consultation and court representation.\n\n👉 *Type your specific situation or question below, or search for advocates in your city!*`;
+
+      return send(request, response, 200, {
+        text: reply,
+        type: "advocates",
+        advocates: topAdvs.map(formatCard),
+      });
+    }
+
+    // B) Advice Intent ("I need advice", "give me advice", "legal advice", "what should I do", etc.)
+    const isAdviceIntent =
+      /\b(i\s*need\s*(some\s*|legal\s*)?advice|give\s*(me\s*)?(some\s*)?advice|legal\s*advice|need\s*advice|what\s*should\s*i\s*do|what\s*to\s*do|suggest\s*(me|something)|any\s*advice|give\s*advice|advise\s*me|how\s*to\s*proceed|how\s*to\s*handle|legal\s*help|some\s*advice)\b/i.test(cleanQ) ||
+      /^(advice|legal advice)$/i.test(cleanQ) ||
+      /(ಸಲಹೆ|ಕಾನೂನು ಸಲಹೆ|ಏನು ಮಾಡಬೇಕು|ಮಾರ್ಗದರ್ಶನ)/u.test(msg);
+
+    if (isAdviceIntent) {
+      const reply = isKn
+        ? `⚖️ **AdvocateHub ಕಾನೂನು ಸಲಹೆ ಮತ್ತು ಮಾರ್ಗದರ್ಶನ:**\n\nಯಾವುದೇ ಕಾನೂನು ಸಮಸ್ಯೆ ಅಥವಾ ವಿವಾದ ಎದುರಾದಾಗ, ನಿಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ರಕ್ಷಿಸಿಕೊಳ್ಳಲು ಈ ಕೆಳಗಿನ ಪ್ರಮುಖ ಕಾನೂನು ಸಲಹೆಗಳನ್ನು ಅನುಸರಿಸಿ:\n\n1. 📝 **ದಾಖಲೆಗಳನ್ನು ಸಂರಕ್ಷಿಸಿ:**\nಎಲ್ಲಾ ಪತ್ರವ್ಯವಹಾರ, ಒಪ್ಪಂದಗಳು, ಬ್ಯಾಂಕ್ ವಹಿವಾಟು ರಸೀದಿಗಳು, ವಾಟ್ಸಾಪ್/ಇಮೇಲ್ ಸಂದೇಶಗಳನ್ನು ಸುರಕ್ಷಿತವಾಗಿರಿಸಿ. ಮೌಖಿಕ ಮಾತುಗಳಿಗಿಂತ ಲಿಖಿತ ಪುರಾವೆಗಳಿಗೆ ಕೋರ್ಟ್‌ನಲ್ಲಿ ಹೆಚ್ಚಿನ ಮೌಲ್ಯವಿದೆ.\n\n2. ⏱️ **ಕಾಲಮಿತಿಯೊಳಗೆ ಕ್ರಮವಹಿಸಿ:**\nಕಾನೂನಿನಲ್ಲಿ ಪ್ರತಿ ಕ್ರಮಕ್ಕೂ ನಿಗದಿತ ಕಾಲಮಿತಿ ಇರುತ್ತದೆ (ಉದಾ: ಚೆಕ್ ಬೌನ್ಸ್ ನೋಟಿಸ್‌ಗೆ 30 ದಿನಗಳೊಳಗೆ ಉತ್ತರ, ಬೇಲ್ ಅರ್ಜಿಗಳು ಇತ್ಯಾದಿ). ವಿಳಂಬವು ನಿಮ್ಮ ಕೇಸ್‌ಗೆ ನಷ್ಟ ಉಂಟುಮಾಡಬಹುದು.\n\n3. 🛡️ **ಅನುಮೋದನೆಯಿಲ್ಲದೆ ಸಹಿ ಮಾಡಬೇಡಿ:**\nವಕೀಲರೊಂದಿಗೆ ಸಮಾಲೋಚಿಸದೆ ಯಾವುದೇ ರಾಜಿ ಒಪ್ಪಂದ ಅಥವಾ ಒಪ್ಪಿಗೆ ಪತ್ರಗಳಿಗೆ ಸಹಿ ಮಾಡಬೇಡಿ.\n\n4. 📜 **ಕಾನೂನು ನೋಟಿಸ್ ಜಾರಿ / ಉತ್ತರ:**\nವಕೀಲರ ಮೂಲಕ ನೀಡುವ ಅಧಿಕೃತ ನೋಟಿಸ್ ಅಥವಾ ಪ್ರತ್ಯುತ್ತರವು ನಿಮ್ಮ ಪರವಾದ ಕಾನೂನು ನಿಲುವನ್ನು ಭದ್ರಪಡಿಸುತ್ತದೆ.\n\n5. 👨‍⚖️ **ಪರಿಣಿತ ವಕೀಲರ ಸಮಾಲೋಚನೆ:**\nಸಿವಿಲ್, ಕ್ರಿಮಿನಲ್, ಆಸ್ತಿ ಮತ್ತು ಕೌಟುಂಬಿಕ ವಿಷಯಗಳಿಗೆ ಪ್ರತ್ಯೇಕ ಪರಿಣತಿ ಅಗತ್ಯ. ನಿಮ್ಮ ಕ್ಷೇತ್ರದ ವಕೀಲರ ಸಲಹೆ ಪಡೆಯಿರಿ.\n\n💬 *ನಿಮ್ಮ ಪರಿಸ್ಥಿತಿಯ ವಿವರವನ್ನು ಕೆಳಗೆ ಟೈಪ್ ಮಾಡಿ (ಉದಾ: 'ಆಸ್ತಿ ವಿವಾದ', 'ಚೆಕ್ ಬೌನ್ಸ್', 'ಬೇಲ್ ಪ್ರಕ್ರಿಯೆ'), ನಾನು ನಿಮಗೆ ಹೆಚ್ಚಿನ ಮಾರ್ಗದರ್ಶನ ನೀಡುತ್ತೇನೆ!*`
+        : `⚖️ **AdvocateHub Legal Advisory & Core Guidance:**\n\nWhen confronting a legal dispute or issue, following these core steps will safeguard your rights and strengthen your position:\n\n1. 📝 **Preserve Written Records:**\nSave all physical and digital evidence (notices, WhatsApp/email messages, agreements, bank statements, photos). Verbal statements have little weight in court without written proof.\n\n2. ⏱️ **Act Promptly within Statutory Limitations:**\nEvery legal action carries statutory deadlines (e.g. 30 days to reply to a Cheque Bounce notice, strict timelines for bail, injunctions, or filing appeals). Delays can forfeit your rights.\n\n3. 🛡️ **Do Not Sign Unreviewed Documents:**\nNever sign any settlement, waiver, or compromise agreement without getting it verified by an advocate first.\n\n4. 📜 **Issue or Reply to Legal Notices Professionally:**\nAn official legal notice or formal reply establishes your legal defense on the record before litigation begins.\n\n5. 👨‍⚖️ **Consult a Verified Specialist Advocate:**\nCriminal, Family, Land, and Corporate disputes require specialized courtroom expertise. Connect with an advocate practicing in your jurisdiction.\n\n💬 *Tell me about your situation (e.g., 'Received a court notice', 'Tenant refusing to vacate', 'Accident compensation'), and I will guide you further!*`;
+
+      return send(request, response, 200, {
+        text: reply,
+        type: "advocates",
+        advocates: topAdvs.map(formatCard),
+      });
+    }
+
+    // C) Greetings Intent ("hi", "hello", "hey", "namaste", "namaskara", etc.)
+    const isGreetingIntent =
+      (/\b(hi|hello|hey|namaste|namaskar|good\s*(morning|afternoon|evening|day)|greetings|howdy)\b/i.test(cleanQ) && cleanQ.split(/\s+/).length <= 4) ||
+      /^(ಹಲೋ|ನಮಸ್ಕಾರ|ನಮಸ್ತೆ|ಶುಭೋದಯ|ಶುಭ ಸಂಜೆ)$/u.test(msg.trim());
+
+    if (isGreetingIntent) {
+      const reply = isKn
+        ? `👋 **ನಮಸ್ಕಾರ! Advocates Hub AI ಕಾನೂನು ಸಹಾಯಕನಿಗೆ ಸ್ವಾಗತ.**\n\nನಾನು ನಿಮಗೆ ತ್ವರಿತ ಕಾನೂನು ಸಲಹೆ, ಪ್ರಕರಣದ ಸ್ಪಷ್ಟತೆ ಮತ್ತು ಪರಿಶೀಲಿತ ವಕೀಲರ ಸಂಪರ್ಕ ಕಲ್ಪಿಸಲು ಇಲ್ಲಿದ್ದೇನೆ.\n\n💬 **ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?**\n• ❓ ಪ್ರಶ್ನೆ ಕೇಳಿ: *'ನನಗೆ ಕೆಲವು ಪ್ರಶ್ನೆಗಳಿವೆ'* ಅಥವಾ *'ಕಾನೂನು ಸಲಹೆ ಬೇಕು'*\n• ⚖️ ಕಾನೂನು ಮಾಹಿತಿ: *'ಬೇಲ್ ಪಡೆಯುವುದು ಹೇಗೆ?'*, *'ಚೆಕ್ ಬೌನ್ಸ್ ನಿಯಮಗಳು'*, *'ವಿಚ್ಛೇದನ ಪ್ರಕ್ರಿಯೆ'*\n• 🔍 ವಕೀಲರ ಹುಡುಕಾಟ: ಹೆಸರು, ಊರು (ಉದಾ: *'Gokak'*, *'Bengaluru'*), ಅಥವಾ ವಿಭಾಗ (*'ಕ್ರಿಮಿನಲ್'*, *'ಆಸ್ತಿ'*, *'ಕೌಟುಂಬಿಕ'*)\n\nನಿಮ್ಮ ಪ್ರಶ್ನೆ ಅಥವಾ ಸಮಸ್ಯೆಯನ್ನು ತಿಳಿಸಿ!`
+        : `👋 **Hello! Welcome to Advocates Hub AI Legal Assistant.**\n\nI am here to provide you with instant legal advice, case clarity, and connect you with top verified advocates.\n\n💬 **How can I assist you today?**\n• ❓ Ask a question: *'I have some questions'* or *'I need legal advice'*\n• ⚖️ Inquire about a case: *'How to apply for bail?'*, *'Cheque bounce rules'*, *'Divorce procedure'*\n• 🔍 Find advocates: Search by name, city (e.g. *'Gokak'*, *'Bengaluru'*), or practice area (*'Criminal'*, *'Family'*, *'Property'*)\n\nWhat legal issue or question can I help you with today?`;
+
+      return send(request, response, 200, {
+        text: reply,
+        type: "advocates",
+        advocates: topAdvs.map(formatCard),
+      });
+    }
+
+    // D) Help Intent ("help", "can you help me", "support", etc.)
+    const isHelpIntent =
+      (/\b(can\s*you\s*help|help\s*me|i\s*need\s*help|assist\s*me|support\s*me|please\s*help)\b/i.test(cleanQ) || cleanQ === "help") ||
+      /(ಸಹಾಯ ಮಾಡಿ|ಸಹಾಯ ಬೇಕು|ಸಹಾಯ)/u.test(msg);
+
+    if (isHelpIntent) {
+      const reply = isKn
+        ? `🤝 **ನಿಮ್ಮ ಕಾನೂನು ಸಮಸ್ಯೆಯನ್ನು ಬಗೆಹರಿಸಲು ನಾನು ಇಲ್ಲಿದ್ದೇನೆ!**\n\nAdvocates Hub ಮೂಲಕ ನೀವು ಈ ಕೆಳಗಿನ ನೆರವು ಪಡೆಯಬಹುದು:\n\n1. ⚖️ **ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಕೇಳಿ:** ನೀವು ಎದುರಿಸುತ್ತಿರುವ ಸಮಸ್ಯೆಯನ್ನು ವಿವರಿಸಿ (ಉದಾ: ಜಮೀನು ವಿವಾದ, ಪೊಲೀಸ್ ದೂರು, ಹಣಕಾಸು ತೊಂದರೆ).\n2. 📜 **ಕಾನೂನು ಮಾರ್ಗದರ್ಶಿ:** ಅನ್ವಯವಾಗುವ ಕಾಯ್ದೆ, ದೂರು ಸಲ್ಲಿಸುವ ವಿಧಾನ ಮತ್ತು ಪರಿಹಾರಗಳನ್ನು ತಿಳಿಯಿರಿ.\n3. 👨‍⚖️ **ವಕೀಲರ ಸಮಾಲೋಚನೆ:** ಕೆಳಗಿರುವ ಪರಿಶೀಲಿತ ವಕೀಲರ ವಿವರ ವೀಕ್ಷಿಸಿ ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ.\n\nನಿಮಗೆ ಯಾವ ರೀತಿಯ ಸಹಾಯ ಬೇಕು ಎಂದು ತಿಳಿಸಿ!`
+        : `🤝 **I am here to help you navigate your legal situation!**\n\nHere is how Advocates Hub can support you right now:\n\n1. ⚖️ **Ask your legal question:** Describe the problem you are facing (e.g. dispute, police complaint, financial issue).\n2. 📜 **Explore Legal Clarity Guides:** Understand applicable laws, who can file, and potential remedies.\n3. 👨‍⚖️ **Direct Advocate Consultation:** View verified lawyers below and schedule a consultation.\n\nTell me what happened or what you need help with!`;
+
+      return send(request, response, 200, {
+        text: reply,
+        type: "advocates",
+        advocates: topAdvs.map(formatCard),
+      });
+    }
+
+    // E) Navigation Shortcuts
+    if (/\b(bare\s*acts?|acts|laws?)\b/i.test(cleanQ) && cleanQ.split(/\s+/).length <= 4) {
+      return send(request, response, 200, {
+        text: isKn
+          ? "📖 ಭಾರತೀಯ ಕಾಯ್ದೆಗಳು ಮತ್ತು ಸಂಹಿತೆಗಳ ಪೂರ್ಣ ವಿವರಗಳಿಗಾಗಿ Bare Acts ಪುಟಕ್ಕೆ ಕರೆದೊಯ್ಯಲಾಗುತ್ತಿದೆ..."
+          : "📖 Directing you to Bare Acts library for full statutes, acts, and sections...",
+        type: "navigate",
+        navigate: "/bare-acts",
+      });
+    }
+    if (/\b(legal\s*documents?|documents?|drafts?|templates?)\b/i.test(cleanQ) && cleanQ.split(/\s+/).length <= 4) {
+      return send(request, response, 200, {
+        text: isKn
+          ? "📑 ಕಾನೂನು ಕರಡುಗಳು ಮತ್ತು ಪತ್ರಗಳ ಮಾದರಿಗಾಗಿ Documents ಪುಟಕ್ಕೆ ಕರೆದೊಯ್ಯಲಾಗುತ್ತಿದೆ..."
+          : "📑 Directing you to Legal Documents & Drafts repository...",
+        type: "navigate",
+        navigate: "/documents",
+      });
+    }
+
+    // F) Practice Area & City Specific Queries
+    // ----------------------------------------------------
+    const isCriminalSearch = /\b(criminal|bail|fir|crime|police\s*case|arrest|ಕ್ರಿಮಿನಲ್|ಬೇಲ್|ಜಾಮೀನು|ಎಫ್‌ಐಆರ್)\b/i.test(cleanQ);
+    const isFamilySearch = /\b(family|divorce|custody|alimony|maintenance|matrimonial|ಕೌಟುಂಬಿಕ|ವಿಚ್ಛೇದನ|ಜೀವನಾಂಶ)\b/i.test(cleanQ);
+    const isPropertySearch = /\b(property|land|real\s*estate|partition|tenant|rent|encumbrance|ಆಸ್ತಿ|ಜಮೀನು|ಭಾಗಪತ್ರ|ಬಾಡಿಗೆ)\b/i.test(cleanQ);
+    const isCivilSearch = /\b(civil|injunction|recovery|contract|damages|ಸಿವಿಲ್|ತಡೆಯಾಜ್ಞೆ|ವಸೂಲಾತಿ)\b/i.test(cleanQ);
+    const isCorporateSearch = /\b(corporate|company|commercial|merger|startup|ಕಾರ್ಪೊರೇಟ್)\b/i.test(cleanQ);
+    const isAllAdvocates = /\b(all\s*advocates?|show\s*advocates?|find\s*advocates?|all\s*lawyers?|ಎಲ್ಲಾ\s*ವಕೀಲರು|ವಕೀಲರು)\b/i.test(cleanQ);
+
+    if (isCriminalSearch) {
+      const crimAdvs = advocates.filter(a =>
+        ((a.speciality || "") + " " + (a.practiceArea || "")).toLowerCase().includes("criminal")
+      );
+      const list = crimAdvs.length > 0 ? crimAdvs : topAdvs;
+      return send(request, response, 200, {
+        text: isKn
+          ? `⚖️ **ಕ್ರಿಮಿನಲ್ ಕಾನೂನು ಸಲಹೆ ಮತ್ತು ವಕೀಲರು:**\n\nಕ್ರಿಮಿನಲ್ ಪ್ರಕರಣಗಳಲ್ಲಿ ತಕ್ಷಣದ ಕ್ರಮ ಮುಖ್ಯವಾಗಿದೆ:\n• ಬಂಧನದ ಭೀತಿಯಿದ್ದರೆ ತಕ್ಷಣ ನಿರೀಕ್ಷಣಾ ಜಾಮೀನು (Anticipatory Bail) ಅರ್ಜಿ ಸಲ್ಲಿಸಿ.\n• ಎಫ್‌ಐಆರ್ (FIR) ಮತ್ತು ದೂರಿನ ದೃಢೀಕೃತ ಪ್ರತಿಯನ್ನು ಪಡೆದುಕೊಳ್ಳಿ.\n• ವಕೀಲರ ಉಪಸ್ಥಿತಿಯಿಲ್ಲದೆ ಪೊಲೀಸರ ಮುಂದೆ ಯಾವುದೇ ತಪ್ಪೊಪ್ಪಿಗೆ ಹೇಳಿಕೆ ನೀಡಬೇಡಿ.\n\nಪರಿಶೀಲಿತ ಕ್ರಿಮಿನಲ್ ವಕೀಲರು:`
+          : `⚖️ **Criminal Law Advice & Verified Advocates:**\n\nIn criminal matters, immediate action is paramount:\n• Apply for Anticipatory Bail immediately if there is apprehension of arrest.\n• Obtain a certified copy of the FIR and complaint.\n• Do not make self-incriminating statements without your advocate present.\n\nHere are verified criminal defense advocates:`,
+        type: "advocates",
+        advocates: list.slice(0, 6).map(formatCard),
+      });
+    }
+
+    if (isFamilySearch) {
+      const famAdvs = advocates.filter(a =>
+        ((a.speciality || "") + " " + (a.practiceArea || "")).toLowerCase().includes("family")
+      );
+      const list = famAdvs.length > 0 ? famAdvs : topAdvs;
+      return send(request, response, 200, {
+        text: isKn
+          ? `👨‍👩‍👧 **ಕೌಟುಂಬಿಕ ಮತ್ತು ವಿಚ್ಛೇದನ ಕಾನೂನು ಸಲಹೆ:**\n\nಕೌಟುಂಬಿಕ ವಿಷಯಗಳಲ್ಲಿ ಗೌಪ್ಯತೆ ಮತ್ತು ಕಾನೂನುಬದ್ಧ ದಾಖಲೆಗಳು ಅತ್ಯಗತ್ಯ:\n• ವಿವಾಹ ನೋಂದಣಿ ಪ್ರಮಾಣಪತ್ರ, ಸಂದೇಶಗಳು ಮತ್ತು ಆರ್ಥಿಕ ವಹಿವಾಟು ದಾಖಲೆಗಳನ್ನು ಸಂರಕ್ಷಿಸಿ.\n• ಕೋರ್ಟ್‌ಗೆ ಹೋಗುವ ಮುನ್ನ ಮಧ್ಯಸ್ಥಿಕೆ (Mediation) ಮೂಲಕ ಸೌಹಾರ್ದಯುತ ಇತ್ಯರ್ಥಕ್ಕೆ ಪ್ರಯತ್ನಿಸಿ.\n• ಮಕ್ಕಳ ಪಾಲನಾ ಹಕ್ಕು (Child Custody) ಮತ್ತು ಜೀವನಾಂಶದ ಬಗ್ಗೆ ಸ್ಪಷ್ಟ ಕಾನೂನು ಸಲಹೆ ಪಡೆಯಿರಿ.\n\nಪರಿಶೀಲಿತ ಕೌಟುಂಬಿಕ ವಕೀಲರು:`
+          : `👨‍👩‍👧 **Family & Matrimonial Law Advice:**\n\nIn family matters, confidentiality and documented communication are key:\n• Preserve marriage records, financial statements, and written communications.\n• Explore pre-litigation counseling and court mediation for amicable settlement.\n• Clarify child custody, visitation rights, and statutory maintenance.\n\nHere are verified family law advocates:`,
+        type: "advocates",
+        advocates: list.slice(0, 6).map(formatCard),
+      });
+    }
+
+    if (isPropertySearch) {
+      const propAdvs = advocates.filter(a =>
+        ((a.speciality || "") + " " + (a.practiceArea || "")).toLowerCase().includes("property")
+      );
+      const list = propAdvs.length > 0 ? propAdvs : topAdvs;
+      return send(request, response, 200, {
+        text: isKn
+          ? `🏠 **ಆಸ್ತಿ ಮತ್ತು ಭೂವಿವಾದ ಕಾನೂನು ಸಲಹೆ:**\n\nಆಸ್ತಿ ವ್ಯವಹಾರಗಳಲ್ಲಿ ಸಮಗ್ರ ಪರಿಶೀಲನೆ ಅತ್ಯಗತ್ಯ:\n• 30 ವರ್ಷಗಳ ಋಣಭಾರ ಪ್ರಮಾಣಪತ್ರ (Encumbrance Certificate - EC), RTC/ಪಹಣಿ ಮತ್ತು ಮೂಲ ಹಕ್ಕು ಪತ್ರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.\n• ಯಾವುದೇ ಹಣ ಪಾವತಿಸುವ ಮುನ್ನ ವಕೀಲರಿಂದ Title Search Report ಪಡೆಯಿರಿ.\n• ಅತಿಕ್ರಮಣ ಅಥವಾ ಗಡಿ ವಿವಾದವಿದ್ದಲ್ಲಿ ತಕ್ಷಣ ಸಿವಿಲ್ ಕೋರ್ಟ್‌ನಲ್ಲಿ ತಡೆಯಾಜ್ಞೆ (Injunction) ಅರ್ಜಿ ಸಲ್ಲಿಸಿ.\n\nಪರಿಶೀಲಿತ ಆಸ್ತಿ ವಕೀಲರು:`
+          : `🏠 **Property & Real Estate Law Advice:**\n\nIn land and property disputes, complete title due diligence is essential:\n• Inspect 30-year Encumbrance Certificate (EC), RTC/Pahani, mutation registers, and parent deeds.\n• Obtain a legal Title Clearance Report before making token payments or executing agreements.\n• In boundary or encroachment disputes, file a civil injunction suit promptly.\n\nHere are verified property law advocates:`,
+        type: "advocates",
+        advocates: list.slice(0, 6).map(formatCard),
+      });
+    }
+
+    if (isCivilSearch) {
+      const civAdvs = advocates.filter(a =>
+        ((a.speciality || "") + " " + (a.practiceArea || "")).toLowerCase().includes("civil")
+      );
+      const list = civAdvs.length > 0 ? civAdvs : topAdvs;
+      return send(request, response, 200, {
+        text: isKn
+          ? `🏛️ **ಸಿವಿಲ್ ವ್ಯಾಜ್ಯಗಳು ಮತ್ತು ಕಾನೂನು ಸಲಹೆ:**\n\nಹಣ ವಸೂಲಾತಿ, ಒಪ್ಪಂದ ಉಲ್ಲಂಘನೆ ಮತ್ತು ಸಿವಿಲ್ ಹಕ್ಕುಗಳ ರಕ್ಷಣೆಗಾಗಿ ಪರಿಶೀಲಿತ ವಕೀಲರು:`
+          : `🏛️ **Civil Matters & Legal Advice:**\n\nFor money recovery, injunctions, contract breaches, and civil rights disputes, here are verified advocates:`,
+        type: "advocates",
+        advocates: list.slice(0, 6).map(formatCard),
+      });
+    }
+
+    if (isCorporateSearch) {
+      const corpAdvs = advocates.filter(a =>
+        ((a.speciality || "") + " " + (a.practiceArea || "")).toLowerCase().includes("corporate")
+      );
+      const list = corpAdvs.length > 0 ? corpAdvs : topAdvs;
+      return send(request, response, 200, {
+        text: isKn
+          ? `🏢 **ಕಾರ್ಪೊರೇಟ್ ಮತ್ತು ವಾಣಿಜ್ಯ ಕಾನೂನು ಸಲಹೆ:**\n\nಕಂಪನಿ ಒಪ್ಪಂದಗಳು, ವ್ಯಾಪಾರ ವಿವಾದಗಳು ಮತ್ತು ವಾಣಿಜ್ಯ ಕಾನೂನುಗಳ ಪರಿಶೀಲಿತ ವಕೀಲರು:`
+          : `🏢 **Corporate & Commercial Law Advice:**\n\nFor business contracts, company disputes, compliance, and commercial litigation, here are verified advocates:`,
+        type: "advocates",
+        advocates: list.slice(0, 6).map(formatCard),
+      });
+    }
+
+    if (isAllAdvocates) {
+      return send(request, response, 200, {
+        text: isKn
+          ? `🔍 **Advocates Hub ನಲ್ಲಿ ಲಭ್ಯವಿರುವ ಪರಿಶೀಲಿತ ವಕೀಲರು:**\nಕಾನೂನು ಸಮಾಲೋಚನೆಗಾಗಿ ಸೂಕ್ತ ವಕೀಲರನ್ನು ಆಯ್ಕೆ ಮಾಡಿ:`
+          : `🔍 **Verified Advocates on Advocates Hub:**\nSelect an advocate below for direct legal consultation:`,
+        type: "advocates",
+        advocates: advocates.slice(0, 8).map(formatCard),
+      });
+    }
+
+    // Check city / district match (e.g. Gokak, Belagavi, Bengaluru, etc.)
+    const matchedCityAdvs = advocates.filter(a => {
+      const c = (a.city || a.district || a.taluk || a.place || "").toLowerCase();
+      return c && cleanQ.includes(c);
+    });
+    if (matchedCityAdvs.length > 0 && cleanQ.split(/\s+/).length <= 4) {
+      return send(request, response, 200, {
+        text: isKn
+          ? `📍 ನಿಮ್ಮ ಸ್ಥಳದಲ್ಲಿ ಲಭ್ಯವಿರುವ ${matchedCityAdvs.length} ಪರಿಶೀಲಿತ ವಕೀಲರು:`
+          : `📍 Found ${matchedCityAdvs.length} verified advocates in your area:`,
+        type: "advocates",
+        advocates: matchedCityAdvs.slice(0, 6).map(formatCard),
+      });
+    }
+
     // 1. Direct Name Search (with Kannada transliteration to match English names)
     const nameClean = cleanQ.replace(/^(who is|find|search|show me|details of|profile of|about|advocate|adv\s*\.?|lawyer)\s+/gi, "").replace(/\s+(advocate|lawyer|profile|court|ವಕೀಲರು|ವಕೀಲ)$/gi, "").trim();
     
@@ -816,11 +1014,15 @@ async function route(request, response) {
       }
     }
 
+    // 3. Helpful Advisory Fallback with Top Verified Advocates
+    const fallbackText = isKn
+      ? `💡 **ಕಾನೂನು ಸಲಹೆ ಮತ್ತು ಮಾರ್ಗದರ್ಶನ:**\n\nನಿಮ್ಮ ಪ್ರಶ್ನೆಗೆ ನಿಖರ ಕಾಯ್ದೆ ದಾಖಲೆ ದೊರೆಯಲಿಲ್ಲ, ಆದರೆ ಸೂಕ್ತ ಪರಿಹಾರಕ್ಕಾಗಿ ಈ ಕೆಳಗಿನ ಸಲಹೆಗಳನ್ನು ಗಮನಿಸಿ:\n\n1. 🔍 **ಪ್ರಮುಖ ಕಾನೂನು ಪದಗಳಿಂದ ಕೇಳಿ:** ಉದಾಹರಣೆಗೆ *'ಬೇಲ್ ಅರ್ಜಿ'*, *'ಚೆಕ್ ಬೌನ್ಸ್'*, *'ಆಸ್ತಿ ವಿವಾದ'*, *'ವಿಚ್ಛೇದನ'*, ಅಥವಾ *'ಅಪಘಾತ ಪರಿಹಾರ'*\n2. 📍 **ಊರಿನ ಹೆಸರು ತಿಳಿಸಿ:** ಉದಾಹರಣೆಗೆ *'Gokak'*, *'Bengaluru'*, *'Belagavi'* ನಮೂದಿಸಿ ವಕೀಲರನ್ನು ಹುಡುಕಿ.\n3. 👨‍⚖️ **ವಕೀಲರ ನೇರ ಸಮಾಲೋಚನೆ:** ನಿಮ್ಮ ಪ್ರಕರಣದ ಪರಿಶೀಲನೆಗೆ ಕೆಳಗಿನ ಪರಿಶೀಲಿತ ವಕೀಲರನ್ನು ಸಂಪರ್ಕಿಸಿ.\n\nನಿಮ್ಮ ಸಮಸ್ಯೆಯನ್ನು ಸರಳ ಪದಗಳಲ್ಲಿ ತಿಳಿಸಿ ಅಥವಾ ವಕೀಲರ ವಿವರ ವೀಕ್ಷಿಸಿ!`
+      : `💡 **Legal Advice & Suggested Next Steps:**\n\nI couldn't find an exact statutory match for that specific phrasing, but here is practical advice to help you get the right answers:\n\n1. 🔍 **Ask with key legal terms:** Try phrases like *'bail application'*, *'cheque bounce'*, *'property dispute'*, *'divorce'*, or *'car accident'*\n2. 📍 **Search by city:** Type your location (e.g. *'Gokak'*, *'Bengaluru'*, *'Belagavi'*) to see nearby advocates.\n3. 👨‍⚖️ **Direct Consultation:** For specific legal representation and confidential case review, consult our verified advocates below:\n\nFeel free to type your question in simple words, or choose one of our verified advocates!`;
+
     return send(request, response, 200, {
-      text: isKn
-        ? "ಕ್ಷಮಿಸಿ, ಮಾಹಿತಿಯು ದೊರೆಯಲಿಲ್ಲ. ವಕೀಲರ ಹೆಸರು (ಉದಾ: 'Shankar'), ಊರು (ಉದಾ: 'Gokak'), ಅಥವಾ ಕಾನೂನು ಪ್ರಶ್ನೆ ಕೇಳಿ."
-        : "I couldn't find a direct match. You can search by advocate name (e.g. 'Shankar'), city (e.g. 'Gokak'), or ask legal questions (e.g. 'road accident', 'bail').",
-      type: "text",
+      text: fallbackText,
+      type: "advocates",
+      advocates: topAdvs.map(formatCard),
     });
   }
 

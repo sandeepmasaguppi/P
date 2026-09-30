@@ -24,8 +24,20 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermOfUse";
 import TalkToAdvocate from "./pages/TalkToAdvocate";
 import Chatbot from "./pages/Chatbot";
+import { getTheme, initTheme } from "./data/themeStore";
 
 function App() {
+  const [theme, setAppTheme] = React.useState(getTheme);
+
+  React.useEffect(() => {
+    initTheme();
+    const handleThemeChange = (e) => {
+      setAppTheme(e.detail || getTheme());
+    };
+    window.addEventListener("law4u_theme_change", handleThemeChange);
+    return () => window.removeEventListener("law4u_theme_change", handleThemeChange);
+  }, []);
+
   const location = useLocation();
   const isAdminPortal = location.pathname === '/admin';
   const isAdvocatePortal = location.pathname === '/advocate-dashboard';
@@ -38,7 +50,7 @@ function App() {
     location.pathname === '/clarity-guide';
 
   return (
-    <div className="App">
+    <div className={`App ${theme === "dark" ? "theme-dark" : "theme-light"}`}>
       {!isAdminPortal && !isAdvocatePortal && !isAdvocateLogin && !isClientLogin && !isClientPortal && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />

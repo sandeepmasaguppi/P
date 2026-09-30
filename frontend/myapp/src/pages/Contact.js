@@ -1,5 +1,5 @@
 // ============================================================
-//  Contact.js  —  Law4u / AdvocatesHub "Contact Us" Page
+//  Contact.js  —  Advocate Hub "Contact Us" Page
 //  Submissions are saved via messagesStore and appear live on
 //  the Admin page's "Messages" tab.
 // ============================================================

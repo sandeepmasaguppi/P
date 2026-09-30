@@ -1,8 +1,8 @@
-// Navbar.js — Law4u 100% Full-Width Navigation with English & Kannada Language Switcher
 import React, { useState, useRef, useEffect } from "react";
 import "./Navbar.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import BrandLogo from "./BrandLogo";
+import { getTheme, toggleTheme } from "../data/themeStore";
 
 const LAWYER_CATEGORIES_EN = [
   { icon: "👨‍👩‍👧", label: "Person / Family", desc: "Divorce, custody, marriage, adoption", path: "/find-lawyer?cat=family" },
@@ -98,8 +98,10 @@ function LawyerMegaMenu({ onClose, isKn }) {
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navRef = useRef(null);
+  const profileRef = useRef(null);
   const location = useLocation();
 
   const [lang, setLang] = useState(() => {
@@ -137,13 +139,42 @@ export default function Navbar() {
 
   useEffect(() => {
     function handleClick(e) {
-      if (navRef.current && !navRef.current.contains(e.target)) setOpenMenu(null);
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setOpenMenu(null);
+        setIsProfileOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const toggle = (menu) => setOpenMenu((prev) => (prev === menu ? null : menu));
+  const [theme, setNavTheme] = useState(getTheme);
+
+  useEffect(() => {
+    const handleTheme = (e) => {
+      setNavTheme(e?.detail || getTheme());
+    };
+    window.addEventListener("law4u_theme_change", handleTheme);
+    return () => window.removeEventListener("law4u_theme_change", handleTheme);
+  }, []);
+
+  const toggle = (menu) => {
+    setIsProfileOpen(false);
+    setOpenMenu((prev) => (prev === menu ? null : menu));
+  };
+
+  const toggleProfile = (e) => {
+    if (e) e.stopPropagation();
+    setOpenMenu(null);
+    setIsProfileOpen((prev) => !prev);
+  };
+
+  // Close all menus and mobile drawer when any link is clicked
+  const handleLinkClick = () => {
+    setOpenMenu(null);
+    setIsProfileOpen(false);
+    setIsMobileMenuOpen(false);
+  };
 
   // If a client is logged in and on client pages, hide the global navbar
   const clientId = Number(localStorage.getItem("law4u_client_id") || sessionStorage.getItem("law4u_client_id") || 0);
@@ -151,88 +182,60 @@ export default function Navbar() {
     return null;
   }
 
-  // Close mobile drawer when any link is clicked
-  const handleLinkClick = () => {
-    setOpenMenu(null);
-    setIsMobileMenuOpen(false);
-  };
-
   const isKn = lang === "kn";
   const legalAdviceItems = isKn ? LEGAL_ADVICE_KN : LEGAL_ADVICE_EN;
   const aboutItems = isKn ? ABOUT_KN : ABOUT_EN;
 
-  const renderLanguageSwitcher = (extraClass = "") => (
-    <div className={`lw-nav-lang ${extraClass}`}>
-      <span className="lw-nav-lang-label">
-        🌐 {isKn ? "ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ:" : "Choose Language:"}
-      </span>
-      <div className="lw-nav-lang-pills">
-        <button
-          type="button"
-          className={`lw-nav-lang-pill ${lang === "en" ? "active" : ""}`}
-          onClick={() => handleLangChange("en")}
-        >
-          English
-        </button>
-        <button
-          type="button"
-          className={`lw-nav-lang-pill ${lang === "kn" ? "active" : ""}`}
-          onClick={() => handleLangChange("kn")}
-        >
-          ಕನ್ನಡ (Kannada)
-        </button>
-      </div>
-    </div>
-  );
-
   return (
     <nav className="lw-navbar" ref={navRef}>
-      {/* ── 100% Width Top Utility Bar ── */}
-      <div className="lw-nav-top-strip">
-        <div className="lw-nav-top-inner">
-          <div className="lw-nav-top-left">
-            <span className="lw-nav-top-tagline">
-              ⚖️ {isKn ? "ಅಡ್ವೊಕೇಟ್ಸ್ ಹಬ್ – ಭಾರತದ ವಿಶ್ವಾಸಾರ್ಹ ಕಾನೂನು ವೇದಿಕೆ" : "Advocates Hub – India's Most Trusted Legal Platform"}
-            </span>
-          </div>
-          <div className="lw-nav-top-right">
-            {renderLanguageSwitcher("lw-nav-lang-top")}
-            <div className="lw-nav-top-auth">
-              <Link to="/login" className="lw-top-auth-link" onClick={handleLinkClick}>
-                {isKn ? "ವಕೀಲರ ಲಾಗಿನ್" : "Advocate Login"}
-              </Link>
-              <span className="lw-top-auth-sep">|</span>
-              <Link to="/client-login" className="lw-top-auth-link" onClick={handleLinkClick}>
-                {isKn ? "ಗ್ರಾಹಕರ ಲಾಗಿನ್" : "Client Login"}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Main 100% Full-Width Navbar ── */}
+      {/* ── Main 100% Full-Width Navbar (Black upper strip removed) ── */}
       <div className="lw-nav-inner">
         {/* Logo */}
         <Link to="/" className="lw-logo" onClick={handleLinkClick}>
-          <BrandLogo size={34} />
+          <BrandLogo size={34} dark={theme === "dark"} />
           <span className="lw-logo-tagline">
             {isKn ? "ಅತ್ಯುತ್ತಮ ಕಾನೂನು ವೇದಿಕೆ" : "Best Legal Platform"}
           </span>
         </Link>
 
-        {/* Hamburger Menu Toggle Button for Mobile/Tabs */}
-        <button 
-          className="lw-menu-toggle" 
-          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-          aria-label="Toggle navigation menu"
-        >
-          {isMobileMenuOpen ? "✕" : "☰"}
-        </button>
-
         {/* Nav links (100% fluid) */}
         <div className={`lw-nav-links ${isMobileMenuOpen ? "active" : ""}`}>
-          {/* Mobile Language Switcher inside drawer */}
-          {renderLanguageSwitcher("lw-nav-lang-mobile")}
+          {/* Mobile Settings Section: One row per setting */}
+          <div className="lw-mobile-profile-details">
+            {/* Row 1: Language */}
+            <div className="lw-mobile-row">
+              <span className="lw-mobile-label">🌐 {isKn ? "ಭಾಷೆ:" : "Language:"}</span>
+              <div className="lw-mobile-lang-pills">
+                <button
+                  type="button"
+                  className={`lw-mobile-lang-pill ${lang === "en" ? "active" : ""}`}
+                  onClick={() => handleLangChange("en")}
+                >
+                  English
+                </button>
+                <button
+                  type="button"
+                  className={`lw-mobile-lang-pill ${lang === "kn" ? "active" : ""}`}
+                  onClick={() => handleLangChange("kn")}
+                >
+                  ಕನ್ನಡ
+                </button>
+              </div>
+            </div>
+
+            {/* Row 2: Theme */}
+            <div className="lw-mobile-row">
+              <span className="lw-mobile-label">{theme === "dark" ? "🌙" : "☀️"} {isKn ? "ಥೀಮ್:" : "Theme:"}</span>
+              <button
+                type="button"
+                className={`lw-mobile-theme-btn ${theme === "dark" ? "is-dark" : "is-light"}`}
+                onClick={() => toggleTheme()}
+                title={theme === "dark" ? (isKn ? "ಬೆಳಕಿನ ಥೀಮ್‌ಗೆ ಬದಲಿಸಿ" : "Switch to Light Theme") : (isKn ? "ಕಪ್ಪು ಥೀಮ್‌ಗೆ ಬದಲಿಸಿ" : "Switch to Dark Theme")}
+              >
+                <span>{theme === "dark" ? (isKn ? "☀️ ಬೆಳಕು (Light)" : "☀️ Light Mode") : (isKn ? "🌙 ಕಪ್ಪು (Dark)" : "🌙 Dark Mode")}</span>
+              </button>
+            </div>
+          </div>
 
           <Link to="/" className="lw-nav-link" onClick={handleLinkClick}>
             {isKn ? "ಮುಖಪುಟ" : "Home"}
@@ -282,12 +285,115 @@ export default function Navbar() {
           {/* Mobile direct auth links inside drawer */}
           <div className="lw-mobile-auth-links">
             <Link to="/login" className="lw-nav-link lw-mobile-only" onClick={handleLinkClick}>
-              {isKn ? "ವಕೀಲರ ಲಾಗಿನ್" : "Advocate Login"}
+              👨‍⚖️ {isKn ? "ವಕೀಲರ ಲಾಗಿನ್" : "Advocate Login"}
             </Link>
             <Link to="/client-login" className="lw-nav-link lw-mobile-only" onClick={handleLinkClick}>
-              {isKn ? "ಗ್ರಾಹಕರ ಲಾಗಿನ್" : "Client Login"}
+              👥 {isKn ? "ಗ್ರಾಹಕರ ಲಾಗಿನ್" : "Client Login"}
             </Link>
           </div>
+        </div>
+
+        {/* ── Right Actions: Profile / Three-Dot Settings Menu + Mobile Toggle ── */}
+        <div className="lw-nav-right-actions">
+          {/* Profile & Three-Dot Menu Trigger */}
+          <div className="lw-nav-profile-wrapper" ref={profileRef}>
+            <button
+              type="button"
+              className={`lw-nav-profile-btn ${isProfileOpen ? "active" : ""}`}
+              onClick={toggleProfile}
+              title={isKn ? "ಪ್ರೊಫೈಲ್ ಮತ್ತು ಸೆಟ್ಟಿಂಗ್ಸ್" : "Advocates Hub – Profile & Settings"}
+              aria-label="Advocates Hub Profile and Settings"
+              aria-expanded={isProfileOpen}
+            >
+              <span className="lw-profile-avatar-circle">👤</span>
+              <span className="lw-profile-dots-icon">⋮</span>
+            </button>
+
+            {/* Profile Dropdown Opened on Click */}
+            {isProfileOpen && (
+              <div className="lw-profile-dropdown" onClick={(e) => e.stopPropagation()}>
+                {/* Row 1: Language Switcher */}
+                <div className="lw-profile-row">
+                  <div className="lw-profile-row-label">
+                    <span className="lw-row-icon">🌐</span>
+                    <span>{isKn ? "ಭಾಷೆ" : "Language"}</span>
+                  </div>
+                  <div className="lw-profile-lang-pills">
+                    <button
+                      type="button"
+                      className={`lw-profile-lang-pill ${lang === "en" ? "active" : ""}`}
+                      onClick={() => handleLangChange("en")}
+                    >
+                      English
+                    </button>
+                    <button
+                      type="button"
+                      className={`lw-profile-lang-pill ${lang === "kn" ? "active" : ""}`}
+                      onClick={() => handleLangChange("kn")}
+                    >
+                      ಕನ್ನಡ
+                    </button>
+                  </div>
+                </div>
+
+                <div className="lw-profile-dropdown-divider" />
+
+                {/* Row 2: Theme Switcher */}
+                <div className="lw-profile-row">
+                  <div className="lw-profile-row-label">
+                    <span className="lw-row-icon">{theme === "dark" ? "🌙" : "☀️"}</span>
+                    <span>{isKn ? "ಥೀಮ್" : "Theme"}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={`lw-profile-theme-toggle ${theme === "dark" ? "is-dark" : "is-light"}`}
+                    onClick={() => toggleTheme()}
+                    title={theme === "dark" ? (isKn ? "ಬೆಳಕಿನ ಥೀಮ್‌ಗೆ ಬದಲಿಸಿ" : "Switch to Light Theme") : (isKn ? "ಕಪ್ಪು ಥೀಮ್‌ಗೆ ಬದಲಿಸಿ" : "Switch to Dark Theme")}
+                  >
+                    <span className="lw-ptt-icon">{theme === "dark" ? "☀️" : "🌙"}</span>
+                    <span className="lw-ptt-text">
+                      {theme === "dark" ? (isKn ? "ಬೆಳಕು (Light)" : "Light") : (isKn ? "ಕಪ್ಪು (Dark)" : "Dark")}
+                    </span>
+                  </button>
+                </div>
+
+                <div className="lw-profile-dropdown-divider" />
+
+                {/* Row 3: Advocate Login */}
+                <div className="lw-profile-link-row">
+                  <Link to="/login" className="lw-profile-dropdown-link" onClick={handleLinkClick}>
+                    <div className="lw-pdl-left">
+                      <span className="lw-pml-icon">👨‍⚖️</span>
+                      <span>{isKn ? "ವಕೀಲರ ಲಾಗಿನ್" : "Advocate Login"}</span>
+                    </div>
+                    <span className="lw-pdl-arrow">→</span>
+                  </Link>
+                </div>
+
+                <div className="lw-profile-dropdown-divider" />
+
+                {/* Row 4: Client Login */}
+                <div className="lw-profile-link-row">
+                  <Link to="/client-login" className="lw-profile-dropdown-link" onClick={handleLinkClick}>
+                    <div className="lw-pdl-left">
+                      <span className="lw-pml-icon">👥</span>
+                      <span>{isKn ? "ಗ್ರಾಹಕರ ಲಾಗಿನ್" : "Client Login"}</span>
+                    </div>
+                    <span className="lw-pdl-arrow">→</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Hamburger Menu Toggle Button for Mobile/Tabs */}
+          <button 
+            className="lw-menu-toggle" 
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-label="Toggle navigation menu"
+          >
+            {isMobileMenuOpen ? "✕" : "☰"}
+          </button>
         </div>
       </div>
     </nav>

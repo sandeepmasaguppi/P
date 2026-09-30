@@ -1,11 +1,12 @@
 // ============================================================
-//  clientlogin.js  —  Law4u Client Login Page
+//  clientlogin.js  —  Advocate Hub Client Login Page
 //  Matches the UI styling, gradients, and dark mode of /admin
 // ============================================================
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import BrandLogo from "../components/BrandLogo";
+import { getTheme, toggleTheme as toggleGlobalTheme } from "../data/themeStore";
 import "./Login.css";
 
 const SESSION_KEY = "law4u_client_id";
@@ -44,19 +45,20 @@ export default function ClientLogin() {
   const [err, setErr] = useState("");
   const [toast, setToast] = useState(null);
 
-  const [theme, setTheme] = useState(() => {
-    try {
-      const saved = localStorage.getItem(THEME_KEY);
-      if (saved === "dark" || saved === "light") return saved;
-    } catch {}
-    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  });
+  const [theme, setTheme] = useState(getTheme);
 
   useEffect(() => {
-    try { localStorage.setItem(THEME_KEY, theme); } catch {}
-  }, [theme]);
+    const handleTheme = (e) => {
+      setTheme(e?.detail || getTheme());
+    };
+    window.addEventListener("law4u_theme_change", handleTheme);
+    return () => window.removeEventListener("law4u_theme_change", handleTheme);
+  }, []);
 
-  const toggleTheme = useCallback(() => setTheme(t => (t === "dark" ? "light" : "dark")), []);
+  const toggleTheme = useCallback(() => {
+    const next = toggleGlobalTheme();
+    setTheme(next);
+  }, []);
 
   const [form, setForm] = useState({
     email: "",
@@ -149,7 +151,7 @@ export default function ClientLogin() {
         
         <div className="am-role-badge client">👤 Client Portal</div>
         <h1 className="am-login-title">Client Login</h1>
-        <p className="am-login-sub">Law4u — Legal Consultation & Matters</p>
+        <p className="am-login-sub">Advocate Hub — Legal Consultation & Matters</p>
 
         <div className="am-field">
           <label>Client Email</label>
@@ -210,7 +212,7 @@ export default function ClientLogin() {
         </button>
 
         <p className="am-alt-link">
-          Don't have a client account? <Link to="/client-dashboard">Find an Advocate</Link>
+          Don't have a client account? <Link to="/talk-to-advocate">Find an Advocate</Link>
         </p>
 
         <p className="am-alt-sub">

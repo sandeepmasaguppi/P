@@ -315,29 +315,39 @@
   color: var(--adm-accent);
 }
 
-/* ── Dark Theme (.am-dark) ── */
-.am-dark.am-login-page .am-login-card {
-  background: #111a2e;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.7);
+/* ── Dark Theme (.am-dark, .theme-dark, [data-theme="dark"]) ── */
+.am-dark.am-login-page .am-login-card,
+[data-theme="dark"] .am-login-card,
+.theme-dark .am-login-card {
+  background: #111a2e !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.7) !important;
 }
 
-.am-dark .am-login-title {
-  color: #f8fafc;
+.am-dark .am-login-title,
+[data-theme="dark"] .am-login-title,
+.theme-dark .am-login-title {
+  color: #f8fafc !important;
 }
 
-.am-dark .am-login-sub {
-  color: #94a3b8;
+.am-dark .am-login-sub,
+[data-theme="dark"] .am-login-sub,
+.theme-dark .am-login-sub {
+  color: #94a3b8 !important;
 }
 
-.am-dark .am-field label {
-  color: #cbd5e1;
+.am-dark .am-field label,
+[data-theme="dark"] .am-field label,
+.theme-dark .am-field label {
+  color: #cbd5e1 !important;
 }
 
-.am-dark .am-field input {
-  background: #0b1220;
-  color: #f8fafc;
-  border-color: #23314d;
+.am-dark .am-field input,
+[data-theme="dark"] .am-field input,
+.theme-dark .am-field input {
+  background: #0b1220 !important;
+  color: #f8fafc !important;
+  border-color: #23314d !important;
 }
 
 .am-dark .am-field input:focus {

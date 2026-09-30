@@ -12,6 +12,23 @@
   min-height: 100vh;
 }
 
+[data-theme="dark"] .lw-aq-page,
+.theme-dark .lw-aq-page {
+  background-color: #0b1320 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .lw-aq-card,
+.theme-dark .lw-aq-card,
+[data-theme="dark"] .lw-aq-form-card,
+.theme-dark .lw-aq-form-card,
+[data-theme="dark"] .lw-aq-box,
+.theme-dark .lw-aq-box {
+  background: #111c2e !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
 /* ── Header Section ── */
 .lw-aq-header {
   background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);

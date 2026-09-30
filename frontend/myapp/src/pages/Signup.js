@@ -1,5 +1,5 @@
 // ============================================================
-//  Signup.js  —  Law4u Signup Page
+//  Signup.js  —  Advocate Hub Signup Page
 //  Two tabs: Client | Advocate
 //  Client accounts are saved immediately (clientsStore).
 //  Advocate accounts are saved with status "pending" and must
@@ -9,6 +9,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import BrandLogo from "../components/BrandLogo";
 import { registerAdvocate } from "../data/Advocatesstore";
 import { registerClient } from "../data/Clientsstore";
 import {
@@ -383,7 +384,7 @@ function SuccessScreen({ type, name, onLogin }) {
       <div className="su-success-icon">🎉</div>
       <h2 className="su-success-title">Registration Successful!</h2>
       <p className="su-success-msg">
-        Welcome to Law4u, <strong>{name}</strong>!<br />
+        Welcome to Advocate Hub, <strong>{name}</strong>!<br />
         {type === "advocate"
           ? "Your advocate profile has been submitted. An admin will review and approve your account before you can log in."
           : "Your client account has been created. You can now find and connect with advocates."}
@@ -824,10 +825,8 @@ export default function Signup() {
 
         {/* Header */}
         <div className="su-header">
-          <Link to="/" className="su-logo">
-            <span style={{ color:"#2563eb", fontWeight:800 }}>Law</span>
-            <span style={{ color:"#dc2626", fontWeight:800 }}>4</span>
-            <span style={{ color:"#16a34a", fontWeight:800 }}>u</span>
+          <Link to="/" className="su-logo" style={{ textDecoration: "none", display: "inline-flex", justifyContent: "center" }}>
+            <BrandLogo size={40} wordmark={true} />
           </Link>
           <h1 className="su-title">Create Your Account</h1>
           <p className="su-subtitle">India's Most Trusted Legal Platform</p>

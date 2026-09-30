@@ -1,5 +1,5 @@
 // ============================================================
-//  register.js  —  Law4u CLIENT Registration Page
+//  register.js  —  Advocate Hub CLIENT Registration Page
 //  ------------------------------------------------------------
 //  Standalone page (no advocate tab) for clients only.
 //  On submit -> POST /api/auth/client/register
@@ -9,6 +9,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import BrandLogo from "../components/BrandLogo";
 import "./Register.css";
 
 // ── If your backend runs on a different origin/port, set it here ──
@@ -140,7 +141,7 @@ function SuccessScreen({ name, onLogin }) {
       <div className="rg-success-icon">🎉</div>
       <h2 className="rg-success-title">Registration Successful!</h2>
       <p className="rg-success-msg">
-        Welcome to Law4u, <strong>{name}</strong>!<br />
+        Welcome to Advocate Hub, <strong>{name}</strong>!<br />
         Your client account has been created. You can now find and connect with advocates.
       </p>
       <div className="rg-success-steps">
@@ -286,10 +287,8 @@ export default function Register() {
 
         {/* Header */}
         <div className="rg-header">
-          <Link to="/" className="rg-logo">
-            <span style={{ color: "#2563eb", fontWeight: 800 }}>Law</span>
-            <span style={{ color: "#dc2626", fontWeight: 800 }}>4</span>
-            <span style={{ color: "#16a34a", fontWeight: 800 }}>u</span>
+          <Link to="/" className="rg-logo" style={{ textDecoration: "none", display: "inline-flex", justifyContent: "center" }}>
+            <BrandLogo size={40} wordmark={true} />
           </Link>
           <h1 className="rg-title">Create Your Client Account</h1>
           <p className="rg-subtitle">India's Most Trusted Legal Platform</p>

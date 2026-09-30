@@ -10,6 +10,41 @@
   font-family: inherit;
 }
 
+[data-theme="dark"] .pt-page,
+.theme-dark .pt-page {
+  background-color: #0b1320 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .pt-card,
+.theme-dark .pt-card,
+[data-theme="dark"] .pt-type-card,
+.theme-dark .pt-type-card,
+[data-theme="dark"] .pt-partner-badge,
+.theme-dark .pt-partner-badge,
+[data-theme="dark"] .pt-benefits-card,
+.theme-dark .pt-benefits-card,
+[data-theme="dark"] .pt-form-card,
+.theme-dark .pt-form-card {
+  background: #111c2e !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .pt-section-title,
+.theme-dark .pt-section-title,
+[data-theme="dark"] .pt-type-title,
+.theme-dark .pt-type-title,
+[data-theme="dark"] .pt-partner-name,
+.theme-dark .pt-partner-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .pt-type-desc,
+.theme-dark .pt-type-desc {
+  color: #94a3b8 !important;
+}
+
 /* ── Hero Section ────────────────────────────────────────── */
 .pt-hero {
   background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);

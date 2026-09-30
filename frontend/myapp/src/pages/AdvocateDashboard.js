@@ -1,5 +1,5 @@
 // ============================================================
-//   AdvocateDashboard.js  —  Law4u Advocate Account Page
+//   AdvocateDashboard.js  —  Advocate Hub Advocate Account Page
 // ============================================================
 
 import { useState, useEffect, useMemo } from "react";
@@ -8,6 +8,7 @@ import "./AdvocateDashboard.css";
 import { getAdvocateById, logoutAdvocate, updateAdvocate } from "../data/Advocatesstore";
 import BrandLogo from "../components/BrandLogo";
 import { api, getAdvocateToken, assetUrl } from "../data/api";
+import { getTheme, toggleTheme } from "../data/themeStore";
 
 
 const SESSION_KEY  = "law4u_advocate_id";
@@ -186,6 +187,16 @@ export default function AdvocateDashboard() {
   const advocate = useMemo(() => (advocateId && advocateVersion >= 0 ? getAdvocateById(advocateId) : null), [advocateId, advocateVersion]);
 
   // UI state used across the dashboard
+  const [theme, setAdTheme] = useState(getTheme);
+
+  useEffect(() => {
+    const handleTheme = (e) => {
+      setAdTheme(e?.detail || getTheme());
+    };
+    window.addEventListener("law4u_theme_change", handleTheme);
+    return () => window.removeEventListener("law4u_theme_change", handleTheme);
+  }, []);
+
   const [ready] = useState(true);
   const [requests, setRequests] = useState([]);
   const [earningsOverrides, setEarningsOverrides] = useState({});
@@ -518,7 +529,7 @@ export default function AdvocateDashboard() {
   ];
 
   return (
-    <div className="ad-page" onClick={() => setActiveMenuId(null)}>
+    <div className={`ad-page ${theme === "dark" ? "ad-dark" : ""}`} onClick={() => setActiveMenuId(null)}>
       {/* ── Top Bar ── */}
       <div className="ad-topbar">
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -530,6 +541,14 @@ export default function AdvocateDashboard() {
           </Link>
         </div>
         <div className="ad-topbar-actions">
+          <button
+            type="button"
+            className="ad-theme-toggle-btn"
+            onClick={() => toggleTheme()}
+            title={theme === "dark" ? "Switch to Light Theme" : "Switch to Black/Dark Theme"}
+          >
+            {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+          </button>
           {activeNav !== "dashboard" ? (
             <button className="ad-site-btn" onClick={() => setActiveNav("dashboard")}>← Back</button>
           ) : (

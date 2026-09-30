@@ -1388,3 +1388,109 @@ background: #ffffff;  border: 1px solid rgba(148, 163, 184, 0.2);
   .ad-tile-tall { grid-row: auto; }
   .ad-tile-value { font-size: 24px; }
 }
+
+/* ── Advocate Dashboard Theme Toggle & Dark Mode ── */
+.ad-theme-toggle-btn {
+  padding: 6px 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.ad-theme-toggle-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.ad-page.ad-dark,
+[data-theme="dark"] .ad-page,
+.theme-dark .ad-page {
+  background-color: #0b1320 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .ad-topbar,
+.theme-dark .ad-topbar,
+.ad-dark .ad-topbar {
+  background: #0f172a !important;
+  border-bottom-color: #1e293b !important;
+}
+
+[data-theme="dark"] .ad-sidebar,
+.theme-dark .ad-sidebar,
+.ad-dark .ad-sidebar {
+  background: #0f172a !important;
+  border-right-color: #1e293b !important;
+}
+
+[data-theme="dark"] .ad-nav-btn,
+.theme-dark .ad-nav-btn,
+.ad-dark .ad-nav-btn {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .ad-nav-btn:hover,
+.theme-dark .ad-nav-btn:hover,
+.ad-dark .ad-nav-btn:hover {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .ad-nav-btn.active,
+.theme-dark .ad-nav-btn.active,
+.ad-dark .ad-nav-btn.active {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .ad-card,
+.theme-dark .ad-card,
+.ad-dark .ad-card,
+[data-theme="dark"] .ad-tile,
+.theme-dark .ad-tile,
+.ad-dark .ad-tile,
+[data-theme="dark"] .ad-request-card,
+.theme-dark .ad-request-card,
+.ad-dark .ad-request-card {
+  background: #111c2e !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .ad-tile-value,
+.theme-dark .ad-tile-value,
+.ad-dark .ad-tile-value {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .ad-theme-toggle-btn,
+.theme-dark .ad-theme-toggle-btn,
+.ad-dark .ad-theme-toggle-btn {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .ad-site-btn,
+.theme-dark .ad-site-btn,
+.ad-dark .ad-site-btn {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .ad-drawer-content,
+.theme-dark .ad-drawer-content,
+.ad-dark .ad-drawer-content {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+

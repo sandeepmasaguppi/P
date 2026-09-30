@@ -1,5 +1,5 @@
 // ============================================================
-//  Partners.js  —  Law4u / AdvocatesHub "Partners" Page
+//  Partners.js  —  Advocate Hub "Partners" Page
 //  Submissions are saved via messagesStore and appear live on
 //  the Admin page's "Messages" tab.
 // ============================================================

@@ -1,4 +1,4 @@
-// Home.js — Law4u Main Page (7 sections) with English & Kannada Toggle
+// Home.js — Advocate Hub Main Page (7 sections) with English & Kannada Toggle
 import React, { useState, useEffect } from "react";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";

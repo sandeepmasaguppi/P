@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getAdvocates } from "../data/Advocatesstore";
 import "./AdvocatesList.css";
@@ -265,11 +265,7 @@ const CATEGORY_PRACTICES = {
   corporate: ["Corporate", "GST", "Tax", "Intellectual Property"],
 };
 
-// Read through advocatesStore (not raw advocates.json) so the id
-// used for profile links always matches the id AdvocateDashboard.js
-// and Login.js look up by. Only "approved" advocates are shown to
-// the public — pending/rejected signups stay hidden from clients.
-const ADVOCATES = getAdvocates().filter((a) => a.status === "approved");
+// Only "approved" advocates are shown to the public — pending/rejected signups stay hidden from clients.
 
 const normalize = (value = "") => (value ?? "").toString().trim().toLowerCase();
 
@@ -331,6 +327,252 @@ function AdvocateAvatar({ advocate }) {
   );
 }
 
+function CustomSearchDropdown({
+  icon,
+  placeholder,
+  value,
+  onChange,
+  options,
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState(value || "");
+  const [showAll, setShowAll] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+  const listRef = useRef(null);
+
+  // Synchronize internal input value if external value changes (e.g. popular tags or category)
+  useEffect(() => {
+    setInputValue(value || "");
+  }, [value]);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+        setShowAll(false);
+        setActiveIndex(-1);
+        // If user typed an exact match in different case, normalize it
+        if (inputValue.trim()) {
+          const match = options.find((opt) => opt.toLowerCase() === inputValue.trim().toLowerCase());
+          if (match && match !== inputValue) {
+            setInputValue(match);
+            onChange(match);
+          }
+        }
+      }
+    }
+    function handleKeyDown(e) {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+        setShowAll(false);
+        setActiveIndex(-1);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, inputValue, options, onChange]);
+
+  const filteredOptions = useMemo(() => {
+    const trimmed = inputValue.trim().toLowerCase();
+    if (!trimmed || showAll) {
+      return options;
+    }
+    return options.filter((opt) => opt.toLowerCase().includes(trimmed));
+  }, [options, inputValue, showAll]);
+
+  // Auto-scroll to active item when navigating with keys
+  useEffect(() => {
+    if (isOpen && activeIndex >= 0 && listRef.current) {
+      const target = listRef.current.querySelector(".lw-dropdown-item.active-item");
+      if (target) {
+        target.scrollIntoView({ block: "nearest" });
+      }
+    }
+  }, [activeIndex, isOpen]);
+
+  // Auto-scroll to selected item when opened
+  useEffect(() => {
+    if (isOpen && listRef.current) {
+      const selectedTarget = listRef.current.querySelector(".lw-dropdown-item.selected");
+      if (selectedTarget) {
+        selectedTarget.scrollIntoView({ block: "nearest" });
+      }
+    }
+  }, [isOpen]);
+
+  const handleSelect = (val) => {
+    onChange(val);
+    setInputValue(val);
+    setShowAll(false);
+    setIsOpen(false);
+    setActiveIndex(-1);
+  };
+
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setInputValue(val);
+    setShowAll(false);
+    onChange(val);
+    setActiveIndex(0);
+    if (!isOpen) setIsOpen(true);
+  };
+
+  const handleClear = (e) => {
+    e.stopPropagation();
+    onChange("");
+    setInputValue("");
+    setShowAll(true);
+    setActiveIndex(-1);
+    setIsOpen(true);
+    if (inputRef.current) inputRef.current.focus();
+  };
+
+  const handleKeyDownInput = (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!isOpen) {
+        setIsOpen(true);
+        setShowAll(true);
+        setActiveIndex(0);
+      } else if (filteredOptions.length > 0) {
+        setActiveIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : 0));
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (isOpen && filteredOptions.length > 0) {
+        setActiveIndex((prev) => (prev > 0 ? prev - 1 : filteredOptions.length - 1));
+      }
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (activeIndex >= 0 && filteredOptions[activeIndex]) {
+        handleSelect(filteredOptions[activeIndex]);
+      } else if (filteredOptions.length > 0) {
+        handleSelect(filteredOptions[0]);
+      } else {
+        setIsOpen(false);
+      }
+    }
+  };
+
+  const handleToggleClick = (e) => {
+    e.stopPropagation();
+    setShowAll(true);
+    setIsOpen((prev) => !prev);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  return (
+    <div
+      className={`lw-custom-dropdown ${isOpen ? "is-open" : ""}`}
+      ref={dropdownRef}
+    >
+      <div
+        className="lw-dropdown-input-wrapper"
+        onClick={() => {
+          if (!isOpen) {
+            setIsOpen(true);
+            setShowAll(true);
+          }
+          if (inputRef.current) inputRef.current.focus();
+        }}
+      >
+        <span className="lw-search-field-icon">{icon}</span>
+        <input
+          ref={inputRef}
+          type="text"
+          className="lw-dropdown-main-input"
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDownInput}
+          onFocus={() => {
+            if (!isOpen) {
+              setIsOpen(true);
+              setShowAll(true);
+            }
+          }}
+          placeholder={placeholder}
+          autoComplete="off"
+          spellCheck="false"
+        />
+        {inputValue ? (
+          <button
+            type="button"
+            className="lw-dropdown-clear-btn"
+            onClick={handleClear}
+            title="Clear"
+            tabIndex={-1}
+          >
+            ✕
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className="lw-dropdown-toggle-btn"
+          onClick={handleToggleClick}
+          tabIndex={-1}
+          title="Show options"
+        >
+          <span className={`lw-dropdown-arrow ${isOpen ? "open" : ""}`}>▼</span>
+        </button>
+      </div>
+
+      {isOpen && (
+        <div className="lw-dropdown-menu">
+          <ul className="lw-dropdown-list" ref={listRef} role="listbox">
+            {(!inputValue.trim() || showAll) && (
+              <li
+                className={`lw-dropdown-item ${!value ? "selected" : ""}`}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelect("");
+                }}
+                onClick={() => handleSelect("")}
+                role="option"
+                aria-selected={!value}
+              >
+                <span>{placeholder}</span>
+                {!value && <span className="lw-dropdown-check">✓</span>}
+              </li>
+            )}
+            {filteredOptions.length === 0 ? (
+              <li className="lw-dropdown-no-match">
+                No matching options found
+              </li>
+            ) : (
+              filteredOptions.map((opt, idx) => (
+                <li
+                  key={opt}
+                  className={`lw-dropdown-item ${value === opt ? "selected" : ""} ${activeIndex === idx ? "active-item" : ""}`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSelect(opt);
+                  }}
+                  onClick={() => handleSelect(opt)}
+                  role="option"
+                  aria-selected={value === opt}
+                >
+                  <span>{opt}</span>
+                  {value === opt && <span className="lw-dropdown-check">✓</span>}
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdvocatesList({ lang: propLang } = {}) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -341,6 +583,21 @@ export default function AdvocatesList({ lang: propLang } = {}) {
   const [city, setCity] = useState(queryCity);
   const [practice, setPractice] = useState(queryPractice);
   const [showAllAdvocates, setShowAllAdvocates] = useState(false);
+
+  const [allAdvocates, setAllAdvocates] = useState(() => {
+    const list = getAdvocates();
+    return Array.isArray(list) ? list.filter((a) => a.status === "approved") : [];
+  });
+
+  useEffect(() => {
+    const refreshAdvocates = () => {
+      const list = getAdvocates();
+      setAllAdvocates(Array.isArray(list) ? list.filter((a) => a.status === "approved") : []);
+    };
+    refreshAdvocates();
+    window.addEventListener("law4u_advocates_updated", refreshAdvocates);
+    return () => window.removeEventListener("law4u_advocates_updated", refreshAdvocates);
+  }, []);
 
   const [lang, setLang] = useState(() => {
     try {
@@ -369,49 +626,73 @@ export default function AdvocatesList({ lang: propLang } = {}) {
 
   const isKn = lang === "kn";
 
+  const filterAdvocates = useCallback(
+    (selectedCity = "", selectedPractice = "", list = allAdvocates) => {
+      const targetCity = normalize(selectedCity);
+      const targetPractice = normalize(selectedPractice);
 
-  // Keep track of all items that match the filters
+      return (list || []).filter((person) => {
+        if (!person) return false;
+
+        const pCity = normalize(person.city || "");
+        const pDist = normalize(person.district || "");
+        const pTaluk = normalize(person.taluk || "");
+
+        const cityMatch =
+          !targetCity ||
+          pCity === targetCity ||
+          pCity.includes(targetCity) ||
+          targetCity.includes(pCity) ||
+          (pDist && (pDist === targetCity || pDist.includes(targetCity) || targetCity.includes(pDist))) ||
+          (pTaluk && (pTaluk === targetCity || pTaluk.includes(targetCity) || targetCity.includes(pTaluk)));
+
+        const personPractice = normalize(person.practiceArea || person.speciality || "");
+        const practiceMatch = targetPractice
+          ? personPractice === targetPractice ||
+            personPractice.includes(targetPractice) ||
+            targetPractice.includes(personPractice)
+          : matchesPractice(person, categoryPractices);
+
+        return cityMatch && practiceMatch;
+      });
+    },
+    [allAdvocates, categoryPractices]
+  );
+
   const [filteredResults, setFilteredResults] = useState(() =>
-    ADVOCATES.filter((person) => {
-      const cityMatch = !queryCity || normalize(person.city) === normalize(queryCity);
-      const practices = queryPractice ? [queryPractice] : categoryPractices;
-      return cityMatch && matchesPractice(person, practices);
-    })
+    filterAdvocates(queryCity, queryPractice, allAdvocates)
   );
 
   useEffect(() => {
     setCity(queryCity);
     setPractice(queryPractice);
-    setFilteredResults(ADVOCATES.filter((person) => {
-      const cityMatch = !queryCity || normalize(person.city) === normalize(queryCity);
-      const practices = queryPractice ? [queryPractice] : categoryPractices;
-      return cityMatch && matchesPractice(person, practices);
-    }));
     setShowAllAdvocates(false);
-  }, [category, categoryPractices, queryCity, queryPractice]);
+  }, [queryCity, queryPractice]);
 
-  const filterAdvocates = (selectedCity = "", selectedPractice = "") => {
-    return ADVOCATES.filter((person) => {
-      const cityMatch = !selectedCity || normalize(person.city) === normalize(selectedCity);
-      const personPractice = person.practiceArea || person.speciality || "";
-      const practiceMatch = selectedPractice
-        ? normalize(personPractice) === normalize(selectedPractice)
-        : matchesPractice(person, categoryPractices);
-      return cityMatch && practiceMatch;
-    });
+  useEffect(() => {
+    const results = filterAdvocates(city, practice, allAdvocates);
+    setFilteredResults(results);
+  }, [city, practice, allAdvocates, filterAdvocates]);
+
+  const handleCityChange = (newCity) => {
+    setCity(newCity);
+    setShowAllAdvocates(false);
+  };
+
+  const handlePracticeChange = (newPractice) => {
+    setPractice(newPractice);
+    setShowAllAdvocates(false);
   };
 
   const handleSearch = () => {
-    const results = filterAdvocates(city, practice);
-    setShowAllAdvocates(false); // Reset to collapsed view on a new search
+    setShowAllAdvocates(false);
+    const results = filterAdvocates(city, practice, allAdvocates);
     setFilteredResults(results);
   };
 
   const handlePopularClick = (value) => {
     setPractice(value);
-    const results = filterAdvocates(city, value);
-    setShowAllAdvocates(false); // Reset to collapsed view on a new filter tag click
-    setFilteredResults(results);
+    setShowAllAdvocates(false);
   };
 
   const handleSeeMoreAdvocates = () => {
@@ -432,26 +713,22 @@ export default function AdvocatesList({ lang: propLang } = {}) {
   </p>
   <div className="lw-search-bar">
     <div className="lw-search-field">
-      <span className="lw-search-field-icon">📍</span>
-      <select
+      <CustomSearchDropdown
+        icon="📍"
+        placeholder={isKn ? "ನಗರವನ್ನು ಆಯ್ಕೆಮಾಡಿ / ಹುಡುಕಿ" : "Select City (type to search...)"}
         value={city}
-        onChange={e => setCity(e.target.value)} // Only updates state now
-        className="lw-select"
-      >
-        <option value="">{isKn ? "ನಗರವನ್ನು ಆಯ್ಕೆಮಾಡಿ" : "Select City"}</option>
-        {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-      </select>
+        onChange={handleCityChange}
+        options={CITIES}
+      />
     </div>
     <div className="lw-search-field">
-      <span className="lw-search-field-icon">🏛️</span>
-      <select
+      <CustomSearchDropdown
+        icon="🏛️"
+        placeholder={isKn ? "ಕಾರ್ಯಾಚರಣೆಯ ಕ್ಷೇತ್ರವನ್ನು ಆಯ್ಕೆಮಾಡಿ" : "Select Practice Areas"}
         value={practice}
-        onChange={e => setPractice(e.target.value)} // Only updates state now
-        className="lw-select"
-      >
-        <option value="">{isKn ? "ಕಾರ್ಯಾಚರಣೆಯ ಕ್ಷೇತ್ರವನ್ನು ಆಯ್ಕೆಮಾಡಿ" : "Select Practice Areas"}</option>
-        {PRACTICE_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
-      </select>
+        onChange={handlePracticeChange}
+        options={PRACTICE_AREAS}
+      />
     </div>
     <button className="lw-search-btn" onClick={handleSearch}>
       {isKn ? "ಹುಡುಕಿ" : "SEARCH"}

@@ -1,12 +1,12 @@
-// PrivacyPolicy.js — Law4u Advocates Hub Privacy Policy
+// PrivacyPolicy.js — Advocate Hub Privacy Policy
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PrivacyPolicy.css";
 
 const LAST_UPDATED = "01 September 2026";
 const EFFECTIVE_DATE = "01 September 2026";
-const COMPANY = "Law4u Legal Technologies Pvt. Ltd.";
-const EMAIL = "privacy@law4u.in";
+const COMPANY = "Advocate Hub Legal Technologies Pvt. Ltd.";
+const EMAIL = "privacy@advocatehub.in";
 const ADDRESS = "No. 42, 3rd Floor, Legal Hub Tower, MG Road, Bengaluru – 560001, Karnataka, India";
 const PHONE = "+91 80 4567 8900";
 
@@ -31,14 +31,14 @@ const SECTIONS = [
 const CONTENT = {
   introduction: {
     paragraphs: [
-      `Welcome to Law4u Advocates Hub ("Law4u", "we", "us", or "our"). We are committed to protecting and respecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website (www.law4u.in), use our mobile application, or engage with any of our legal services platform features.`,
-      `This Privacy Policy applies to all users of the Law4u platform, including registered advocates, clients seeking legal assistance, visitors browsing our website, and any other individuals who interact with our services.`,
-      `By accessing or using Law4u's services, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with the terms of this policy, please do not access or use our services.`,
+      `Welcome to Advocate Hub ("Advocate Hub", "we", "us", or "our"). We are committed to protecting and respecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website (www.advocatehub.in), use our mobile application, or engage with any of our legal services platform features.`,
+      `This Privacy Policy applies to all users of the Advocate Hub platform, including registered advocates, clients seeking legal assistance, visitors browsing our website, and any other individuals who interact with our services.`,
+      `By accessing or using Advocate Hub's services, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with the terms of this policy, please do not access or use our services.`,
       `This policy is published in compliance with the Information Technology Act, 2000, the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011, and applicable provisions of the Digital Personal Data Protection Act, 2023.`,
     ],
   },
   "information-collect": {
-    intro: "We collect the following categories of information from users of the Law4u platform:",
+    intro: "We collect the following categories of information from users of the Advocate Hub platform:",
     subsections: [
       {
         title: "A. Information You Provide Directly",
@@ -83,7 +83,7 @@ const CONTENT = {
       {
         title: "Platform Operation",
         items: [
-          "To create, manage, and maintain your account on Law4u",
+          "To create, manage, and maintain your account on Advocate Hub",
           "To match clients with appropriate advocates based on legal needs and location",
           "To facilitate consultations, messaging, and communications between users",
           "To display advocate profiles, ratings, reviews, and availability",
@@ -126,46 +126,46 @@ const CONTENT = {
       { title: "Between Users", desc: "Advocate profiles (name, photo, speciality, location, ratings, fees) are visible to all users. Client information shared during consultations is visible only to the matched advocate." },
       { title: "Service Providers", desc: "We share data with trusted third-party service providers who assist us in operating the platform, including cloud hosting providers (AWS/Azure), payment gateways (Razorpay/PayU), SMS and email service providers, and analytics tools. These providers are contractually bound to protect your data." },
       { title: "Verification Partners", desc: "Advocate credential information may be shared with Bar Council verification systems and authorised background check agencies solely for the purpose of verification." },
-      { title: "Legal Requirements", desc: "We may disclose your information when required by law, court order, government authority, or to protect the rights, property, or safety of Law4u, our users, or the public." },
+      { title: "Legal Requirements", desc: "We may disclose your information when required by law, court order, government authority, or to protect the rights, property, or safety of Advocate Hub, our users, or the public." },
       { title: "Business Transfers", desc: "In the event of a merger, acquisition, or sale of assets, your information may be transferred to the acquiring entity, subject to the same privacy protections." },
       { title: "With Your Consent", desc: "We may share your information with third parties for any other purpose with your explicit prior consent." },
     ],
   },
   "advocate-data": {
     paragraphs: [
-      `As an advocate registered on Law4u, we collect and process additional professional data to verify your credentials and display your profile to prospective clients.`,
+      `As an advocate registered on Advocate Hub, we collect and process additional professional data to verify your credentials and display your profile to prospective clients.`,
       `Your public profile will display: your full name, photograph, Bar enrollment number (partial), speciality areas, court experience, years of practice, location, consultation fee, languages spoken, education, and client ratings and reviews.`,
       `Your Bar enrollment number and Bar Council registration details are verified through official records. We do not share your complete enrollment number publicly but retain it for verification purposes.`,
-      `All client communications, consultation notes, and case descriptions handled through the Law4u platform are subject to legal professional privilege to the maximum extent permitted by law. However, we may retain metadata about such communications for platform security and dispute resolution purposes.`,
+      `All client communications, consultation notes, and case descriptions handled through the Advocate Hub platform are subject to legal professional privilege to the maximum extent permitted by law. However, we may retain metadata about such communications for platform security and dispute resolution purposes.`,
       `Advocates are responsible for maintaining the accuracy and currency of their profile information. Outdated or misleading information may result in suspension of the advocate's profile pending correction.`,
-      `Law4u reserves the right to remove or suspend advocate profiles that receive consistent negative ratings, verified complaints of professional misconduct, or that fail credential re-verification checks.`,
+      `Advocate Hub reserves the right to remove or suspend advocate profiles that receive consistent negative ratings, verified complaints of professional misconduct, or that fail credential re-verification checks.`,
     ],
   },
   "client-data": {
     paragraphs: [
-      `As a client using Law4u to seek legal assistance, your privacy and the confidentiality of your legal matters are of paramount importance to us.`,
-      `The legal issue description, case details, and documents you share when seeking consultation are shared only with the advocate you are connected with. Law4u staff do not have routine access to the content of your legal consultations.`,
+      `As a client using Advocate Hub to seek legal assistance, your privacy and the confidentiality of your legal matters are of paramount importance to us.`,
+      `The legal issue description, case details, and documents you share when seeking consultation are shared only with the advocate you are connected with. Advocate Hub staff do not have routine access to the content of your legal consultations.`,
       `Your contact information (name, phone, email) is shared with the advocate only after you initiate a consultation request. Advocates are bound by our Terms of Use and professional ethics obligations not to misuse client information.`,
       `Consultation history, payment records, and review submissions are retained in your account and are visible to you at any time. You may request deletion of your account and associated data as described in Section 10.`,
       `If you post a public question in the Legal Q&A section, that question and any answers from advocates will be publicly visible. Do not include sensitive personal information in public questions.`,
     ],
   },
   cookies: {
-    intro: "Law4u uses cookies and similar tracking technologies to enhance your experience on our platform.",
+    intro: "Advocate Hub uses cookies and similar tracking technologies to enhance your experience on our platform.",
     types: [
       { name: "Essential Cookies",      desc: "Required for the platform to function. These include session cookies, authentication tokens, and security cookies. Cannot be disabled." },
       { name: "Preference Cookies",     desc: "Remember your settings and preferences such as language, city, and search filters. Help personalise your experience." },
       { name: "Analytics Cookies",      desc: "Help us understand how users interact with the platform. We use Google Analytics and similar tools. Data is anonymised and aggregated." },
-      { name: "Marketing Cookies",      desc: "Used to show you relevant advertisements on Law4u and third-party platforms. You may opt out of marketing cookies in your account settings." },
+      { name: "Marketing Cookies",      desc: "Used to show you relevant advertisements on Advocate Hub and third-party platforms. You may opt out of marketing cookies in your account settings." },
     ],
-    footer: "You can control cookies through your browser settings. Disabling cookies may affect the functionality of certain features of the Law4u platform. Our Cookie Preference Centre is available in your account settings.",
+    footer: "You can control cookies through your browser settings. Disabling cookies may affect the functionality of certain features of the Advocate Hub platform. Our Cookie Preference Centre is available in your account settings.",
   },
   "data-security": {
     paragraphs: [
-      `Law4u implements industry-standard security measures to protect your personal data from unauthorised access, alteration, disclosure, or destruction.`,
+      `Advocate Hub implements industry-standard security measures to protect your personal data from unauthorised access, alteration, disclosure, or destruction.`,
       `We use 256-bit SSL/TLS encryption for all data transmitted between your device and our servers. All passwords are hashed using bcrypt and are never stored in plain text.`,
       `Our servers are hosted on ISO 27001 certified infrastructure with regular security audits, penetration testing, and vulnerability assessments.`,
-      `Access to user data within Law4u is role-based and limited to authorised personnel on a need-to-know basis. All internal access is logged and audited.`,
+      `Access to user data within Advocate Hub is role-based and limited to authorised personnel on a need-to-know basis. All internal access is logged and audited.`,
       `We maintain a data breach response plan. In the event of a security breach affecting your personal data, we will notify you within 72 hours as required by applicable law.`,
       `Despite our best efforts, no method of electronic transmission or storage is 100% secure. We cannot guarantee absolute security of your data. You are also responsible for keeping your account credentials confidential.`,
     ],
@@ -194,32 +194,32 @@ const CONTENT = {
       { icon: "⏸️",  title: "Right to Restriction",    desc: "Request restriction of processing while a dispute or correction request is pending." },
       { icon: "🔕",  title: "Right to Withdraw Consent",desc: "Withdraw consent for processing based on consent at any time. Withdrawal does not affect processing done before withdrawal." },
     ],
-    footer: "To exercise any of these rights, please email privacy@law4u.in with your registered email address and a description of your request. We may require identity verification before processing certain requests.",
+    footer: "To exercise any of these rights, please email privacy@advocatehub.in with your registered email address and a description of your request. We may require identity verification before processing certain requests.",
   },
   "third-party": {
     paragraphs: [
-      `Law4u's platform may contain links to third-party websites, payment gateways, and services. This Privacy Policy does not apply to those third-party services.`,
+      `Advocate Hub's platform may contain links to third-party websites, payment gateways, and services. This Privacy Policy does not apply to those third-party services.`,
       `We integrate with the following third-party services, each with their own privacy policies: Razorpay/PayU (payment processing), Google Analytics (usage analytics), Firebase (mobile app infrastructure), Twilio/MSG91 (SMS notifications), SendGrid (email notifications), and AWS/Azure (cloud hosting).`,
-      `We encourage you to review the privacy policies of any third-party services you access through our platform. Law4u is not responsible for the privacy practices of third-party services.`,
+      `We encourage you to review the privacy policies of any third-party services you access through our platform. Advocate Hub is not responsible for the privacy practices of third-party services.`,
       `Bar Council verification links to official Bar Council portals for credential validation. This data exchange is governed by official government data sharing protocols.`,
     ],
   },
   children: {
     paragraphs: [
-      `Law4u's services are intended for users who are 18 years of age or older. We do not knowingly collect personal information from children under the age of 18.`,
-      `If you are a parent or guardian and believe that your child has provided personal information to us, please contact us immediately at privacy@law4u.in. We will take steps to delete such information from our systems.`,
+      `Advocate Hub's services are intended for users who are 18 years of age or older. We do not knowingly collect personal information from children under the age of 18.`,
+      `If you are a parent or guardian and believe that your child has provided personal information to us, please contact us immediately at privacy@advocatehub.in. We will take steps to delete such information from our systems.`,
       `If we discover that we have collected personal information from a child under 18, we will promptly delete such information and terminate the associated account.`,
     ],
   },
   grievance: {
     paragraphs: [
-      `In accordance with the Information Technology Act, 2000 and associated rules, Law4u has appointed a Grievance Officer to address privacy-related complaints and concerns.`,
+      `In accordance with the Information Technology Act, 2000 and associated rules, Advocate Hub has appointed a Grievance Officer to address privacy-related complaints and concerns.`,
     ],
     officer: {
       name:     "Adv. Ravi Shankar Iyer",
       title:    "Grievance Officer & Data Protection Officer",
       company:  COMPANY,
-      email:    "grievance@law4u.in",
+      email:    "grievance@advocatehub.in",
       phone:    "+91 80 4567 8901",
       address:  ADDRESS,
       hours:    "Monday to Friday, 10:00 AM – 6:00 PM IST",
@@ -228,9 +228,9 @@ const CONTENT = {
   },
   changes: {
     paragraphs: [
-      `Law4u reserves the right to update or modify this Privacy Policy at any time. We will notify you of material changes by email, in-app notification, or by posting a prominent notice on our website at least 7 days before the changes take effect.`,
-      `Your continued use of Law4u's services after the effective date of the revised Privacy Policy constitutes your acceptance of the updated policy.`,
-      `We maintain an archive of previous versions of this Privacy Policy. You may request access to previous versions by contacting us at privacy@law4u.in.`,
+      `Advocate Hub reserves the right to update or modify this Privacy Policy at any time. We will notify you of material changes by email, in-app notification, or by posting a prominent notice on our website at least 7 days before the changes take effect.`,
+      `Your continued use of Advocate Hub's services after the effective date of the revised Privacy Policy constitutes your acceptance of the updated policy.`,
+      `We maintain an archive of previous versions of this Privacy Policy. You may request access to previous versions by contacting us at privacy@advocatehub.in.`,
       `We encourage you to review this Privacy Policy periodically to stay informed about how we protect your information.`,
     ],
   },
@@ -243,7 +243,7 @@ const CONTENT = {
       email:   EMAIL,
       phone:   PHONE,
       address: ADDRESS,
-      website: "www.law4u.in/privacy",
+      website: "www.advocatehub.in/privacy",
     },
   },
 };
@@ -611,7 +611,7 @@ export default function PrivacyPolicy() {
           {/* Footer note */}
           <div style={{ background:"#fff", border:"1px solid #e2e8f0", borderRadius:12, padding:"20px 24px", textAlign:"center", fontSize:13, color:"#64748b", lineHeight:1.7 }}>
             This Privacy Policy is effective as of <strong>{EFFECTIVE_DATE}</strong> and was last updated on <strong>{LAST_UPDATED}</strong>.<br />
-            By using Law4u, you acknowledge that you have read and understood this Privacy Policy.<br />
+            By using Advocate Hub, you acknowledge that you have read and understood this Privacy Policy.<br />
             <span style={{ color:"#2563eb", fontWeight:600 }}>© 2026 {COMPANY}. All rights reserved.</span>
           </div>
         </main>

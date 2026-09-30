@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { getAdvocates, getAdvocateRatingSummary, submitAdvocateRating } from "../data/Advocatesstore";
 import { assetUrl, api } from "../data/api";
+import { getTheme, setTheme as setGlobalTheme } from "../data/themeStore";
 import "./ClientDashboard.css";
 const SESSION_KEY = "law4u_client_id";
 const CLIENT_OBJ_KEY = "law4u_client";
@@ -124,6 +125,7 @@ export default function ClientDashboard() {
   // displayedAdvocates: sort filtered advocates so those with recent messages appear first
   const displayedAdvocates = useMemo(() => {
     try {
+      if (messagesVersion < 0) return [];
       const scores = {};
       if (clientId) {
         filteredAdvocates.forEach(a => {
@@ -148,6 +150,7 @@ export default function ClientDashboard() {
         })
         .map(x => x.a);
     } catch (e) { return filteredAdvocates; }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredAdvocates, clientId, messagesVersion, since]);
 
   // Read any previously active chat advocate
@@ -213,11 +216,19 @@ export default function ClientDashboard() {
   }, [selected, selectedRating, clientId]);
 
   // Theme state: 'light' (White Theme) or 'dark' (Black Theme)
-  const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light");
+  const [theme, setTheme] = useState(getTheme);
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
-    localStorage.setItem(THEME_KEY, newTheme);
+    setGlobalTheme(newTheme);
   };
+
+  useEffect(() => {
+    const handle = (e) => {
+      if (e?.detail) setTheme(e.detail);
+    };
+    window.addEventListener("law4u_theme_change", handle);
+    return () => window.removeEventListener("law4u_theme_change", handle);
+  }, []);
 
   // Language state: 'en' or 'kn'
   const [lang, setLang] = useState(() => localStorage.getItem(LANG_KEY) || "en");
@@ -588,7 +599,7 @@ export default function ClientDashboard() {
                 </div>
                 <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <span style={{ fontSize: "13px", color: "var(--wa-text-secondary)" }}>
-                    ✉️ {clientObj?.email || "client@law4u.in"}
+                    ✉️ {clientObj?.email || "client@advocatehub.in"}
                   </span>
                   <span className="wa-cd-badge">
                     {lang === "kn" ? "ಕ್ಲೈಂಟ್ ಖಾತೆ" : "Client Account"}
@@ -800,7 +811,7 @@ export default function ClientDashboard() {
 
       {selected && profileOpen && (
         <div className="wa-profile-overlay" onClick={() => setProfileOpen(false)}>
-          <div className="wa-profile-card" onClick={(e) => e.stopPropagation()}>
+          <div className={`wa-profile-card ${theme === "dark" ? "dark" : ""}`} onClick={(e) => e.stopPropagation()}>
             <button className="wa-profile-close" type="button" onClick={() => setProfileOpen(false)}>×</button>
             <div className="wa-profile-header">
               <div className="wa-profile-avatar-wrap">

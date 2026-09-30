@@ -17,6 +17,39 @@
   --ab-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
 }
 
+[data-theme="dark"],
+.theme-dark {
+  --ab-text-main: #f8fafc;
+  --ab-text-muted: #94a3b8;
+  --ab-bg-light: #111c2e;
+  --ab-bg-white: #0b1320;
+  --ab-border-color: #1e293b;
+}
+
+[data-theme="dark"] .ab-section-title,
+.theme-dark .ab-section-title,
+[data-theme="dark"] .ab-value-title,
+.theme-dark .ab-value-title,
+[data-theme="dark"] .ab-team-name,
+.theme-dark .ab-team-name,
+[data-theme="dark"] .ab-modal-name,
+.theme-dark .ab-modal-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .ab-modal-card,
+.theme-dark .ab-modal-card {
+  background: #111c2e !important;
+  border: 1px solid #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .ab-modal-contact,
+.theme-dark .ab-modal-contact {
+  background: #0b1320 !important;
+  border-color: #1e293b !important;
+}
+
 /* Page Wrapper */
 .ab-page {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

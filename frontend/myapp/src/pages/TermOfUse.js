@@ -1,12 +1,12 @@
-// TermsOfUse.js — Law4u Advocates Hub Terms of Use
+// TermsOfUse.js — Advocate Hub Terms of Use
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./TermOfUse.css";
 
 const LAST_UPDATED  = "01 September 2026";
 const EFFECTIVE_DATE= "01 September 2026";
-const COMPANY       = "Law4u Legal Technologies Pvt. Ltd.";
-const EMAIL         = "legal@law4u.in";
+const COMPANY       = "Advocate Hub Legal Technologies Pvt. Ltd.";
+const EMAIL         = "legal@advocatehub.in";
 const ADDRESS       = "No. 42, 3rd Floor, Legal Hub Tower, MG Road, Bengaluru – 560001, Karnataka, India";
 
 const SECTIONS = [
@@ -108,9 +108,8 @@ export default function TermsOfUse() {
           ← Back
         </button>
         <div style={{ fontWeight:800, fontSize:16 }}>
-          <span style={{ color:"#2563eb" }}>Law</span>
-          <span style={{ color:"#dc2626" }}>4</span>
-          <span style={{ color:"#16a34a" }}>u</span>
+          <span style={{ color:"#2563eb" }}>Advocate</span>
+          <span style={{ color:"#0f766e", marginLeft:4 }}>Hub</span>
           <span style={{ color:"#64748b", fontSize:13, fontWeight:400, marginLeft:8 }}>Terms of Use</span>
         </div>
         <button onClick={() => setTOC(p => !p)} style={{ background:"#eff6ff", border:"1px solid #bfdbfe", borderRadius:7, padding:"6px 14px", color:"#1d4ed8", fontSize:12.5, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
@@ -183,8 +182,8 @@ export default function TermsOfUse() {
           <div id="acceptance" className="tu-section" ref={setRef("acceptance")}>
             <div className="tu-card">
               <h2 className="tu-sec-title">✅ 1. Acceptance of Terms</h2>
-              <div className="tu-highlight">⚠️ Please read these Terms of Use carefully before using the Law4u platform. By accessing or using our services, you agree to be bound by these Terms. If you disagree with any part, please do not use the platform.</div>
-              <S>These Terms of Use ("Terms") constitute a legally binding agreement between you ("User") and {COMPANY} ("Law4u", "we", "us", "our") governing your access to and use of the Law4u website (www.law4u.in), mobile application, and all associated services (collectively, "the Platform").</S>
+              <div className="tu-highlight">⚠️ Please read these Terms of Use carefully before using the Advocate Hub platform. By accessing or using our services, you agree to be bound by these Terms. If you disagree with any part, please do not use the platform.</div>
+              <S>These Terms of Use ("Terms") constitute a legally binding agreement between you ("User") and {COMPANY} ("Advocate Hub", "we", "us", "our") governing your access to and use of the Advocate Hub website (www.advocatehub.in), mobile application, and all associated services (collectively, "the Platform").</S>
               <S>These Terms apply to all users of the Platform, including registered advocates, clients seeking legal assistance, and visitors browsing the website. Additional terms may apply to specific services and will be presented to you at the time of use.</S>
               <S>Your continued use of the Platform after any modification to these Terms constitutes your acceptance of the revised Terms. These Terms were last updated on {LAST_UPDATED} and are effective as of {EFFECTIVE_DATE}.</S>
             </div>
@@ -197,16 +196,16 @@ export default function TermsOfUse() {
               <S>For the purposes of these Terms, the following definitions shall apply:</S>
               <div style={{ background:"#f8fafc", border:"1px solid #e2e8f0", borderRadius:10, padding:"6px 16px" }}>
                 {[
-                  { term:'"Platform"',       def:'The Law4u website, mobile applications, APIs, and all related services operated by the Company.' },
+                  { term:'"Platform"',       def:'The Advocate Hub website, mobile applications, APIs, and all related services operated by the Company.' },
                   { term:'"User"',           def:'Any individual who accesses or uses the Platform, whether registered or not.' },
                   { term:'"Advocate"',       def:'A lawyer or legal professional enrolled with a Bar Council in India who registers on the Platform to offer legal services.' },
                   { term:'"Client"',         def:'An individual or entity who uses the Platform to seek legal advice, consultation, or assistance from an Advocate.' },
                   { term:'"Services"',       def:'The legal marketplace, consultation, document drafting, Q&A, Bare Acts, and related features offered through the Platform.' },
                   { term:'"Consultation"',   def:'A session (in-person, video, or phone) between an Advocate and a Client facilitated through the Platform.' },
                   { term:'"Content"',        def:'All text, data, information, images, reviews, questions, answers, and other materials posted, uploaded, or transmitted through the Platform.' },
-                  { term:'"Fees"',           def:'Charges payable by a Client to an Advocate for consultation, and platform commission charged by Law4u.' },
+                  { term:'"Fees"',           def:'Charges payable by a Client to an Advocate for consultation, and platform commission charged by Advocate Hub.' },
                   { term:'"Account"',        def:'A registered profile created by a User on the Platform.' },
-                  { term:'"Verification"',   def:'The process by which Law4u confirms an Advocate\'s credentials with Bar Council records.' },
+                  { term:'"Verification"',   def:'The process by which Advocate Hub confirms an Advocate\'s credentials with Bar Council records.' },
                 ].map(row => (
                   <div key={row.term} className="tu-def-row">
                     <span className="tu-def-term">{row.term}</span>
@@ -221,7 +220,7 @@ export default function TermsOfUse() {
           <div id="eligibility" className="tu-section" ref={setRef("eligibility")}>
             <div className="tu-card">
               <h2 className="tu-sec-title">👤 3. Eligibility</h2>
-              <S>To use the Law4u Platform, you must meet the following eligibility requirements:</S>
+              <S>To use the Advocate Hub Platform, you must meet the following eligibility requirements:</S>
               <B>General Users (Clients)</B>
               <Li>You must be at least 18 years of age or the age of majority in your jurisdiction.</Li>
               <Li>You must have the legal capacity to enter into binding contracts under Indian law.</Li>
@@ -233,7 +232,7 @@ export default function TermsOfUse() {
               <Li>You must not be under any suspension, disqualification, or disciplinary proceedings that would prevent you from practising law.</Li>
               <Li>You must comply with the Bar Council of India Rules, 1975, and all applicable professional conduct rules.</Li>
               <Li>You must submit accurate credentials and consent to verification of your Bar enrollment number.</Li>
-              <div className="tu-warning-box">⚠️ Law4u reserves the right to terminate any account where eligibility requirements are found to be unmet, at any time and without notice.</div>
+              <div className="tu-warning-box">⚠️ Advocate Hub reserves the right to terminate any account where eligibility requirements are found to be unmet, at any time and without notice.</div>
             </div>
           </div>
 
@@ -241,9 +240,9 @@ export default function TermsOfUse() {
           <div id="platform-desc" className="tu-section" ref={setRef("platform-desc")}>
             <div className="tu-card">
               <h2 className="tu-sec-title">🏛️ 4. Platform Description</h2>
-              <div className="tu-info-box">ℹ️ Law4u is a technology platform that connects clients with advocates. Law4u is NOT a law firm and does NOT provide legal advice.</div>
-              <S>Law4u operates as an online marketplace and technology intermediary that connects individuals seeking legal assistance ("Clients") with licensed legal professionals ("Advocates"). Law4u facilitates this connection but is not a party to any client-advocate relationship or legal engagement.</S>
-              <B>What Law4u Provides:</B>
+              <div className="tu-info-box">ℹ️ Advocate Hub is a technology platform that connects clients with advocates. Advocate Hub is NOT a law firm and does NOT provide legal advice.</div>
+              <S>Advocate Hub operates as an online marketplace and technology intermediary that connects individuals seeking legal assistance ("Clients") with licensed legal professionals ("Advocates"). Advocate Hub facilitates this connection but is not a party to any client-advocate relationship or legal engagement.</S>
+              <B>What Advocate Hub Provides:</B>
               <Li>A searchable directory of verified advocates categorised by speciality, location, and court experience.</Li>
               <Li>Tools for scheduling consultations via video call, phone, or in-person meetings.</Li>
               <Li>A secure messaging system for client-advocate communication.</Li>
@@ -251,7 +250,7 @@ export default function TermsOfUse() {
               <Li>Access to Bare Acts, legal documents, templates, and educational legal content.</Li>
               <Li>Payment processing infrastructure for consultation fees.</Li>
               <Li>Review and rating systems for advocates.</Li>
-              <B>What Law4u Does NOT Provide:</B>
+              <B>What Advocate Hub Does NOT Provide:</B>
               <Li>Legal advice, legal opinions, or representation of any kind.</Li>
               <Li>Guarantee of the quality, accuracy, or outcome of any legal advice provided by advocates.</Li>
               <Li>Attorney-client privilege as a platform intermediary.</Li>
@@ -267,11 +266,11 @@ export default function TermsOfUse() {
               <Li>You will provide accurate, complete, and current information during registration and keep it updated.</Li>
               <Li>You will maintain the confidentiality of your account credentials and not share them with any third party.</Li>
               <Li>You are responsible for all activities that occur under your account, whether authorised by you or not.</Li>
-              <Li>You will immediately notify Law4u of any unauthorised use of your account at legal@law4u.in.</Li>
-              <Li>You will not create multiple accounts without express permission from Law4u.</Li>
+              <Li>You will immediately notify Advocate Hub of any unauthorised use of your account at legal@advocatehub.in.</Li>
+              <Li>You will not create multiple accounts without express permission from Advocate Hub.</Li>
               <Li>You will not impersonate any person, advocate, or entity on the Platform.</Li>
               <Li>You consent to receive service communications, notifications, and (optionally) promotional messages.</Li>
-              <div className="tu-highlight">Law4u reserves the right to refuse registration, suspend, or terminate any account at its sole discretion, particularly in cases of suspected fraud, misrepresentation, or violation of these Terms.</div>
+              <div className="tu-highlight">Advocate Hub reserves the right to refuse registration, suspend, or terminate any account at its sole discretion, particularly in cases of suspected fraud, misrepresentation, or violation of these Terms.</div>
             </div>
           </div>
 
@@ -279,7 +278,7 @@ export default function TermsOfUse() {
           <div id="advocate-terms" className="tu-section" ref={setRef("advocate-terms")}>
             <div className="tu-card">
               <h2 className="tu-sec-title">⚖️ 6. Advocate-Specific Terms</h2>
-              <S>Advocates registered on Law4u are subject to these additional terms, in addition to the general terms applicable to all users.</S>
+              <S>Advocates registered on Advocate Hub are subject to these additional terms, in addition to the general terms applicable to all users.</S>
               <B>6.1 Professional Conduct</B>
               <Li>All advocates must comply with the Bar Council of India Rules on Professional Standards and Conduct of Advocates at all times.</Li>
               <Li>Advocates must not engage in solicitation of clients in a manner that violates BCI Rules or any applicable law.</Li>
@@ -288,7 +287,7 @@ export default function TermsOfUse() {
               <Li>Advocates must disclose any conflicts of interest before accepting a client engagement.</Li>
               <B>6.2 Profile and Credentials</B>
               <Li>All information in an advocate's profile must be accurate and up-to-date.</Li>
-              <Li>Advocates consent to Law4u verifying their credentials with Bar Council records at any time.</Li>
+              <Li>Advocates consent to Advocate Hub verifying their credentials with Bar Council records at any time.</Li>
               <Li>Advocates must promptly update their profiles upon any change in enrolment status, suspension, or disciplinary proceedings.</Li>
               <Li>Falsification of credentials will result in immediate permanent suspension and may be reported to the relevant Bar Council.</Li>
               <B>6.3 Consultations and Availability</B>
@@ -296,10 +295,10 @@ export default function TermsOfUse() {
               <Li>Advocates must maintain their stated availability on the Platform or update it in a timely manner.</Li>
               <Li>Advocates must clearly communicate their fee structure to clients before commencing any paid service.</Li>
               <B>6.4 Commission and Payments</B>
-              <Li>Law4u charges a platform commission of up to 20% on consultation fees processed through the Platform.</Li>
+              <Li>Advocate Hub charges a platform commission of up to 20% on consultation fees processed through the Platform.</Li>
               <Li>Payouts to advocates are processed within 7 business days of completed consultation.</Li>
               <Li>Advocates may not solicit direct payments outside the platform for services facilitated through the Platform.</Li>
-              <div className="tu-success-box">✅ Advocates who maintain high ratings, verified credentials, and compliance with these terms will be eligible for "Law4u Verified" and "Law4u Premier" badges.</div>
+              <div className="tu-success-box">✅ Advocates who maintain high ratings, verified credentials, and compliance with these terms will be eligible for "Advocate Hub Verified" and "Advocate Hub Premier" badges.</div>
             </div>
           </div>
 
@@ -307,21 +306,21 @@ export default function TermsOfUse() {
           <div id="client-terms" className="tu-section" ref={setRef("client-terms")}>
             <div className="tu-card">
               <h2 className="tu-sec-title">🙋 7. Client-Specific Terms</h2>
-              <S>Clients using Law4u to seek legal assistance are subject to these additional terms:</S>
+              <S>Clients using Advocate Hub to seek legal assistance are subject to these additional terms:</S>
               <B>7.1 Nature of Services</B>
-              <Li>The legal advice obtained through Law4u is provided by independent advocates and does not create an attorney-client relationship with Law4u.</Li>
+              <Li>The legal advice obtained through Advocate Hub is provided by independent advocates and does not create an attorney-client relationship with Advocate Hub.</Li>
               <Li>Clients are responsible for evaluating the quality and suitability of advice received from advocates.</Li>
-              <Li>Law4u does not endorse any specific advocate or guarantee the outcome of any legal matter.</Li>
+              <Li>Advocate Hub does not endorse any specific advocate or guarantee the outcome of any legal matter.</Li>
               <B>7.2 Responsibility for Decisions</B>
               <Li>Clients make legal decisions independently and are not obligated to follow any advice received through the Platform.</Li>
               <Li>Clients should verify the advice received through the Platform with a qualified advocate of their choice before taking any significant legal action.</Li>
-              <Li>Law4u is not liable for any decisions made based on advice obtained through the Platform.</Li>
+              <Li>Advocate Hub is not liable for any decisions made based on advice obtained through the Platform.</Li>
               <B>7.3 Client Conduct</B>
               <Li>Clients must be truthful and provide accurate information about their legal matters to advocates.</Li>
               <Li>Clients must not use the Platform to harass, threaten, or intimidate advocates.</Li>
-              <Li>Clients must respect advocate availability and not contact advocates outside of the Platform for matters facilitated through Law4u.</Li>
+              <Li>Clients must respect advocate availability and not contact advocates outside of the Platform for matters facilitated through Advocate Hub.</Li>
               <Li>Clients must not post false or malicious reviews of advocates.</Li>
-              <div className="tu-info-box">ℹ️ If you are dissatisfied with an advocate, contact Law4u support at legal@law4u.in within 48 hours of the consultation for dispute resolution assistance.</div>
+              <div className="tu-info-box">ℹ️ If you are dissatisfied with an advocate, contact Advocate Hub support at legal@advocatehub.in within 48 hours of the consultation for dispute resolution assistance.</div>
             </div>
           </div>
 
@@ -355,9 +354,9 @@ export default function TermsOfUse() {
               </table>
               <B>Refund Policy</B>
               <Li>If an advocate fails to attend a scheduled consultation without notice, the client is entitled to a full refund.</Li>
-              <Li>Refunds for completed consultations are at Law4u's discretion and subject to review of the circumstances.</Li>
+              <Li>Refunds for completed consultations are at Advocate Hub's discretion and subject to review of the circumstances.</Li>
               <Li>No refunds are issued for no-shows by clients without prior cancellation of at least 2 hours.</Li>
-              <Li>Refund requests must be submitted within 48 hours of the scheduled consultation via legal@law4u.in.</Li>
+              <Li>Refund requests must be submitted within 48 hours of the scheduled consultation via legal@advocatehub.in.</Li>
               <Li>Refunds are processed within 5–10 business days to the original payment method.</Li>
             </div>
           </div>
@@ -366,12 +365,12 @@ export default function TermsOfUse() {
           <div id="prohibited" className="tu-section" ref={setRef("prohibited")}>
             <div className="tu-card">
               <h2 className="tu-sec-title">🚫 9. Prohibited Conduct</h2>
-              <S>The following conduct is strictly prohibited on the Law4u Platform:</S>
+              <S>The following conduct is strictly prohibited on the Advocate Hub Platform:</S>
               {[
-                { icon:"🪪", title:"Impersonation",            desc:"Impersonating any advocate, legal professional, Law4u employee, or other person or entity." },
+                { icon:"🪪", title:"Impersonation",            desc:"Impersonating any advocate, legal professional, Advocate Hub employee, or other person or entity." },
                 { icon:"❌", title:"False Credentials",        desc:"Providing false Bar enrollment numbers, fake qualifications, or misrepresenting professional status." },
-                { icon:"💸", title:"Fee Circumvention",        desc:"Attempting to arrange payments outside the Law4u Platform for services facilitated through the Platform." },
-                { icon:"🤬", title:"Harassment",               desc:"Harassing, threatening, abusing, or intimidating any user, advocate, or Law4u staff member." },
+                { icon:"💸", title:"Fee Circumvention",        desc:"Attempting to arrange payments outside the Advocate Hub Platform for services facilitated through the Platform." },
+                { icon:"🤬", title:"Harassment",               desc:"Harassing, threatening, abusing, or intimidating any user, advocate, or Advocate Hub staff member." },
                 { icon:"🤖", title:"Automated Scraping",       desc:"Using bots, scrapers, or automated tools to extract data from the Platform without permission." },
                 { icon:"🔓", title:"Unauthorized Access",      desc:"Attempting to access another user's account, circumvent security measures, or exploit Platform vulnerabilities." },
                 { icon:"📢", title:"Spam & Solicitation",      desc:"Sending unsolicited messages, spam, or bulk communications to other users through the Platform." },
@@ -395,15 +394,15 @@ export default function TermsOfUse() {
           <div id="content" className="tu-section" ref={setRef("content")}>
             <div className="tu-card">
               <h2 className="tu-sec-title">📄 10. User Content & Intellectual Property</h2>
-              <B>10.1 Ownership of Law4u Content</B>
-              <S>All content on the Law4u Platform, including but not limited to the website design, logos, trademarks, software, text, graphics, and databases, is owned by or licensed to Law4u and is protected by Indian and international intellectual property laws. You may not reproduce, distribute, or create derivative works from Law4u's content without express written permission.</S>
+              <B>10.1 Ownership of Advocate Hub Content</B>
+              <S>All content on the Advocate Hub Platform, including but not limited to the website design, logos, trademarks, software, text, graphics, and databases, is owned by or licensed to Advocate Hub and is protected by Indian and international intellectual property laws. You may not reproduce, distribute, or create derivative works from Advocate Hub's content without express written permission.</S>
               <B>10.2 User-Generated Content</B>
-              <Li>By posting content on the Platform (reviews, Q&A answers, profile information), you grant Law4u a non-exclusive, royalty-free, worldwide licence to use, display, and distribute that content for Platform purposes.</Li>
+              <Li>By posting content on the Platform (reviews, Q&A answers, profile information), you grant Advocate Hub a non-exclusive, royalty-free, worldwide licence to use, display, and distribute that content for Platform purposes.</Li>
               <Li>You represent that you own or have the rights to all content you post and that it does not infringe any third-party rights.</Li>
-              <Li>Law4u may remove any user content that violates these Terms or is otherwise objectionable, without notice.</Li>
+              <Li>Advocate Hub may remove any user content that violates these Terms or is otherwise objectionable, without notice.</Li>
               <B>10.3 Legal Documents and Templates</B>
-              <Li>Document templates on Law4u are provided for reference purposes only. They must be reviewed and adapted by a qualified advocate before use in any legal proceeding.</Li>
-              <Li>Law4u does not warrant the accuracy, completeness, or fitness for purpose of any document template.</Li>
+              <Li>Document templates on Advocate Hub are provided for reference purposes only. They must be reviewed and adapted by a qualified advocate before use in any legal proceeding.</Li>
+              <Li>Advocate Hub does not warrant the accuracy, completeness, or fitness for purpose of any document template.</Li>
               <B>10.4 Bare Acts and Legal Information</B>
               <Li>Bare Acts and legal information on the Platform are reproduced from publicly available official sources for informational purposes only.</Li>
               <Li>Always verify against official government sources for the most current and authoritative text of any law.</Li>
@@ -415,11 +414,11 @@ export default function TermsOfUse() {
             <div className="tu-card">
               <h2 className="tu-sec-title">⚠️ 11. Disclaimers</h2>
               <div className="tu-warning-box">⚠️ THE PLATFORM IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED.</div>
-              <Li>Law4u does not warrant that the Platform will be available, uninterrupted, error-free, or free of viruses or other harmful components.</Li>
-              <Li>Law4u does not warrant the accuracy, completeness, or reliability of any content on the Platform, including legal advice provided by advocates.</Li>
+              <Li>Advocate Hub does not warrant that the Platform will be available, uninterrupted, error-free, or free of viruses or other harmful components.</Li>
+              <Li>Advocate Hub does not warrant the accuracy, completeness, or reliability of any content on the Platform, including legal advice provided by advocates.</Li>
               <Li>The legal information on the Platform is for general informational purposes only and does not constitute legal advice.</Li>
-              <Li>Law4u is not responsible for the professional conduct, competence, or qualifications of any advocate listed on the Platform beyond the credential verification process.</Li>
-              <Li>Law4u does not guarantee that any legal matter will be resolved successfully as a result of using the Platform.</Li>
+              <Li>Advocate Hub is not responsible for the professional conduct, competence, or qualifications of any advocate listed on the Platform beyond the credential verification process.</Li>
+              <Li>Advocate Hub does not guarantee that any legal matter will be resolved successfully as a result of using the Platform.</Li>
               <Li>The outcome of any legal consultation, advice, or representation facilitated through the Platform is the sole responsibility of the respective advocate.</Li>
               <Li>Court listings, jurisdiction information, and legal updates on the Platform may not always reflect the most current legal position.</Li>
             </div>
@@ -430,11 +429,11 @@ export default function TermsOfUse() {
             <div className="tu-card">
               <h2 className="tu-sec-title">🛡️ 12. Limitation of Liability</h2>
               <S>To the maximum extent permitted by applicable law:</S>
-              <Li>Law4u's total aggregate liability to any user for any claim arising out of or relating to these Terms or use of the Platform shall not exceed the greater of (a) ₹5,000 or (b) the total amount paid by the user to Law4u in the 3 months preceding the claim.</Li>
-              <Li>Law4u shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or relating to your use of the Platform.</Li>
-              <Li>Law4u shall not be liable for any loss of profits, revenue, data, goodwill, or other intangible losses.</Li>
-              <Li>Law4u shall not be liable for any damages arising from the conduct or advice of any advocate on the Platform.</Li>
-              <Li>Law4u shall not be liable for any technical failures, data breaches, or platform outages beyond its reasonable control.</Li>
+              <Li>Advocate Hub's total aggregate liability to any user for any claim arising out of or relating to these Terms or use of the Platform shall not exceed the greater of (a) ₹5,000 or (b) the total amount paid by the user to Advocate Hub in the 3 months preceding the claim.</Li>
+              <Li>Advocate Hub shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or relating to your use of the Platform.</Li>
+              <Li>Advocate Hub shall not be liable for any loss of profits, revenue, data, goodwill, or other intangible losses.</Li>
+              <Li>Advocate Hub shall not be liable for any damages arising from the conduct or advice of any advocate on the Platform.</Li>
+              <Li>Advocate Hub shall not be liable for any technical failures, data breaches, or platform outages beyond its reasonable control.</Li>
               <div className="tu-info-box">ℹ️ Some jurisdictions do not allow the exclusion of certain warranties or limitation of liability. In such cases, our liability will be limited to the minimum extent permitted by law.</div>
             </div>
           </div>
@@ -443,12 +442,12 @@ export default function TermsOfUse() {
           <div id="indemnification" className="tu-section" ref={setRef("indemnification")}>
             <div className="tu-card">
               <h2 className="tu-sec-title">🤝 13. Indemnification</h2>
-              <S>You agree to indemnify, defend, and hold harmless Law4u, its directors, officers, employees, agents, licensors, and service providers from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising out of or relating to:</S>
+              <S>You agree to indemnify, defend, and hold harmless Advocate Hub, its directors, officers, employees, agents, licensors, and service providers from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising out of or relating to:</S>
               <Li>Your violation of these Terms of Use.</Li>
               <Li>Your violation of any applicable law or regulation.</Li>
               <Li>Your user content or any infringement of intellectual property rights.</Li>
               <Li>Your conduct as an advocate or client in connection with the Platform.</Li>
-              <Li>Any misrepresentation made by you to Law4u or other users of the Platform.</Li>
+              <Li>Any misrepresentation made by you to Advocate Hub or other users of the Platform.</Li>
               <Li>Any claim by a third party arising from your use of the Platform.</Li>
             </div>
           </div>
@@ -458,9 +457,9 @@ export default function TermsOfUse() {
             <div className="tu-card">
               <h2 className="tu-sec-title">🔚 14. Account Termination</h2>
               <B>14.1 Termination by User</B>
-              <S>You may terminate your account at any time by contacting legal@law4u.in or using the account deletion option in your settings. Upon account deletion, your profile will be removed from public view. Certain data will be retained as required by applicable law (see our Privacy Policy).</S>
-              <B>14.2 Termination by Law4u</B>
-              <S>Law4u reserves the right to suspend or permanently terminate your account, without notice or liability, if:</S>
+              <S>You may terminate your account at any time by contacting legal@advocatehub.in or using the account deletion option in your settings. Upon account deletion, your profile will be removed from public view. Certain data will be retained as required by applicable law (see our Privacy Policy).</S>
+              <B>14.2 Termination by Advocate Hub</B>
+              <S>Advocate Hub reserves the right to suspend or permanently terminate your account, without notice or liability, if:</S>
               <Li>You breach any provision of these Terms.</Li>
               <Li>You provide false or misleading information during registration.</Li>
               <Li>Your conduct causes harm to the Platform, other users, or third parties.</Li>
@@ -479,7 +478,7 @@ export default function TermsOfUse() {
             <div className="tu-card">
               <h2 className="tu-sec-title">🏛️ 15. Dispute Resolution</h2>
               <B>15.1 Internal Resolution</B>
-              <S>Before commencing any formal dispute resolution process, you agree to first attempt to resolve any dispute with Law4u through our internal grievance mechanism by contacting legal@law4u.in. Law4u will attempt to resolve the dispute within 30 days.</S>
+              <S>Before commencing any formal dispute resolution process, you agree to first attempt to resolve any dispute with Advocate Hub through our internal grievance mechanism by contacting legal@advocatehub.in. Advocate Hub will attempt to resolve the dispute within 30 days.</S>
               <B>15.2 Mediation</B>
               <S>If the dispute is not resolved through internal mechanisms within 30 days, the parties agree to attempt resolution through mediation before a mutually agreed mediator in Bengaluru, Karnataka.</S>
               <B>15.3 Arbitration</B>
@@ -508,12 +507,12 @@ export default function TermsOfUse() {
           <div id="modifications" className="tu-section" ref={setRef("modifications")}>
             <div className="tu-card">
               <h2 className="tu-sec-title">✏️ 17. Modifications to Terms</h2>
-              <S>Law4u reserves the right to modify these Terms of Use at any time. We will provide notice of material changes through:</S>
+              <S>Advocate Hub reserves the right to modify these Terms of Use at any time. We will provide notice of material changes through:</S>
               <Li>Email notification to your registered email address at least 7 days before changes take effect.</Li>
               <Li>Prominent notice on the Platform homepage or login page.</Li>
-              <Li>In-app notification through the Law4u mobile application.</Li>
+              <Li>In-app notification through the Advocate Hub mobile application.</Li>
               <S>Your continued use of the Platform after the effective date of revised Terms constitutes your acceptance of the changes. If you do not agree to the revised Terms, you must cease using the Platform and may request account deletion.</S>
-              <S>Previous versions of these Terms are maintained in our archive and may be requested by contacting legal@law4u.in.</S>
+              <S>Previous versions of these Terms are maintained in our archive and may be requested by contacting legal@advocatehub.in.</S>
             </div>
           </div>
 
@@ -522,15 +521,15 @@ export default function TermsOfUse() {
             <div className="tu-card">
               <h2 className="tu-sec-title">📋 18. General Provisions</h2>
               <B>Entire Agreement</B>
-              <S>These Terms, together with the Privacy Policy and any additional terms applicable to specific services, constitute the entire agreement between you and Law4u regarding your use of the Platform and supersede all prior agreements.</S>
+              <S>These Terms, together with the Privacy Policy and any additional terms applicable to specific services, constitute the entire agreement between you and Advocate Hub regarding your use of the Platform and supersede all prior agreements.</S>
               <B>Severability</B>
               <S>If any provision of these Terms is found to be unenforceable or invalid, that provision shall be modified to the minimum extent necessary to make it enforceable, and the remaining provisions shall continue in full force and effect.</S>
               <B>Waiver</B>
-              <S>Law4u's failure to enforce any right or provision of these Terms shall not constitute a waiver of that right or provision unless acknowledged in writing by Law4u.</S>
+              <S>Advocate Hub's failure to enforce any right or provision of these Terms shall not constitute a waiver of that right or provision unless acknowledged in writing by Advocate Hub.</S>
               <B>Assignment</B>
-              <S>You may not assign or transfer your rights or obligations under these Terms without Law4u's prior written consent. Law4u may assign its rights and obligations under these Terms to any successor entity in connection with a merger, acquisition, or sale of assets.</S>
+              <S>You may not assign or transfer your rights or obligations under these Terms without Advocate Hub's prior written consent. Advocate Hub may assign its rights and obligations under these Terms to any successor entity in connection with a merger, acquisition, or sale of assets.</S>
               <B>Force Majeure</B>
-              <S>Law4u shall not be liable for any failure or delay in performance resulting from causes beyond its reasonable control, including natural disasters, pandemics, government actions, internet failures, or power outages.</S>
+              <S>Advocate Hub shall not be liable for any failure or delay in performance resulting from causes beyond its reasonable control, including natural disasters, pandemics, government actions, internet failures, or power outages.</S>
               <B>Language</B>
               <S>These Terms are written in English. If translated into any other language, the English version shall prevail in case of any conflict.</S>
             </div>
@@ -546,9 +545,9 @@ export default function TermsOfUse() {
                   { icon:"🏢", label:"Company",  val: COMPANY },
                   { icon:"✉️", label:"Email",    val: EMAIL },
                   { icon:"📍", label:"Address",  val: ADDRESS },
-                  { icon:"⚖️", label:"Legal",    val: "legal@law4u.in" },
-                  { icon:"🔒", label:"Privacy",  val: "privacy@law4u.in" },
-                  { icon:"🌐", label:"Website",  val: "www.law4u.in/terms" },
+                  { icon:"⚖️", label:"Legal",    val: "legal@advocatehub.in" },
+                  { icon:"🔒", label:"Privacy",  val: "privacy@advocatehub.in" },
+                  { icon:"🌐", label:"Website",  val: "www.advocatehub.in/terms" },
                 ].map(row => (
                   <div key={row.label} className="tu-contact-row">
                     <span style={{ fontSize:16 }}>{row.icon}</span>
@@ -566,7 +565,7 @@ export default function TermsOfUse() {
               {accepted ? "✅ You have accepted the Terms of Use" : "Have you read the Terms?"}
             </div>
             <p style={{ fontSize:13, color:"#64748b", marginBottom:14 }}>
-              By using the Law4u Platform, you agree to these Terms of Use effective {EFFECTIVE_DATE}.
+              By using the Advocate Hub Platform, you agree to these Terms of Use effective {EFFECTIVE_DATE}.
             </p>
             {!accepted && (
               <button
@@ -577,7 +576,7 @@ export default function TermsOfUse() {
             )}
             {accepted && (
               <div style={{ fontSize:13, color:"#16a34a", fontWeight:600 }}>
-                Thank you. You can now use all features of the Law4u Platform.
+                Thank you. You can now use all features of the Advocate Hub Platform.
               </div>
             )}
           </div>

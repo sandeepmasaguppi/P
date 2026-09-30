@@ -1,5 +1,5 @@
 // ============================================================
-//  AdminPage.js  —  Law4u Admin Page
+//  AdminPage.js  —  Advocate Hub Admin Page
 //  Password-protected admin console:
 //   - Approve / reject pending advocate signups
 //   - Add / edit / delete any advocate account
@@ -34,6 +34,7 @@ import {
   getTaluksForDistrict,
   buildTargetCourt,
 } from "../data/CourtsData";
+import { getTheme, toggleTheme as toggleGlobalTheme } from "../data/themeStore";
 import "./AdminPage.css";
 const REQUESTS_KEY   = "law4u_requests";    // { [advocateId]: Request[] }
 const BOOKINGS_KEY   = "law4u_bookings";    // { bookingId: Booking }
@@ -1057,20 +1058,22 @@ function ReqDetailModal({ adv, allReqs, onClose, onStatusChange }) {
 
 // ── Admin Login Gate ────────────────────────────────────────
 // ── Theme (light / dark), remembered per browser ────────────
-const THEME_KEY = "law4u_admin_theme";
-
 function useAdminTheme() {
-  const [theme, setTheme] = useState(() => {
-    try {
-      const saved = localStorage.getItem(THEME_KEY);
-      if (saved === "dark" || saved === "light") return saved;
-    } catch { /* storage unavailable */ }
-    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  });
+  const [theme, setTheme] = useState(getTheme);
+
   useEffect(() => {
-    try { localStorage.setItem(THEME_KEY, theme); } catch { /* ignore */ }
-  }, [theme]);
-  const toggle = useCallback(() => setTheme((t) => (t === "dark" ? "light" : "dark")), []);
+    const handle = (e) => {
+      setTheme(e?.detail || getTheme());
+    };
+    window.addEventListener("law4u_theme_change", handle);
+    return () => window.removeEventListener("law4u_theme_change", handle);
+  }, []);
+
+  const toggle = useCallback(() => {
+    const next = toggleGlobalTheme();
+    setTheme(next);
+  }, []);
+
   return [theme, toggle];
 }
 

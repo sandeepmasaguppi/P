@@ -1,5 +1,5 @@
 // ============================================================
-//  Login.js  —  Law4u Advocate Login Page
+//  Login.js  —  Advocate Hub Advocate Login Page
 //  Matches the UI styling, gradients, and dark mode of /admin
 // ============================================================
 
@@ -7,6 +7,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { loginAdvocate } from "../data/Advocatesstore";
 import BrandLogo from "../components/BrandLogo";
+import { getTheme, toggleTheme as toggleGlobalTheme } from "../data/themeStore";
 import "./Login.css";
 
 const SESSION_KEY = "law4u_advocate_id";
@@ -43,19 +44,20 @@ export default function Login() {
   const [err, setErr] = useState("");
   const [toast, setToast] = useState(null);
 
-  const [theme, setTheme] = useState(() => {
-    try {
-      const saved = localStorage.getItem(THEME_KEY);
-      if (saved === "dark" || saved === "light") return saved;
-    } catch {}
-    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  });
+  const [theme, setTheme] = useState(getTheme);
 
   useEffect(() => {
-    try { localStorage.setItem(THEME_KEY, theme); } catch {}
-  }, [theme]);
+    const handleTheme = (e) => {
+      setTheme(e?.detail || getTheme());
+    };
+    window.addEventListener("law4u_theme_change", handleTheme);
+    return () => window.removeEventListener("law4u_theme_change", handleTheme);
+  }, []);
 
-  const toggleTheme = useCallback(() => setTheme(t => (t === "dark" ? "light" : "dark")), []);
+  const toggleTheme = useCallback(() => {
+    const next = toggleGlobalTheme();
+    setTheme(next);
+  }, []);
 
   const [form, setForm] = useState({
     email: "",
@@ -128,7 +130,6 @@ export default function Login() {
         
         <div className="am-role-badge">⚖️ Advocate Portal</div>
         <h1 className="am-login-title">Advocate Login</h1>
-        <p className="am-login-sub">Law4u — Practice & Client Management</p>
 
         <div className="am-field">
           <label>Advocate Email</label>

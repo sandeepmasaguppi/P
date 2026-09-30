@@ -9,6 +9,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import BrandLogo from "../components/BrandLogo";
 import defaultClarityData from "../data/clarityguide.json";
 import { assetUrl } from "../data/api";
+import { getTheme, setTheme as setGlobalTheme } from "../data/themeStore";
 import "./clientmainpage.css";
 
 const SESSION_KEY = "law4u_client_id";
@@ -184,19 +185,22 @@ export default function ClientMainPage() {
   const [lang, setLang] = useState(() => localStorage.getItem(LANG_KEY) || "en");
   const t = I18N[lang] || I18N.en;
 
-  const toggleLanguage = () => {
-    const next = lang === "en" ? "kn" : "en";
-    setLang(next);
-    localStorage.setItem(LANG_KEY, next);
-  };
 
   // Theme state: 'light' or 'dark'
-  const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light");
+  const [theme, setTheme] = useState(getTheme);
 
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
-    localStorage.setItem(THEME_KEY, newTheme);
+    setGlobalTheme(newTheme);
   };
+
+  useEffect(() => {
+    const handle = (e) => {
+      if (e?.detail) setTheme(e.detail);
+    };
+    window.addEventListener("law4u_theme_change", handle);
+    return () => window.removeEventListener("law4u_theme_change", handle);
+  }, []);
 
   // If query param ?view=clarity is set, show clarity view directly
   const initialView = searchParams.get("view") === "clarity" ? "clarity" : "hub";
@@ -414,7 +418,7 @@ export default function ClientMainPage() {
         <div className="cmp-brand" onClick={backToHub} title="Go to Client Hub">
           <BrandLogo size={32} />
           <div className="cmp-brand-title">
-            Law4u <span>{t.portalTitle}</span>
+            Advocate Hub <span>{t.portalTitle}</span>
           </div>
         </div>
 
@@ -472,7 +476,7 @@ export default function ClientMainPage() {
                   </div>
                   <div className="cmp-tab-info">
                     <div className="cmp-tab-name">{clientObj?.name || "Client"}</div>
-                    <div className="cmp-tab-email">{clientObj?.email || "client@law4u.in"}</div>
+                    <div className="cmp-tab-email">{clientObj?.email || "client@advocatehub.in"}</div>
                     <span className="cmp-tab-badge">{t.clientRole}</span>
                   </div>
                 </div>

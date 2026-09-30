@@ -1,5 +1,5 @@
 // ============================================================
-//   AboutUs.js  —  Law4u / AdvocatesHub "About Us" Page
+//   AboutUs.js  —  Advocate Hub "About Us" Page
 // ============================================================
 
 import React, { useState } from "react";

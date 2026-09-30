@@ -23,6 +23,57 @@
   --ct-transition: all 0.25s ease;
 }
 
+[data-theme="dark"],
+.theme-dark {
+  --ct-text-main: #f8fafc;
+  --ct-text-muted: #94a3b8;
+  --ct-primary-dark: #f8fafc;
+  --ct-bg-light: #0b1320;
+  --ct-bg-white: #111c2e;
+  --ct-border-color: #1e293b;
+}
+
+[data-theme="dark"] .ct-info-card,
+.theme-dark .ct-info-card,
+[data-theme="dark"] .ct-form-card,
+.theme-dark .ct-form-card,
+[data-theme="dark"] .ct-faq-card,
+.theme-dark .ct-faq-card {
+  background: #111c2e !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .ct-info-value,
+.theme-dark .ct-info-value,
+[data-theme="dark"] .ct-form-title,
+.theme-dark .ct-form-title,
+[data-theme="dark"] .ct-sent h3,
+.theme-dark .ct-sent h3 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .ct-faq-q,
+.theme-dark .ct-faq-q {
+  background-color: #111c2e !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .ct-info-icon,
+.theme-dark .ct-info-icon {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .ct-field input,
+.theme-dark .ct-field input,
+[data-theme="dark"] .ct-field textarea,
+.theme-dark .ct-field textarea {
+  background-color: #0b1320 !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
 /* ── 2. Box-Sizing and Base Page Setup ── */
 *, *::before, *::after {
   box-sizing: border-box;

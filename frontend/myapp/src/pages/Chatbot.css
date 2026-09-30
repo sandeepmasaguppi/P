@@ -274,7 +274,7 @@
 
 /* ── Bubbles ───────────────────────────────────────────────── */
 .cb-bubble {
-  max-width:     75%;
+  max-width:     86%;
   border-radius: 14px;
   font-size:     13.5px;
   line-height:   1.6;
@@ -284,7 +284,7 @@
   background:    var(--cb-bot-bg);
   color:         var(--cb-text);
   border-bottom-left-radius: 4px;
-  padding:       10px 13px;
+  padding:       12px 14px;
 }
 
 .user-bubble {
@@ -296,6 +296,9 @@
 
 .cb-bubble-text > div {
   margin-bottom: 2px;
+}
+.cb-bubble-text > div:empty {
+  min-height: 8px;
 }
 .cb-bubble-text > div:last-child { margin-bottom:0; }
 
