@@ -78,31 +78,88 @@ export function getAdvocateByEmail(email) {
 
 export function getAdvocateRatingSummary(id) {
   const advocateId = Number(id);
-  const ratings = readRatings();
-  const record = ratings[advocateId] || { total: 0, count: 0, votes: {} };
-  const baseRating = Number(getAdvocateById(advocateId)?.rating || 0);
-  const avg = record.count ? Number((record.total / record.count).toFixed(1)) : baseRating;
+  const advocate = getAdvocateById(advocateId);
+  const localRatings = readRatings();
+  const localRecord = localRatings[advocateId] || { total: 0, count: 0, votes: {} };
+
+  // Aggregate votes from both backend advocates.json and local storage
+  const combinedVotes = { ...(localRecord.votes || {}) };
+
+  if (advocate?.ratings && typeof advocate.ratings === "object" && !Array.isArray(advocate.ratings)) {
+    Object.entries(advocate.ratings).forEach(([uid, val]) => {
+      const score = typeof val === "object" ? Number(val.score) || 0 : Number(val) || 0;
+      if (score > 0) combinedVotes[String(uid)] = score;
+    });
+  }
+
+  const scores = Object.values(combinedVotes);
+  const count = scores.length;
+  const total = scores.reduce((sum, s) => sum + s, 0);
+
+  // Movie-style rating average
+  const avg = count > 0
+    ? Number((total / count).toFixed(1))
+    : (Number(advocate?.rating) || 5.0);
+
   return {
     rating: avg,
-    count: record.count,
-    total: record.total,
-    votes: record.votes || {},
+    count: count || (advocate?.ratingCount || 0),
+    total,
+    votes: combinedVotes,
   };
+}
+
+export async function submitAdvocateRating(id, clientId, score, clientName = "") {
+  const advocateId = Number(id);
+  const voterId = String(clientId || "guest");
+  const safeScore = Math.min(5, Math.max(1, Number(score) || 1));
+
+  // 1. Update local storage first for instant feedback
+  const summary = setAdvocateRating(advocateId, voterId, safeScore);
+
+  // 2. Persist to backend /api/advocates/:id/rate (writes to backend/data/advocates.json)
+  try {
+    const res = await api(`/api/advocates/${advocateId}/rate`, {
+      method: "POST",
+      body: { clientId: voterId, rating: safeScore, clientName }
+    });
+    if (res && res.ok) {
+      const updated = getAdvocates();
+      const adv = updated.find((a) => Number(a.id) === advocateId);
+      if (adv) {
+        adv.rating = res.rating;
+        adv.ratingCount = res.ratingCount;
+        adv.ratings = res.ratings;
+      }
+      setCache(updated);
+      return {
+        rating: res.rating,
+        count: res.ratingCount,
+        votes: res.ratings || summary.votes,
+      };
+    }
+  } catch (err) {
+    console.error("Failed to persist rating to backend advocates.json:", err);
+  }
+
+  return summary;
 }
 
 export function setAdvocateRating(id, clientId, score) {
   const advocateId = Number(id);
-  const voterId = Number(clientId);
+  const voterId = String(clientId);
   const safeScore = Math.min(5, Math.max(1, Number(score) || 1));
   const ratings = readRatings();
   const record = ratings[advocateId] || { total: 0, count: 0, votes: {} };
-  const previous = record.votes && Object.prototype.hasOwnProperty.call(record.votes, String(voterId)) ? Number(record.votes[String(voterId)]) : null;
+  const previous = record.votes && Object.prototype.hasOwnProperty.call(record.votes, voterId)
+    ? Number(record.votes[voterId])
+    : null;
 
   if (previous !== null) {
     record.total -= previous;
   }
 
-  record.votes[String(voterId)] = safeScore;
+  record.votes[voterId] = safeScore;
   record.total += safeScore;
   record.count = Object.keys(record.votes).length;
 

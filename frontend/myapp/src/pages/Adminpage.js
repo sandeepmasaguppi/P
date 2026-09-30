@@ -30,7 +30,6 @@ import { getQuestions, markQuestionAsRead, deleteQuestion } from "../data/Questi
 import {
   COURT_LEVELS,
   HIGH_COURT_BENCHES,
-  KARNATAKA_DISTRICTS_TALUKS,
   getDistricts,
   getTaluksForDistrict,
   buildTargetCourt,
@@ -78,7 +77,7 @@ function persistBooking(req, advocate) {
   return all[key];
 }
 
-const CITIES = ["Aland", "Afzalpur", "Alur", "Ankola", "Arakalgud", "Arasikere", "Athani", "Aurad", "Badami", "Bagepalli", "Bagalkot", "Baindur", "Bailhongal", "Ballari", "Banahatti", "Bangarapet", "Bantwal", "Basavakalyan", "Basavana Bagewadi", "Belagavi", "Belthangady", "Belur", "Bengaluru", "Bengaluru Rural", "Bhadravati", "Bhalki", "Bhatkal", "Bidar", "Bilagi", "Byadgi", "Chamarajanagar", "Challakere", "Channagiri", "Channapatna", "Channarayapatna", "Chikkaballapur", "Chikkamagaluru", "Chikkodi", "Chiknayakanhalli", "Chincholi", "Chitapur", "Chitradurga", "Chintamani", "Dandeli", "Davangere", "Devadurga", "Devanahalli", "Dharwad", "Doddaballapur", "Gadag", "Gangavathi", "Gauribidanur", "Gokak", "Gudibande", "Gundlupet", "Gubbi", "H.D. Kote", "Hagaribommanahalli", "Haliyal", "Hanagal", "Harapanahalli", "Harihar", "Hassan", "Haveri", "Hirekerur", "Holenarasipura", "Honnavar", "Honnali", "Hoovina Hadagali", "Hosanagara", "Hoscote", "Hospete", "Hukeri", "Humnabad", "Hunsur", "Hungund", "Indi", "Jagalur", "Jamkhandi", "Jevargi", "Kadur", "Kagwad", "Kalaburagi", "Kalghatgi", "Kanakapura", "Karwar", "Karkala", "KGF", "Khanapur", "Kittur", "Kolar", "Kollegal", "Koppa", "Koppal", "Koratagere", "Kudachi", "Kudligi", "Kumta", "Kunigal", "Kupa", "Kushalnagar", "Kushtagi", "Lakshmeshwar", "Lingasugur", "Maddur", "Madhugiri", "Madikeri", "Magadi", "Malavalli", "Malur", "Mangaluru", "Mandya", "Manvi", "Moodbidri", "Muddebihal", "Mudalagi", "Mudhol", "Mudigere", "Mundargi", "Mundgod", "Mulbagal", "Mysuru", "Nagamangala", "Nanjangud", "Narasimharajapura", "Nargund", "Navalgund", "Nelamangala", "Nippani", "Pandavapura", "Pavagada", "Periyapatna", "Ponnampet", "Puttur", "Raibag", "Raichur", "Ramanagara", "Ramdurg", "Ranebennur", "Ron", "Sadalaga", "Sagar", "Sakleshpur", "Sankeshwar", "Sandur", "Sindagi", "Sindhanur", "Sirsi", "Siruguppa", "Siddapur", "Sidlaghatta", "Sira", "Somwarpet", "Soraba", "Sringeri", "Srinivaspur", "Srirangapatna", "Sullia", "Tarikere", "Thirthahalli", "Tiptur", "Tirumakudalu Narasipura", "Tumakuru", "Turuvekere", "Udupi", "Virajpet", "Vijayapura", "Yadgir", "Yaragatti", "Yellapur", "Yelburga"];
+
 const PRACTICE_AREAS = [
   "Criminal Law","Family Law","Property Law","Civil Law",
   "Corporate Law","Tax Law","Labour Law","Consumer Law",
@@ -94,11 +93,7 @@ function getReqStats(advocateId, allReqs) {
     declined: list.filter(r => r.status === "declined").length,
   };
 }
-const COURTS = [
-  "District Court","High Court","Supreme Court",
-  "Family Court","Consumer Forum","Labour Court",
-  "Civil Court","Criminal Court","Revenue Court",
-];
+
 
 const EMPTY_FORM = {
   name: "", email: "", phone: "", password: "",

@@ -10,7 +10,7 @@
 // ============================================================
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Chatbot.css";
 
 const PRIMARY_CHAT_API = "http://localhost:5001/chat";
@@ -143,6 +143,9 @@ function TypingIndicator() {
 // ══════════════════════════════════════════════════════════════
 export default function Chatbot() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isDashboardChat = location.pathname === '/client-dashboard' || location.pathname === '/advocate-dashboard';
 
   const [isOpen,        setIsOpen]        = useState(false);
   const [messages,      setMessages]      = useState([]);
@@ -408,6 +411,8 @@ export default function Chatbot() {
   };
 
   const quickActions = lang === "kn" ? QUICK_ACTIONS_KN : QUICK_ACTIONS_EN;
+
+  if (isDashboardChat) return null;
 
   return (
     <>

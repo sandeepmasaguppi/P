@@ -1,9 +1,8 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { getAdvocates, getAdvocateRatingSummary, setAdvocateRating } from "../data/Advocatesstore";
+import { getAdvocates, getAdvocateRatingSummary, submitAdvocateRating } from "../data/Advocatesstore";
 import { assetUrl, api } from "../data/api";
 import "./ClientDashboard.css";
-
 const SESSION_KEY = "law4u_client_id";
 const CLIENT_OBJ_KEY = "law4u_client";
 const CLIENT_TOKEN_KEY = "law4u_client_token";
@@ -51,15 +50,7 @@ const PAY_I18N = {
   },
 };
 
-function ChatBubble({ from, text }) {
-  return (
-    <div style={{ display: "flex", justifyContent: from === "client" ? "flex-end" : "flex-start", margin: "6px 0" }}>
-      <div style={{ background: from === "client" ? "#2563eb" : "#f1f5f9", color: from === "client" ? "#fff" : "#111827", padding: "8px 12px", borderRadius: 14, maxWidth: 460 }}>
-        {text}
-      </div>
-    </div>
-  );
-}
+
 
 export default function ClientDashboard() {
   const navigate = useNavigate();
@@ -67,6 +58,15 @@ export default function ClientDashboard() {
   const initialSearch = searchParams.get("search") || searchParams.get("speciality") || "";
   const initialPrefill = searchParams.get("prefill") || "";
   const clientId = Number(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || 0);
+
+  // read client object (saved at login)
+  const clientObj = useMemo(() => {
+    try {
+      const raw = localStorage.getItem(CLIENT_OBJ_KEY) || sessionStorage.getItem(CLIENT_OBJ_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }, []);
+
   const advocates = useMemo(() => getAdvocates().filter(a => a.status === "approved"), []);
   const [search, setSearch] = useState(initialSearch);
   const filteredAdvocates = useMemo(() => {
@@ -76,7 +76,7 @@ export default function ClientDashboard() {
     // Tokenize search query by +, /, &, comma, or whitespace
     const stopWords = new Set(["lawyer", "advocate", "claims", "and", "or", "the", "for", "with", "law", "+", "/", "&", "|", ","]);
     const rawTokens = raw
-      .split(/[\+\/\,\&\|\s]+/)
+      .split(/[+,&|\s/]+/)
       .map(t => t.trim().toLowerCase())
       .filter(t => t.length > 2 && !stopWords.has(t));
 
@@ -119,7 +119,7 @@ export default function ClientDashboard() {
     });
   }, [advocates, search]);
   const [messagesVersion, setMessagesVersion] = useState(0);
-  const [since, setSince] = useState(""); // ISO string from datetime-local
+  const [since] = useState(""); // ISO string from datetime-local
 
   // displayedAdvocates: sort filtered advocates so those with recent messages appear first
   const displayedAdvocates = useMemo(() => {
@@ -148,7 +148,7 @@ export default function ClientDashboard() {
         })
         .map(x => x.a);
     } catch (e) { return filteredAdvocates; }
-  }, [filteredAdvocates, clientId, messagesVersion]);
+  }, [filteredAdvocates, clientId, messagesVersion, since]);
 
   // Read any previously active chat advocate
   const activeChatId = Number(
@@ -184,20 +184,39 @@ export default function ClientDashboard() {
     if (hasFreshFilterQuery) return null;
     return activeAdvocate || advocates[0] || null;
   });
+
+  const [mobileChatActive, setMobileChatActive] = useState(() => {
+    return Boolean(!hasFreshFilterQuery && (activeAdvocate || advocates[0]));
+  });
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [message, setMessage] = useState(() => (isPrefillAlreadySent ? "" : initialPrefill));
   const [messages, setMessages] = useState([]);
   const [ratingMessage, setRatingMessage] = useState("");
+  const [ratingDraft, setRatingDraft] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+
+  const selectedRating = useMemo(() => {
+    if (!selected || messagesVersion < 0) return { rating: 0, count: 0, votes: {} };
+    return getAdvocateRatingSummary(selected.id);
+  }, [selected, messagesVersion]);
+
+  // Sync draft rating with client's existing vote for the selected advocate
+  useEffect(() => {
+    if (selected) {
+      const myVote = Number(selectedRating.votes?.[String(clientId)] || 0);
+      setRatingDraft(myVote);
+    } else {
+      setRatingDraft(0);
+    }
+  }, [selected, selectedRating, clientId]);
 
   // Theme state: 'light' (White Theme) or 'dark' (Black Theme)
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light");
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
     localStorage.setItem(THEME_KEY, newTheme);
-  };
-  const toggleTheme = () => {
-    const next = theme === "light" ? "dark" : "light";
-    handleThemeChange(next);
   };
 
   // Language state: 'en' or 'kn'
@@ -209,7 +228,7 @@ export default function ClientDashboard() {
   const pt = PAY_I18N[lang] || PAY_I18N.en;
 
   // One-time ₹10 consultation fee verification per advocate for this client
-  const [paidVersion, setPaidVersion] = useState(0);
+  const [, setPaidVersion] = useState(0);
   const isAdvocatePaid = (advId) => {
     if (!advId) return false;
     const cid = clientId || "guest";
@@ -237,12 +256,13 @@ export default function ClientDashboard() {
   const [clientMenuOpen, setClientMenuOpen] = useState(false);
   const clientMenuRef = useRef(null);
 
-  // Close profile dropdown when clicking outside
+  // Close profile drawer when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (clientMenuRef.current && !clientMenuRef.current.contains(e.target)) {
-        setClientMenuOpen(false);
-      }
+      if (clientMenuRef.current && clientMenuRef.current.contains(e.target)) return;
+      const trigger = document.querySelector(".wa-client-profile");
+      if (trigger && trigger.contains(e.target)) return;
+      setClientMenuOpen(false);
     };
     if (clientMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
@@ -286,10 +306,6 @@ export default function ClientDashboard() {
     }
   }, [searchParams, isPrefillAlreadySent]);
 
-  const selectedRating = useMemo(() => {
-    if (!selected) return { rating: 0, count: 0, votes: {} };
-    return getAdvocateRatingSummary(selected.id);
-  }, [selected, messagesVersion, advocates]);
 
   useEffect(() => {
     if (!selected) return;
@@ -316,14 +332,6 @@ export default function ClientDashboard() {
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, [clientId, selected]);
-
-  // read client object (saved at login)
-  const clientObj = useMemo(() => {
-    try {
-      const raw = localStorage.getItem(CLIENT_OBJ_KEY) || sessionStorage.getItem(CLIENT_OBJ_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
-  }, []);
 
   const sendMessage = () => {
     if (!message.trim() || !selected) return;
@@ -408,16 +416,29 @@ export default function ClientDashboard() {
     }, 1200);
   };
 
-  const handleRatingSubmit = (score) => {
-    if (!selected || !clientId) return;
-    const summary = setAdvocateRating(selected.id, clientId, score);
-    setSelected(prev => prev ? { ...prev, rating: summary.rating, ratingCount: summary.count } : prev);
-    setRatingMessage(`Thank you! You rated ${selected.name} ${score}/5.`);
-    setTimeout(() => setRatingMessage(""), 2500);
-    setMessagesVersion(v => v + 1);
+  const handleRatingSubmitClick = async () => {
+    if (!selected || !clientId || !ratingDraft) return;
+    setIsSubmittingRating(true);
+    try {
+      const summary = await submitAdvocateRating(selected.id, clientId, ratingDraft, clientObj?.name || "Client");
+      setSelected(prev => prev ? { ...prev, rating: summary.rating, ratingCount: summary.count } : prev);
+      setRatingMessage(
+        lang === "kn"
+          ? `✅ ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ${ratingDraft}-ಸ್ಟಾರ್ ರೇಟಿಂಗ್ ಅನ್ನು advocates.json ನಲ್ಲಿ ಯಶಸ್ವಿಯಾಗಿ ಸಂಗ್ರಹಿಸಲಾಗಿದೆ. ಹೊಸ ಸರಾಸರಿ: ⭐ ${Number(summary.rating).toFixed(1)} / 5 (${summary.count} ರೇಟಿಂಗ್‌ಗಳು).`
+          : `✅ Thank you! Your ${ratingDraft}-star rating was saved to advocates.json. New average: ⭐ ${Number(summary.rating).toFixed(1)} / 5 (${summary.count} rating${summary.count === 1 ? "" : "s"}).`
+      );
+      setTimeout(() => setRatingMessage(""), 5000);
+      setMessagesVersion(v => v + 1);
+    } catch (e) {
+      console.error(e);
+      setRatingMessage(lang === "kn" ? "ರೇಟಿಂಗ್ ಉಳಿಸುವಲ್ಲಿ ದೋಷ ಉಂಟಾಗಿದೆ." : "Error saving rating.");
+      setTimeout(() => setRatingMessage(""), 3000);
+    } finally {
+      setIsSubmittingRating(false);
+    }
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     try {
       // clear client session
       localStorage.removeItem(SESSION_KEY);
@@ -428,7 +449,7 @@ export default function ClientDashboard() {
       sessionStorage.removeItem(CLIENT_TOKEN_KEY);
     } catch (e) { /* ignore */ }
     navigate('/client-login');
-  };
+  }, [navigate]);
 
   // Validate stored token with backend; if invalid (e.g. password reset), force logout
   useEffect(() => {
@@ -455,7 +476,7 @@ export default function ClientDashboard() {
         // network issues: don't auto-logout
       }
     })();
-  }, []);
+  }, [clientId, handleLogout]);
 
   if (!clientId) {
     return (
@@ -470,11 +491,203 @@ export default function ClientDashboard() {
   return (
     <>
       <div className={`wa-top-band ${theme === "dark" ? "wa-dark" : ""}`} />
-      <div className={`wa-app-shell ${theme === "dark" ? "wa-dark" : ""}`} style={{ top: 0 }}>
+      <div
+        className={`wa-app-shell ${theme === "dark" ? "wa-dark" : ""} ${
+          mobileChatActive && selected ? "mobile-show-chat" : "mobile-show-list"
+        }`}
+        style={{ top: 0 }}
+      >
       <aside className="wa-sidebar">
+        {/* WhatsApp Web Full-Page Profile Drawer */}
+        {clientMenuOpen && (
+          <div className="wa-profile-fullpage-drawer" ref={clientMenuRef}>
+            <div className="wa-pfd-header">
+              <button
+                type="button"
+                className="wa-pfd-back-btn"
+                onClick={() => setClientMenuOpen(false)}
+                title={lang === "kn" ? "ಹಿಂದಕ್ಕೆ" : "Back to chats"}
+                aria-label="Back to chats"
+              >
+                ←
+              </button>
+              <div className="wa-pfd-title">{lang === "kn" ? "ಪ್ರೊಫೈಲ್" : "Profile"}</div>
+            </div>
+
+            <div className="wa-pfd-body">
+              {/* Profile Avatar Hero */}
+              <div className="wa-pfd-avatar-hero">
+                <label className="wa-pfd-avatar-circle" title={lang === "kn" ? "ಫೋಟೋ ಬದಲಾಯಿಸಿ" : "Change Profile Photo"}>
+                  {clientAvatar ? (
+                    <img
+                      src={assetUrl(clientAvatar)}
+                      alt={clientObj?.name || "Client"}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        if (e.currentTarget.parentElement) {
+                          e.currentTarget.parentElement.innerText = (clientObj?.name || "C").charAt(0).toUpperCase();
+                        }
+                      }}
+                    />
+                  ) : (
+                    (clientObj?.name || "C").charAt(0).toUpperCase()
+                  )}
+                  <div className="wa-pfd-avatar-overlay">
+                    <span style={{ fontSize: "28px" }}>📷</span>
+                    <span>{lang === "kn" ? "ಫೋಟೋ ಬದಲಾಯಿಸಿ" : "Change Profile Photo"}</span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleAvatarUpload}
+                  />
+                </label>
+
+                {/* Preset Avatars Selector */}
+                <div className="wa-pfd-presets-bar">
+                  {AVATAR_PRESETS.map((preset, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`wa-pfd-preset-circle ${clientAvatar === preset ? "selected" : ""}`}
+                      onClick={() => handleSelectClientAvatar(preset)}
+                      title={`Avatar ${idx + 1}`}
+                    >
+                      <img src={assetUrl(preset)} alt={`Preset ${idx + 1}`} />
+                    </button>
+                  ))}
+                  <label className="wa-pfd-upload-btn" title={lang === "kn" ? "ಕಸ್ಟಮ್ ಫೋಟೋ ಅಪ್‌ಲೋಡ್" : "Upload custom photo"}>
+                    📷
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={handleAvatarUpload}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Card 1: Your Name */}
+              <div className="wa-pfd-card">
+                <div className="wa-pfd-label">{lang === "kn" ? "ನಿಮ್ಮ ಹೆಸರು" : "Your name"}</div>
+                <div className="wa-pfd-value">{clientObj?.name || "Client"}</div>
+                <div className="wa-pfd-caption">
+                  {lang === "kn"
+                    ? "ಇದು ನಿಮ್ಮ ಬಳಕೆದಾರ ಹೆಸರು ಅಥವಾ ಪಿನ್ ಅಲ್ಲ. ಈ ಹೆಸರು ನಿಮ್ಮ ವಕೀಲರಿಗೆ ಗೋಚರಿಸುತ್ತದೆ."
+                    : "This is not your username or PIN. This name will be visible to your advocates."}
+                </div>
+              </div>
+
+              {/* Card 2: About & Account */}
+              <div className="wa-pfd-card">
+                <div className="wa-pfd-label">{lang === "kn" ? "ವಿವರಣೆ (About)" : "About"}</div>
+                <div className="wa-pfd-value">
+                  {lang === "kn" ? "⚖️ ಸಮಾಲೋಚನೆಗಾಗಿ ಸಿದ್ಧರಾಗಿರುವ ಕ್ಲೈಂಟ್ ಖಾತೆ" : "⚖️ Ready for Legal Consultations & Advice"}
+                </div>
+                <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: "13px", color: "var(--wa-text-secondary)" }}>
+                    ✉️ {clientObj?.email || "client@law4u.in"}
+                  </span>
+                  <span className="wa-cd-badge">
+                    {lang === "kn" ? "ಕ್ಲೈಂಟ್ ಖಾತೆ" : "Client Account"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 3: Theme Mode */}
+              <div className="wa-pfd-card">
+                <div className="wa-pfd-label">{lang === "kn" ? "ಥೀಮ್ ಮೋಡ್ (Theme)" : "Theme Mode"}</div>
+                <div className="wa-pfd-segmented">
+                  <button
+                    type="button"
+                    className={`wa-pfd-seg-btn ${theme === "light" ? "active" : ""}`}
+                    onClick={() => handleThemeChange("light")}
+                  >
+                    ☀️ {lang === "kn" ? "ಲೈಟ್ (White)" : "White (Light)"}
+                  </button>
+                  <button
+                    type="button"
+                    className={`wa-pfd-seg-btn ${theme === "dark" ? "active" : ""}`}
+                    onClick={() => handleThemeChange("dark")}
+                  >
+                    🌙 {lang === "kn" ? "ಡಾರ್ಕ್ (Black)" : "Black (Dark)"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 4: Language */}
+              <div className="wa-pfd-card">
+                <div className="wa-pfd-label">{lang === "kn" ? "ಭಾಷೆ (Language)" : "Language"}</div>
+                <div className="wa-pfd-segmented">
+                  <button
+                    type="button"
+                    className={`wa-pfd-seg-btn ${lang === "en" ? "active" : ""}`}
+                    onClick={() => handleLanguageChange("en")}
+                  >
+                    English
+                  </button>
+                  <button
+                    type="button"
+                    className={`wa-pfd-seg-btn ${lang === "kn" ? "active" : ""}`}
+                    onClick={() => handleLanguageChange("kn")}
+                  >
+                    ಕನ್ನಡ (Kannada)
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 5: Navigation & Account Actions */}
+              <div className="wa-pfd-card">
+                <div className="wa-pfd-label">{lang === "kn" ? "ತ್ವರಿತ ಕ್ರಿಯೆಗಳು" : "Navigation & Actions"}</div>
+                <div className="wa-pfd-actions">
+                  <button
+                    type="button"
+                    className="wa-pfd-btn"
+                    onClick={() => setClientMenuOpen(false)}
+                  >
+                    💬 {lang === "kn" ? "ವಕೀಲರ ಚಾಟ್‌ಗೆ ಹಿಂತಿರುಗಿ" : "Back to Advocates Chat"}
+                  </button>
+                  <button
+                    type="button"
+                    className="wa-pfd-btn"
+                    onClick={() => {
+                      setClientMenuOpen(false);
+                      navigate("/client-main");
+                    }}
+                  >
+                    🏢 {lang === "kn" ? "ಕ್ಲೈಂಟ್ ಸೇವಾ ಕೇಂದ್ರ & ಸ್ಪಷ್ಟತೆ" : "Client Main Portal & Clarity Hub"}
+                  </button>
+                  <button
+                    type="button"
+                    className="wa-pfd-btn"
+                    onClick={() => {
+                      setClientMenuOpen(false);
+                      navigate("/");
+                    }}
+                  >
+                    🏠 {lang === "kn" ? "ಮುಖಪುಟ (Home)" : "Platform Home"}
+                  </button>
+                  <button
+                    type="button"
+                    className="wa-pfd-btn wa-pfd-btn-logout"
+                    onClick={() => {
+                      setClientMenuOpen(false);
+                      handleLogout();
+                    }}
+                  >
+                    🚪 {lang === "kn" ? "ಲಾಗ್‌ಔಟ್ ಮಾಡಿ (Logout)" : "Logout Account"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="wa-sidebar-top">
-          {/* Profile & Theme Avatar Dropdown */}
-          <div className="wa-client-profile-wrap" ref={clientMenuRef}>
+          {/* Profile & Theme Avatar Trigger */}
+          <div className="wa-client-profile-wrap">
             <div
               className={`wa-client-profile ${clientMenuOpen ? "active" : ""}`}
               onClick={() => setClientMenuOpen((prev) => !prev)}
@@ -510,128 +723,6 @@ export default function ClientDashboard() {
                 <span className="wa-profile-menu-dots">⋮</span>
               </div>
             </div>
-
-            {/* Profile & Theme Settings Popup Tab */}
-            {clientMenuOpen && (
-              <div className="wa-client-dropdown-tab">
-                <div className="wa-cd-tab-header">
-                  <div className="wa-cd-avatar-large">
-                    {clientAvatar ? (
-                      <img
-                        src={assetUrl(clientAvatar)}
-                        alt={clientObj?.name || "Client"}
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                          if (e.currentTarget.parentElement) {
-                            e.currentTarget.parentElement.innerText = (clientObj?.name || "C").charAt(0).toUpperCase();
-                          }
-                        }}
-                      />
-                    ) : (
-                      (clientObj?.name || "C").charAt(0).toUpperCase()
-                    )}
-                  </div>
-                  <div className="wa-cd-user-meta">
-                    <div className="wa-cd-user-name">{clientObj?.name || "Client"}</div>
-                    <div className="wa-cd-user-email">{clientObj?.email || "client@law4u.in"}</div>
-                    <span className="wa-cd-badge">Client Account</span>
-                  </div>
-                </div>
-
-                {/* White & Black Theme Selection */}
-                <div className="wa-cd-section">
-                  <div className="wa-cd-label">Theme / Color Mode</div>
-                  <div className="wa-cd-theme-toggle">
-                    <button
-                      type="button"
-                      className={`wa-cd-theme-btn ${theme === "light" ? "active" : ""}`}
-                      onClick={() => handleThemeChange("light")}
-                    >
-                      ☀️ White
-                    </button>
-                    <button
-                      type="button"
-                      className={`wa-cd-theme-btn ${theme === "dark" ? "active" : ""}`}
-                      onClick={() => handleThemeChange("dark")}
-                    >
-                      🌙 Black
-                    </button>
-                  </div>
-                </div>
-
-                {/* Language Selection */}
-                <div className="wa-cd-section">
-                  <div className="wa-cd-label">{lang === "kn" ? "ಭಾಷೆ (Language)" : "Language / ಭಾಷೆ"}</div>
-                  <div className="wa-cd-theme-toggle">
-                    <button
-                      type="button"
-                      className={`wa-cd-theme-btn ${lang === "en" ? "active" : ""}`}
-                      onClick={() => handleLanguageChange("en")}
-                    >
-                      English
-                    </button>
-                    <button
-                      type="button"
-                      className={`wa-cd-theme-btn ${lang === "kn" ? "active" : ""}`}
-                      onClick={() => handleLanguageChange("kn")}
-                    >
-                      ಕನ್ನಡ
-                    </button>
-                  </div>
-                </div>
-
-                {/* Avatar Selection */}
-                <div className="wa-cd-section">
-                  <div className="wa-cd-label">Profile Avatar Photo</div>
-                  <div className="wa-cd-avatar-presets">
-                    {AVATAR_PRESETS.map((preset, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        className={`wa-cd-preset-btn ${clientAvatar === preset ? "selected" : ""}`}
-                        onClick={() => handleSelectClientAvatar(preset)}
-                        title={`Select Avatar ${idx + 1}`}
-                      >
-                        <img src={assetUrl(preset)} alt={`Preset ${idx + 1}`} />
-                      </button>
-                    ))}
-                    <label className="wa-cd-upload-btn" title="Upload custom photo">
-                      📷
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        onChange={handleAvatarUpload}
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                {/* Quick Navigation & Actions inside Profile View */}
-                <div className="wa-cd-actions">
-                  <button
-                    type="button"
-                    className="wa-cd-link-btn"
-                    onClick={() => {
-                      setClientMenuOpen(false);
-                      navigate("/client-main");
-                    }}
-                  >
-                    ← Hub
-                  </button>
-                  <button
-                    type="button"
-                    className="wa-cd-logout-btn"
-                    onClick={() => {
-                      setClientMenuOpen(false);
-                      handleLogout();
-                    }}
-                  >
-                    🚪 Logout
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -675,6 +766,7 @@ export default function ClientDashboard() {
               key={a.id}
               onClick={() => {
                 setSelected(a);
+                setMobileChatActive(true);
                 if (clientId && a) {
                   sessionStorage.setItem(`law4u_active_chat_${clientId}`, String(a.id));
                   localStorage.setItem(`law4u_active_chat_${clientId}`, String(a.id));
@@ -731,8 +823,8 @@ export default function ClientDashboard() {
                 <span>Experience</span>
               </div>
               <div className="wa-profile-stat">
-                <strong>{selectedRating.rating ? Number(selectedRating.rating).toFixed(1) : (Number(selected.rating) || 0).toFixed(1)}</strong>
-                <span>Rating</span>
+                <strong>⭐ {selectedRating.rating ? Number(selectedRating.rating).toFixed(1) : (Number(selected.rating) || 5.0).toFixed(1)}</strong>
+                <span>{lang === "kn" ? "ಸರಾಸರಿ ರೇಟಿಂಗ್" : "Avg Rating"} ({selectedRating.count || selected.ratingCount || 0})</span>
               </div>
               <div className="wa-profile-stat">
                 <strong>{selected.cases ? `${selected.cases}+` : "100+"}</strong>
@@ -742,25 +834,96 @@ export default function ClientDashboard() {
 
             <div className="wa-profile-body">
               <div className="wa-profile-section">
-                <h3>Rate this advocate</h3>
+                <div className="wa-rating-header-row">
+                  <h3>{lang === "kn" ? "ಈ ವಕೀಲರಿಗೆ ರೇಟಿಂಗ್ ನೀಡಿ" : "Rate this Advocate"}</h3>
+                  <span className="wa-movie-style-chip">
+                    🎬 {lang === "kn" ? "ಚಲನಚಿತ್ರ ಶೈಲಿಯ ರೇಟಿಂಗ್" : "Movie-Style Average"}
+                  </span>
+                </div>
+
                 <div className="wa-rating-box">
-                  <div className="wa-stars" aria-label="Rate advocate from 1 to 5 stars">
-                    {[1, 2, 3, 4, 5].map((star) => (
+                  {/* Movie style Average Summary Banner */}
+                  <div className="wa-rating-summary-card">
+                    <div className="wa-rating-score-display">
+                      <span className="wa-score-star">⭐</span>
+                      <span className="wa-score-val">{Number(selectedRating.rating || selected.rating || 5.0).toFixed(1)}</span>
+                      <span className="wa-score-max">/ 5.0</span>
+                    </div>
+                    <div className="wa-rating-votes-info">
+                      <strong>{selectedRating.count || selected.ratingCount || 0}</strong> {((selectedRating.count || selected.ratingCount || 0) === 1) ? (lang === "kn" ? "ಗ್ರಾಹಕರ ರೇಟಿಂಗ್" : "client rating") : (lang === "kn" ? "ಗ್ರಾಹಕರ ರೇಟಿಂಗ್‌ಗಳು" : "client ratings")}
+                      <div className="wa-rating-calc-note">
+                        {lang === "kn"
+                          ? "ಎಲ್ಲಾ ಗ್ರಾಹಕರ ರೇಟಿಂಗ್‌ಗಳ ಸರಾಸರಿ ಲೆಕ್ಕಾಚಾರ (Movie Rating ಶೈಲಿ)"
+                          : "Combined average calculated across all client ratings (Movie Rating Model)"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Star Picker */}
+                  <div className="wa-star-picker-container">
+                    <div className="wa-star-selection-label">
+                      {ratingDraft > 0 ? (
+                        <span>
+                          {lang === "kn" ? "ನಿಮ್ಮ ಆಯ್ಕೆ:" : "Your selection:"} <strong>{ratingDraft} ★</strong>
+                          {selectedRating.votes?.[String(clientId)] ? (
+                            <span style={{ color: "#64748b", fontSize: "0.82rem", marginLeft: 6 }}>
+                              ({lang === "kn" ? "ದಾಖಲೆಯಲ್ಲಿರುವ ರೇಟಿಂಗ್:" : "Current in records:"} {selectedRating.votes[String(clientId)]} ★)
+                            </span>
+                          ) : null}
+                        </span>
+                      ) : selectedRating.votes?.[String(clientId)] ? (
+                        <span>
+                          {lang === "kn" ? "ನಿಮ್ಮ ಪ್ರಸ್ತುತ ರೇಟಿಂಗ್:" : "Your current rating:"} <strong>{selectedRating.votes[String(clientId)]} ★</strong>
+                        </span>
+                      ) : (
+                        <span>{lang === "kn" ? "ನಕ್ಷತ್ರಗಳನ್ನು ಆರಿಸಿ (1 ರಿಂದ 5):" : "Select stars (1 to 5):"}</span>
+                      )}
+                    </div>
+
+                    <div className="wa-stars" aria-label="Rate advocate from 1 to 5 stars">
+                      {[1, 2, 3, 4, 5].map((star) => {
+                        const isHovered = hoverRating > 0 && star <= hoverRating;
+                        const isSelected = !hoverRating && star <= (ratingDraft || Number(selectedRating.votes?.[String(clientId)] || 0));
+                        return (
+                          <button
+                            key={star}
+                            type="button"
+                            className={`wa-star-btn ${isHovered || isSelected ? "filled" : ""}`}
+                            onMouseEnter={() => setHoverRating(star)}
+                            onMouseLeave={() => setHoverRating(0)}
+                            onClick={() => setRatingDraft(star)}
+                            aria-label={`Select ${star} stars`}
+                          >
+                            ★
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="wa-rating-submit-row">
+                    <button
+                      type="button"
+                      className="wa-rating-submit-btn"
+                      onClick={handleRatingSubmitClick}
+                      disabled={!ratingDraft || isSubmittingRating}
+                    >
+                      {isSubmittingRating
+                        ? (lang === "kn" ? "⏳ ಸಲ್ಲಿಸಲಾಗುತ್ತಿದೆ..." : "⏳ Submitting Rating...")
+                        : (lang === "kn" ? "⭐ ರೇಟಿಂಗ್ ಸಲ್ಲಿಸಿ (Submit Rating)" : "⭐ Submit Rating")}
+                    </button>
+                    {ratingDraft > 0 && ratingDraft !== Number(selectedRating.votes?.[String(clientId)] || 0) && (
                       <button
-                        key={star}
                         type="button"
-                        className={`wa-star-btn ${star <= (selectedRating.votes?.[String(clientId)] || 0) ? "filled" : ""}`}
-                        onClick={() => handleRatingSubmit(star)}
-                        aria-label={`Rate ${star} out of 5`}
+                        className="wa-rating-cancel-btn"
+                        onClick={() => setRatingDraft(Number(selectedRating.votes?.[String(clientId)] || 0))}
                       >
-                        ★
+                        {lang === "kn" ? "ಮರುಹೊಂದಿಸಿ" : "Reset"}
                       </button>
-                    ))}
+                    )}
                   </div>
-                  <div className="wa-rating-summary">
-                    {Number(selectedRating.rating || Number(selected.rating) || 0).toFixed(1)} / 5
-                    <span> · {selectedRating.count || 0} review{(selectedRating.count || 0) === 1 ? "" : "s"}</span>
-                  </div>
+
                   {ratingMessage && <div className="wa-rating-message">{ratingMessage}</div>}
                 </div>
               </div>
@@ -800,6 +963,15 @@ export default function ClientDashboard() {
 
       <main className="wa-chat-panel">
         <div className="wa-chat-header">
+          <button
+            type="button"
+            className="wa-mobile-back-btn"
+            onClick={() => setMobileChatActive(false)}
+            title={lang === "kn" ? "ವಕೀಲರ ಪಟ್ಟಿಗೆ ಹಿಂತಿರುಗಿ" : "Back to advocates list"}
+            aria-label="Back to advocates list"
+          >
+            ‹
+          </button>
           {selected ? (
             <div className="wa-header-contact-info" onClick={() => setProfileOpen(true)}>
               <div className="wa-header-avatar">
@@ -822,7 +994,7 @@ export default function ClientDashboard() {
             </div>
           ) : (
             <div style={{ color: "var(--wa-text-secondary)", fontWeight: 600, fontSize: "0.95rem" }}>
-              👈 Choose an advocate from the filtered list on the left to start chatting
+              👈 {lang === "kn" ? "ಚಾಟ್ ಮಾಡಲು ಎಡಭಾಗದ ಪಟ್ಟಿಯಿಂದ ವಕೀಲರನ್ನು ಆಯ್ಕೆಮಾಡಿ" : "Choose an advocate from the filtered list on the left to start chatting"}
             </div>
           )}
         </div>
@@ -834,7 +1006,7 @@ export default function ClientDashboard() {
                 ⚖️
               </div>
               <h3 className="wa-empty-consult-title">
-                Choose an Advocate to Start Consultation
+                {lang === "kn" ? "ಸಮಾಲೋಚನೆ ಪ್ರಾರಂಭಿಸಲು ವಕೀಲರನ್ನು ಆಯ್ಕೆಮಾಡಿ" : "Choose an Advocate to Start Consultation"}
               </h3>
               <p className="wa-empty-consult-desc">
                 {search ? (
@@ -843,6 +1015,13 @@ export default function ClientDashboard() {
                   <>Please choose an advocate from the left sidebar to start your consultation.</>
                 )}
               </p>
+              <button
+                type="button"
+                className="wa-mobile-choose-adv-btn"
+                onClick={() => setMobileChatActive(false)}
+              >
+                👥 {lang === "kn" ? "ವಕೀಲರ ಪಟ್ಟಿಯನ್ನು ತೆರೆಯಿರಿ" : "View Advocates List"}
+              </button>
               {message && (
                 <div className="wa-inquiry-box">
                   <span className="wa-inquiry-tag">

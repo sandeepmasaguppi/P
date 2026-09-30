@@ -591,32 +591,115 @@
   background: #3b82f6;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .cmp-container {
-    padding: 24px 14px 40px;
-  }
+/* ============================================================
+   FILTER SCROLL & SEARCH TOOLBAR (Base Light Theme)
+   ============================================================ */
 
-  .cmp-clarity-view {
-    padding: 20px 16px;
-  }
+.cmp-filter-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 2px;
+  margin-top: 14px;
+  margin-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
 
-  .cmp-title {
-    font-size: 1.75rem;
-  }
+.cmp-filter-scroll::-webkit-scrollbar {
+  height: 5px;
+}
 
-  .cmp-cards-grid {
-    grid-template-columns: 1fr;
-  }
+.cmp-filter-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
 
-  .cmp-bottom-banner {
-    flex-direction: column;
-    text-align: center;
-  }
+.cmp-filter-pill {
+  white-space: nowrap;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
 
-  .cmp-banner-btn {
-    width: 100%;
-  }
+.cmp-filter-pill:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.cmp-filter-pill.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.cmp-search-toolbar {
+  margin-top: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.cmp-search-input {
+  width: 100%;
+  max-width: 560px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.95rem;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cmp-search-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.cmp-search-clear-btn {
+  padding: 9px 14px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  transition: all 0.15s ease;
+}
+
+.cmp-search-clear-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.cmp-search-count {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-left: auto;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.cmp-table-hint {
+  display: none;
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
 /* ============================================================
@@ -1207,6 +1290,307 @@
 .cmp-page.cmp-dark .cmp-page-btn:hover:not(:disabled) {
   background: #273549;
   color: #ffffff;
+}
+
+/* ============================================================
+   RESPONSIVENESS: MOBILE DEVICES (<= 768px)
+   ============================================================ */
+@media (max-width: 768px) {
+  .cmp-navbar {
+    padding: 10px 14px;
+  }
+
+  .cmp-brand-title {
+    font-size: 1.12rem;
+  }
+
+  .cmp-nav-actions {
+    gap: 8px;
+  }
+
+  /* Hide duplicate user chip on mobile, since avatar circle trigger is right beside it */
+  .cmp-user-chip {
+    display: none;
+  }
+
+  .cmp-lang-toggle {
+    padding: 5px 10px;
+    font-size: 0.78rem;
+    gap: 4px;
+  }
+
+  .cmp-avatar-btn {
+    padding: 3px 8px 3px 3px;
+    gap: 6px;
+  }
+
+  .cmp-avatar-name {
+    display: none;
+  }
+
+  .cmp-avatar-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+
+  /* Fixed Floating Avatar Dropdown Menu so it never clips on mobile */
+  .cmp-avatar-tab {
+    position: fixed !important;
+    top: 56px !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100vh - 70px) !important;
+    overflow-y: auto !important;
+    border-radius: 14px !important;
+    padding: 16px !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  .cmp-container {
+    padding: 18px 12px 36px;
+  }
+
+  .cmp-hero {
+    margin-bottom: 22px;
+  }
+
+  .cmp-title {
+    font-size: 1.45rem;
+    line-height: 1.25;
+  }
+
+  .cmp-subtitle {
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .cmp-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .cmp-card {
+    padding: 22px 16px;
+    border-radius: 16px;
+  }
+
+  .cmp-icon-wrapper {
+    width: 68px;
+    height: 68px;
+    font-size: 2.2rem;
+    border-radius: 18px;
+    margin-bottom: 12px;
+  }
+
+  .cmp-card-title {
+    font-size: 1.22rem;
+    margin-bottom: 8px;
+  }
+
+  .cmp-card-desc {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+
+  .cmp-card-btn {
+    width: 100%;
+    padding: 13px 18px;
+    font-size: 0.95rem;
+    border-radius: 10px;
+  }
+
+  /* Clarity Guide View */
+  .cmp-clarity-view {
+    padding: 16px 12px;
+    border-radius: 14px;
+  }
+
+  .cmp-view-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+  }
+
+  .cmp-btn-back,
+  .cmp-btn-chat-cta {
+    width: 100%;
+    justify-content: center;
+    padding: 11px 16px;
+    font-size: 0.88rem;
+  }
+
+  .cmp-clarity-header h2 {
+    font-size: 1.3rem;
+    line-height: 1.25;
+  }
+
+  .cmp-clarity-header p {
+    font-size: 0.86rem;
+  }
+
+  .cmp-case-badge {
+    font-size: 0.78rem;
+    padding: 5px 10px;
+    margin-top: 10px;
+    display: inline-flex;
+  }
+
+  .cmp-search-toolbar {
+    gap: 8px;
+  }
+
+  .cmp-search-input {
+    font-size: 16px !important; /* Prevents auto zoom in iOS Safari */
+    padding: 10px 12px;
+    max-width: 100%;
+  }
+
+  .cmp-search-count {
+    width: 100%;
+    margin-left: 0;
+    font-size: 0.8rem;
+  }
+
+  .cmp-table-hint {
+    display: block;
+  }
+
+  .cmp-table-wrapper {
+    margin-top: 8px;
+    margin-bottom: 16px;
+    border-radius: 10px;
+  }
+
+  .cmp-table {
+    min-width: 680px; /* Allows horizontal smooth touch swipe */
+  }
+
+  .cmp-table th,
+  .cmp-table td {
+    padding: 12px 10px;
+    font-size: 0.85rem;
+  }
+
+  .cmp-pagination {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cmp-page-info {
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  .cmp-page-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .cmp-page-btn {
+    padding: 7px 11px;
+    font-size: 0.82rem;
+    min-height: 38px;
+  }
+
+  .cmp-tip-box {
+    padding: 12px 14px;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    border-radius: 8px;
+  }
+
+  .cmp-bottom-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 16px;
+    border-radius: 14px;
+    gap: 14px;
+  }
+
+  .cmp-banner-text h3 {
+    font-size: 1.1rem;
+  }
+
+  .cmp-banner-text p {
+    font-size: 0.84rem;
+  }
+
+  .cmp-banner-btn {
+    width: 100%;
+    padding: 12px 16px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVENESS: TABLET DEVICES (769px to 1024px)
+   ============================================================ */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .cmp-navbar {
+    padding: 12px 20px;
+  }
+
+  .cmp-container {
+    padding: 28px 18px 48px;
+  }
+
+  .cmp-title {
+    font-size: 1.85rem;
+  }
+
+  .cmp-subtitle {
+    font-size: 0.98rem;
+  }
+
+  .cmp-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .cmp-card {
+    padding: 28px 20px;
+  }
+
+  .cmp-icon-wrapper {
+    width: 76px;
+    height: 76px;
+    font-size: 2.4rem;
+  }
+
+  .cmp-card-title {
+    font-size: 1.35rem;
+  }
+
+  .cmp-card-desc {
+    font-size: 0.9rem;
+  }
+
+  .cmp-clarity-view {
+    padding: 24px 22px;
+  }
+
+  .cmp-clarity-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .cmp-table {
+    min-width: 750px;
+  }
+
+  .cmp-table th,
+  .cmp-table td {
+    padding: 14px 12px;
+    font-size: 0.88rem;
+  }
 }
 
 

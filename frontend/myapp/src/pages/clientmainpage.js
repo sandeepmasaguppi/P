@@ -574,6 +574,16 @@ export default function ClientMainPage() {
                   >
                     {t.clarityNav}
                   </button>
+                  <button
+                    type="button"
+                    className="cmp-tab-link-btn"
+                    onClick={() => {
+                      setAvatarTabOpen(false);
+                      navigate("/");
+                    }}
+                  >
+                    🏠 {lang === "kn" ? "ಮುಖಪುಟ (Home)" : "Platform Home"}
+                  </button>
                 </div>
 
                 {/* Logout Button */}
@@ -680,44 +690,35 @@ export default function ClientMainPage() {
               ))}
             </div>
 
-            {/* Quick Word-Target Search */}
-            <div style={{ marginTop: 16, marginBottom: 8, display: "flex", gap: 10, alignItems: "center" }}>
+            {/* Quick Word-Target Search Toolbar */}
+            <div className="cmp-search-toolbar">
               <input
                 type="text"
+                className="cmp-search-input"
                 placeholder={t.searchPlaceholder}
                 value={searchTerm}
                 onChange={handleSearchChange}
-                style={{
-                  width: "100%",
-                  maxWidth: 560,
-                  padding: "10px 14px",
-                  borderRadius: 10,
-                  border: "1px solid #cbd5e1",
-                  fontSize: "0.95rem",
-                  outline: "none",
-                }}
               />
               {searchTerm && (
                 <button
+                  type="button"
+                  className="cmp-search-clear-btn"
                   onClick={() => {
                     setSearchTerm("");
                     setCurrentPage(1);
-                  }}
-                  style={{
-                    padding: "9px 14px",
-                    background: "#f1f5f9",
-                    border: "1px solid #cbd5e1",
-                    borderRadius: 8,
-                    cursor: "pointer",
-                    fontSize: "0.85rem",
                   }}
                 >
                   {t.clearBtn}
                 </button>
               )}
-              <span style={{ fontSize: "0.85rem", color: "#64748b", marginLeft: "auto", whiteSpace: "nowrap" }}>
+              <span className="cmp-search-count">
                 {t.foundResults(filteredData.length)}
               </span>
+            </div>
+
+            {/* Mobile swipe hint */}
+            <div className="cmp-table-hint">
+              <span>👉 {lang === "kn" ? "ಎಲ್ಲಾ ಅಂಕಣಗಳನ್ನು ನೋಡಲು ಬಲಕ್ಕೆ ಸ್ವೈಪ್ ಮಾಡಿ (Swipe right)" : "Swipe horizontally to view all columns & legal acts"}</span>
             </div>
 
             {/* Clarity Table with Word-Target Highlighting */}

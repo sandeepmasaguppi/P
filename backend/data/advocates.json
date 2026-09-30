@@ -6,7 +6,7 @@
     "practiceArea": "Criminal",
     "speciality": "Criminal Law",
     "experience": "12 years",
-    "rating": 4.9,
+    "rating": 5,
     "cases": 340,
     "fee": "₹2,500 / consult",
     "phone": "9876524321",
@@ -23,7 +23,16 @@
     "passwordHash": "scrypt$4d402b98d250e06311bf3347eb55504d$3b411fac0e09cd7866b90d0f7c78ba147572e89f70fc2ebe63f9c5d5e8222005a3d4447f8cf8ea7a2ab7da41a8e689669a2ba63afe8afd2e5642f41949efb82f",
     "court": "",
     "barCouncil": "",
-    "barId": "New4324"
+    "barId": "New4324",
+    "ratings": {
+      "1": {
+        "score": 5,
+        "clientName": "Test User 1",
+        "comment": "",
+        "date": "2026-09-30T12:59:59.511Z"
+      }
+    },
+    "ratingCount": 1
   },
   {
     "id": 2,
@@ -1915,19 +1924,34 @@
     "barCouncil": "Bar Council of Karnataka",
     "barId": "479fu",
     "experience": "3–5 years",
-    "rating": 0,
+    "rating": 5,
     "cases": 0,
     "fee": "1500",
     "phone": "8884393044",
     "email": "chetan@gmail.com",
     "languages": [
-      "Kannada English"
+      "Kannada English Hindi"
     ],
     "availability": "Available",
     "bio": "HI",
     "avatar": "/uploads/chetan-v-chandaragi-89.jpg",
     "status": "approved",
-    "passwordHash": "scrypt$89150bddb3ada1cb87b0f1a6ba06475a$1ae5259a2934bb24185251dcc3674e51dfa17f3c49982e310ff100e9fe6835fb546cd6ede40824437ea4d1a6c61a6abb809245f15305a704597ae796e89ff99b"
+    "passwordHash": "scrypt$89150bddb3ada1cb87b0f1a6ba06475a$1ae5259a2934bb24185251dcc3674e51dfa17f3c49982e310ff100e9fe6835fb546cd6ede40824437ea4d1a6c61a6abb809245f15305a704597ae796e89ff99b",
+    "practiceAreas": [
+      "Corporate Law"
+    ],
+    "courtLevel": "",
+    "district": "",
+    "taluk": "",
+    "ratings": {
+      "6": {
+        "score": 5,
+        "clientName": "Mallikarjun",
+        "comment": "",
+        "date": "2026-09-30T13:08:22.686Z"
+      }
+    },
+    "ratingCount": 1
   },
   {
     "id": 90,

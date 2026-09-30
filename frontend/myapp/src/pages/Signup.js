@@ -282,9 +282,6 @@ const PRACTICE_AREAS = [
   "Divorce","Cheque Bounce","NRI Matters","Supreme Court",
 ];
 
-const COURTS = [
-  "District Court","High Court","Supreme Court","Taluk Court"
-];
 
 const BAR_COUNCILS = [
   "Bar Council of India","Bar Council of Karnataka"

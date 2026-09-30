@@ -82,6 +82,13 @@ function RequestCard({ req, onAccept, onDecline, onSaveStage }) {
   const [isEditing, setIsEditing] = useState(false);
   const [showSavedAlert, setShowSavedAlert] = useState(false);
 
+  const handleSaveStage = () => {
+    if (onSaveStage) onSaveStage(req.id, caseStage);
+    setIsEditing(false);
+    setShowSavedAlert(true);
+    setTimeout(() => setShowSavedAlert(false), 3000);
+  };
+
   return (
     <div className="ad-request-card">
       <div className="ad-request-top">
@@ -115,7 +122,7 @@ function RequestCard({ req, onAccept, onDecline, onSaveStage }) {
 
       {req.status === "accepted" && (
         <div className="ad-case-stage" style={{ marginTop: "12px" }}>
-          {req.isSaved && !isEditing ? (
+          {!isEditing ? (
             <div className="ad-saved-indicator" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {showSavedAlert && (
                 <div className="ad-alert-banner">
@@ -124,12 +131,46 @@ function RequestCard({ req, onAccept, onDecline, onSaveStage }) {
                 </div>
               )}
               <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-                <span className={`ad-stage-pill ${req.caseStage.toLowerCase().replace(" ", "-")}`}>
-                  ✓ Current Case Status: {req.caseStage}
+                <span className={`ad-stage-pill ${(req.caseStage || caseStage).toLowerCase().replace(" ", "-")}`}>
+                  ✓ Current Case Status: {req.caseStage || caseStage}
                 </span>
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  style={{ background: "transparent", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "2px 8px", cursor: "pointer", fontSize: "12px", color: "#475569" }}
+                >
+                  ✎ Edit Status
+                </button>
               </div>
             </div>
-          ) : null}
+          ) : (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+              <select
+                value={caseStage}
+                onChange={(e) => setCaseStage(e.target.value)}
+                style={{ padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", fontSize: "13px" }}
+              >
+                <option value="Start Case">Start Case</option>
+                <option value="Evidence Gathering">Evidence Gathering</option>
+                <option value="Court Hearing">Court Hearing</option>
+                <option value="Verdict / Completed">Verdict / Completed</option>
+              </select>
+              <button
+                type="button"
+                onClick={handleSaveStage}
+                style={{ background: "#2563eb", color: "#fff", border: "none", padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "600" }}
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                onClick={() => { setCaseStage(req.caseStage || "Start Case"); setIsEditing(false); }}
+                style={{ background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", padding: "4px 8px", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -142,10 +183,10 @@ export default function AdvocateDashboard() {
   const navigate = useNavigate();
   const advocateId = Number(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || 0);
   const [advocateVersion, setAdvocateVersion] = useState(0);
-  const advocate = useMemo(() => (advocateId ? getAdvocateById(advocateId) : null), [advocateId, advocateVersion]);
+  const advocate = useMemo(() => (advocateId && advocateVersion >= 0 ? getAdvocateById(advocateId) : null), [advocateId, advocateVersion]);
 
   // UI state used across the dashboard
-  const [ready, setReady] = useState(true);
+  const [ready] = useState(true);
   const [requests, setRequests] = useState([]);
   const [earningsOverrides, setEarningsOverrides] = useState({});
   const [conversations, setConversations] = useState([]);
@@ -1165,7 +1206,7 @@ export default function AdvocateDashboard() {
                         ) : (advocate && advocate.avatar) ? (
                           <img src={assetUrl ? assetUrl(advocate.avatar) : advocate.avatar} alt="avatar" style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover" }} />
                         ) : (
-                          <div style={{ width: 64, height: 64, borderRadius: 8, background: "#e6eef8", display: "flex", alignItems: "center", justifyContent: "center" }}>{(advocate&&advocate.name||"").split(" ").map(s=>s[0]).slice(0,2).join("")}</div>
+                          <div style={{ width: 64, height: 64, borderRadius: 8, background: "#e6eef8", display: "flex", alignItems: "center", justifyContent: "center" }}>{(advocate?.name || "").split(" ").map(s=>s[0]).slice(0,2).join("")}</div>
                         )}
                       </div>
 

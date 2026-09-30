@@ -42,7 +42,7 @@ if (!AUTH_SECRET || !ADMIN_EMAIL || !ADMIN_PASSWORD_HASH) {
 const PUBLIC_FIELDS = [
   "id", "name", "city", "practiceArea", "speciality", "practiceAreas",
   "courtLevel", "district", "taluk", "court",
-  "experience", "rating", "cases", "fee",
+  "experience", "rating", "ratingCount", "ratings", "cases", "fee",
   "phone", "email", "languages", "availability", "bio", "avatar", "status",
   "barCouncil", "barId", "lastBookingAt",
 ];
@@ -567,6 +567,54 @@ function deleteAdvocate(id) {
   return { ok: true };
 }
 
+// Movie-style rating calculation and persistence in advocates.json
+function rateAdvocate(id, body) {
+  const advocateId = Number(id);
+  const clientId = String(body.clientId || body.userId || "anonymous");
+  const score = Math.min(5, Math.max(1, Number(body.rating || body.score) || 1));
+  const clientName = String(body.clientName || body.name || "Client").trim();
+  const comment = String(body.comment || "").trim();
+
+  const list = loadAdvocates();
+  const advocate = list.find((a) => Number(a.id) === advocateId);
+  if (!advocate) throw new HttpError(404, "Advocate not found");
+
+  if (!advocate.ratings || typeof advocate.ratings !== "object" || Array.isArray(advocate.ratings)) {
+    advocate.ratings = {};
+  }
+
+  // Record/update this person's rating
+  advocate.ratings[clientId] = {
+    score,
+    clientName,
+    comment,
+    date: new Date().toISOString()
+  };
+
+  // Movie-style rating calculation:
+  // Every person's vote is included; average = sum / total voters
+  const votes = Object.values(advocate.ratings);
+  const totalScore = votes.reduce((sum, v) => sum + (typeof v === "object" ? Number(v.score) || 0 : Number(v) || 0), 0);
+  const count = votes.length;
+  const avg = count > 0 ? Number((totalScore / count).toFixed(1)) : score;
+
+  advocate.rating = avg;
+  advocate.ratingCount = count;
+
+  // Persist directly to backend/data/advocates.json
+  saveAdvocates(list);
+
+  return {
+    ok: true,
+    advocateId,
+    rating: advocate.rating,
+    ratingCount: advocate.ratingCount,
+    total: totalScore,
+    userRating: score,
+    ratings: advocate.ratings,
+  };
+}
+
 // ── Router ────────────────────────────────────────────────────
 async function route(request, response) {
   const url = new URL(request.url, `http://${request.headers.host}`);
@@ -910,6 +958,13 @@ async function route(request, response) {
     requireAdmin(request);
     const body = await readBody(request);
     return send(request, response, 201, await registerAdvocate(request, body, { status: body.status || "approved", byAdmin: true }));
+  }
+
+  const rateMatch = p.match(/^\/api\/advocates\/(\d+)\/rate$/);
+  if (rateMatch && method === "POST") {
+    const id = Number(rateMatch[1]);
+    const body = await readBody(request);
+    return send(request, response, 200, rateAdvocate(id, body));
   }
 
   const idMatch = p.match(/^\/api\/advocates\/(\d+)(\/status)?$/);

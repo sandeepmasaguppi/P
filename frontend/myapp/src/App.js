@@ -30,10 +30,16 @@ function App() {
   const isAdminPortal = location.pathname === '/admin';
   const isAdvocatePortal = location.pathname === '/advocate-dashboard';
   const isAdvocateLogin = location.pathname === '/login';
+  const isClientLogin = location.pathname === '/client-login';
+  const isClientPortal =
+    location.pathname === '/client-dashboard' ||
+    location.pathname === '/client-main' ||
+    location.pathname === '/client-mainpage' ||
+    location.pathname === '/clarity-guide';
 
   return (
     <div className="App">
-      {!isAdminPortal && !isAdvocatePortal && !isAdvocateLogin && <Navbar />}
+      {!isAdminPortal && !isAdvocatePortal && !isAdvocateLogin && !isClientLogin && !isClientPortal && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/profile/:id" element={<Profile />} />

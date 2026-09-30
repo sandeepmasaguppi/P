@@ -1,86 +1,70 @@
 // ============================================================
-//  login.js  —  Law4u CLIENT Login Page
-//  ------------------------------------------------------------
-//  Authenticates against POST /api/auth/client/login — the
-//  password is verified server-side against a scrypt hash
-//  (see client.js on the backend).
-//  On success -> stores the logged-in client's id -> redirects
-//  to /client-dashboard.
+//  clientlogin.js  —  Law4u Client Login Page
+//  Matches the UI styling, gradients, and dark mode of /admin
 // ============================================================
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import BrandLogo from "../components/BrandLogo";
 import "./Login.css";
 
-// ── If your backend runs on a different origin/port, set it here ──
-// e.g. const API_BASE = "http://localhost:5000";
-const API_BASE = "";
-
-// Key used to remember who's logged in (read by a Client Dashboard page)
 const SESSION_KEY = "law4u_client_id";
 const CLIENT_OBJ_KEY = "law4u_client";
 const CLIENT_TOKEN_KEY = "law4u_client_token";
+const THEME_KEY = "law4u_client_theme";
 
-// ── Helpers ───────────────────────────────────────────────────
-function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
-
-function Field({ label, required, error, hint, children }) {
+function ThemeToggle({ theme, onToggle }) {
+  const dark = theme === "dark";
   return (
-    <div className="lg-field">
-      {label && (
-        <label className="lg-label">
-          {label}{required && <span className="lg-req"> *</span>}
-        </label>
+    <button
+      type="button"
+      className="am-theme-btn"
+      onClick={onToggle}
+      aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
+      title={dark ? "Light theme" : "Dark theme"}
+    >
+      {dark ? (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+        </svg>
       )}
-      {children}
-      {hint  && !error && <p className="lg-hint">{hint}</p>}
-      {error && <p className="lg-field-err">⚠ {error}</p>}
-    </div>
+    </button>
   );
 }
 
-function Input({ icon, error, type = "text", rightEl, ...props }) {
-  return (
-    <div className={`lg-input-wrap ${error ? "error" : ""}`}>
-      {icon && <span className="lg-input-icon">{icon}</span>}
-      <input type={type} className="lg-input" {...props} />
-      {rightEl}
-    </div>
-  );
-}
-
-// ── Toast ─────────────────────────────────────────────────────
-function Toast({ toast }) {
-  if (!toast) return null;
-  const MAP = {
-    success: { bg: "#dcfce7", c: "#14532d", b: "#bbf7d0", i: "✅" },
-    error:   { bg: "#fee2e2", c: "#7f1d1d", b: "#fecaca", i: "❌" },
-    info:    { bg: "#dbeafe", c: "#1e3a5f", b: "#bfdbfe", i: "ℹ️" },
-  };
-  const s = MAP[toast.type] || MAP.info;
-  return (
-    <div className="lg-toast" style={{ background: s.bg, color: s.c, border: `1px solid ${s.b}` }}>
-      {s.i} {toast.msg}
-    </div>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════
-//  MAIN LOGIN COMPONENT (Client)
-// ══════════════════════════════════════════════════════════════
-export default function Login() {
+export default function ClientLogin() {
   const navigate = useNavigate();
-  const [toast, setToast]     = useState(null);
   const [loading, setLoading] = useState(false);
-  const [showPw, setShowPw]   = useState(false);
+  const [showPw, setShowPw] = useState(false);
+  const [err, setErr] = useState("");
+  const [toast, setToast] = useState(null);
+
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === "dark" || saved === "light") return saved;
+    } catch {}
+    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(THEME_KEY, theme); } catch {}
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => setTheme(t => (t === "dark" ? "light" : "dark")), []);
 
   const [form, setForm] = useState({
     email: "",
     password: "",
-    remember: false,
+    remember: true,
   });
-  const [err, setErr] = useState({});
 
+  // Auto-dismiss toast
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 3500);
@@ -89,130 +73,154 @@ export default function Login() {
 
   const showToast = (msg, type = "info") => setToast({ msg, type });
 
-  const setF = (k, v) => {
-    setForm((p) => ({ ...p, [k]: v }));
-    setErr((p) => ({ ...p, [k]: "" }));
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const em = form.email.trim().toLowerCase();
+    const pw = form.password;
 
-  // ── Validate ──────────────────────────────────────────────
-  const validate = () => {
-    const e = {};
-    if (!form.email.trim())             e.email    = "Email is required";
-    else if (!isValidEmail(form.email)) e.email    = "Invalid email format";
-    if (!form.password)                 e.password = "Password is required";
-    setErr(e);
-    return !Object.keys(e).length;
-  };
-
-  // ── Submit — POST /api/auth/client/login ────────────────────
-  const handleSubmit = (e) => {
-    e?.preventDefault();
-    if (!validate()) return;
+    if (!em || !pw) {
+      setErr("Please enter both email and password.");
+      return;
+    }
 
     setLoading(true);
+    setErr("");
 
-    (async () => {
-      try {
-        const res = await fetch(`${API_BASE}/api/auth/client/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: form.email.trim().toLowerCase(),
-            password: form.password,
-          }),
-        });
+    try {
+      const res = await fetch("/api/auth/client/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: em, password: pw }),
+      });
 
-        const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({}));
 
-        if (!res.ok) {
-          if (res.status === 401) {
-            setErr({ password: "Incorrect email or password" });
-          }
-          showToast(data.message || "Login failed. Please try again.", "error");
-          setLoading(false);
-          return;
-        }
-
-        const client = data.client;
-        const token = data.token;
-
-        // Success — remember which client is logged in and save token
-        if (form.remember) {
-          localStorage.setItem(SESSION_KEY, String(client.id));
-          localStorage.setItem(CLIENT_OBJ_KEY, JSON.stringify(client));
-          if (token) localStorage.setItem(CLIENT_TOKEN_KEY, token);
+      if (!res.ok) {
+        setLoading(false);
+        if (res.status === 401) {
+          setErr("Incorrect email or password.");
         } else {
-          sessionStorage.setItem(SESSION_KEY, String(client.id));
-          sessionStorage.setItem(CLIENT_OBJ_KEY, JSON.stringify(client));
-          if (token) sessionStorage.setItem(CLIENT_TOKEN_KEY, token);
+          setErr(data.message || "Login failed. Please check your credentials.");
         }
-
-        showToast(`Welcome back, ${client.name}! 🎉`, "success");
-        setLoading(false);
-
-        setTimeout(() => navigate("/client-main"), 700);
-      } catch (err) {
-        console.error(err);
-        showToast("Could not reach the server. Please try again.", "error");
-        setLoading(false);
+        return;
       }
-    })();
+
+      const client = data.client;
+      const token = data.token;
+
+      if (form.remember) {
+        localStorage.setItem(SESSION_KEY, String(client.id));
+        localStorage.setItem(CLIENT_OBJ_KEY, JSON.stringify(client));
+        if (token) localStorage.setItem(CLIENT_TOKEN_KEY, token);
+      } else {
+        sessionStorage.setItem(SESSION_KEY, String(client.id));
+        sessionStorage.setItem(CLIENT_OBJ_KEY, JSON.stringify(client));
+        if (token) sessionStorage.setItem(CLIENT_TOKEN_KEY, token);
+      }
+
+      showToast(`Welcome back, ${client.name}! 🎉`, "success");
+      setLoading(false);
+      setTimeout(() => navigate("/client-main"), 600);
+    } catch (networkErr) {
+      console.error(networkErr);
+      setLoading(false);
+      setErr("Unable to reach the server. Please check your connection and try again.");
+    }
   };
 
   return (
-    <div className="lg-page">
-      <Toast toast={toast} />
+    <div className={`am-login-page ${theme === "dark" ? "am-dark" : ""}`}>
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
 
-      <div className="lg-card">
+      {toast && (
+        <div
+          className="am-toast"
+          style={{
+            background: toast.type === "success" ? "#0f766e" : "#b91c1c",
+            color: "#ffffff",
+          }}
+        >
+          {toast.msg}
+        </div>
+      )}
 
-        {/* Header */}
-        <div className="lg-header">
-          <Link to="/" className="lg-logo">
-            <span style={{ color: "#2563eb", fontWeight: 800 }}>Law</span>
-            <span style={{ color: "#dc2626", fontWeight: 800 }}>4</span>
-            <span style={{ color: "#16a34a", fontWeight: 800 }}>u</span>
-          </Link>
-          <h1 className="lg-title">Client Login</h1>
-          <p className="lg-subtitle">Sign in to find advocates and manage your matters</p>
+      <form className="am-login-card" onSubmit={handleSubmit} noValidate>
+        <BrandLogo size={56} wordmark={false} style={{ margin: "0 auto" }} />
+        
+        <div className="am-role-badge client">👤 Client Portal</div>
+        <h1 className="am-login-title">Client Login</h1>
+        <p className="am-login-sub">Law4u — Legal Consultation & Matters</p>
+
+        <div className="am-field">
+          <label>Client Email</label>
+          <input
+            type="email"
+            placeholder="you@email.com"
+            value={form.email}
+            onChange={(e) => {
+              setForm((p) => ({ ...p, email: e.target.value }));
+              setErr("");
+            }}
+            disabled={loading}
+          />
         </div>
 
-        <div className="lg-badge">👤 For Clients</div>
-        <Link to="/" className="lg-home-btn">Go to Home</Link>
-
-        <form className="lg-form" onSubmit={handleSubmit} noValidate>
-
-          <Field label="Email Address" required error={err.email}>
-            <Input icon="✉️" type="email" placeholder="you@email.com"
-              value={form.email} onChange={(e) => setF("email", e.target.value)}
-              error={err.email} disabled={loading}
-              rightEl={form.email && isValidEmail(form.email) && <span className="lg-valid">✓</span>} />
-          </Field>
-
-          <Field label="Password" required error={err.password}>
-            <Input icon="🔒" type={showPw ? "text" : "password"} placeholder="Enter your password"
-              value={form.password} onChange={(e) => setF("password", e.target.value)}
-              error={err.password} disabled={loading}
-              rightEl={<button type="button" className="lg-eye" onClick={() => setShowPw((p) => !p)}>{showPw ? "🙈" : "👁️"}</button>} />
-          </Field>
-
-          <div className="lg-row-between">
-            <label className="lg-remember">
-              <input type="checkbox" checked={form.remember} onChange={(e) => setF("remember", e.target.checked)} />
-              <span>Remember me</span>
-            </label>
-            <Link to="/forgot-password" className="lg-forgot">Forgot password?</Link>
+        <div className="am-field">
+          <label>Password</label>
+          <div className="am-pw-wrap">
+            <input
+              type={showPw ? "text" : "password"}
+              placeholder="Enter your password"
+              value={form.password}
+              onChange={(e) => {
+                setForm((p) => ({ ...p, password: e.target.value }));
+                setErr("");
+              }}
+              disabled={loading}
+            />
+            <button
+              type="button"
+              className="am-eye"
+              onClick={() => setShowPw((p) => !p)}
+              aria-label={showPw ? "Hide password" : "Show password"}
+            >
+              {showPw ? "🙈" : "👁️"}
+            </button>
           </div>
+        </div>
 
-          <button type="submit" className="lg-btn-primary lg-btn-lg" disabled={loading}>
-            {loading ? <><span className="lg-spinner" /> Signing in…</> : "Login →"}
-          </button>
+        <div className="am-login-options">
+          <label className="am-remember">
+            <input
+              type="checkbox"
+              checked={form.remember}
+              onChange={(e) => setForm((p) => ({ ...p, remember: e.target.checked }))}
+            />
+            <span>Remember me</span>
+          </label>
+          <Link to="/forgot-password" className="am-forgot-link">
+            Forgot password?
+          </Link>
+        </div>
 
-          <p className="lg-signup-link">
-            Don't have an account yet? <Link to="/register">Create one here</Link>
-          </p>
-        </form>
+        {err && <p className="am-err">⚠ {err}</p>}
 
-      </div>
+        <button type="submit" className="am-btn-primary client-btn" disabled={loading}>
+          {loading ? "Signing in…" : "Login to Client Portal →"}
+        </button>
+
+        <p className="am-alt-link">
+          Don't have a client account? <Link to="/client-dashboard">Find an Advocate</Link>
+        </p>
+
+        <p className="am-alt-sub">
+          Are you an advocate? <Link to="/login">Advocate Login here</Link>
+        </p>
+
+        <Link to="/" className="am-back-link">
+          ← Back to site
+        </Link>
+      </form>
     </div>
   );
 }

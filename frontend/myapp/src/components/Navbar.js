@@ -242,7 +242,7 @@ export default function Navbar() {
           <div className="lw-nav-item">
             <button
               className={`lw-nav-link lw-has-drop ${openMenu === "lawyer" ? "active" : ""}`}
-              onMouseOver={() => toggle("lawyer")}
+              onClick={() => toggle("lawyer")}
             >
               {isKn ? "ವಕೀಲರನ್ನು ಹುಡುಕಿ" : "Find A Lawyer"} <span className="lw-arrow"></span>
             </button>
@@ -253,7 +253,7 @@ export default function Navbar() {
           <div className="lw-nav-item">
             <button
               className={`lw-nav-link lw-has-drop ${openMenu === "advice" ? "active" : ""}`}
-              onMouseOver={() => toggle("advice")}
+              onClick={() => toggle("advice")}
             >
               {isKn ? "ಕಾನೂನು ಸಲಹೆ" : "Legal Advice"} <span className="lw-arrow"></span>
             </button>
@@ -264,7 +264,7 @@ export default function Navbar() {
           <div className="lw-nav-item">
             <button
               className={`lw-nav-link lw-has-drop ${openMenu === "about" ? "active" : ""}`}
-              onMouseOver={() => toggle("about")}
+              onClick={() => toggle("about")}
             >
               {isKn ? "ನಮ್ಮ ಬಗ್ಗೆ" : "About"} <span className="lw-arrow"></span>
             </button>
