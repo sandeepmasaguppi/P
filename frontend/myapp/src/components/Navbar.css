@@ -344,11 +344,13 @@
   flex: 1;
 }
 
-/* Hide mobile drawer components on desktop by default */
-.lw-mobile-profile-details,
-.lw-mobile-auth-links,
-.lw-mobile-only {
-  display: none !important;
+/* Hide mobile drawer components on desktop (992px and up) */
+@media (min-width: 992px) {
+  .lw-mobile-profile-details,
+  .lw-mobile-auth-links,
+  .lw-mobile-only {
+    display: none !important;
+  }
 }
 
 .lw-nav-item {
@@ -744,14 +746,16 @@
 
   /* Mobile profile details banner inside drawer (Row-by-Row Layout) */
   .lw-mobile-profile-details {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 8px;
-    padding: 10px 14px;
-    margin-bottom: 8px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
     background: #fafafa;
     border: 1px solid #e5e5e5;
     border-radius: 12px;
+    box-sizing: border-box;
+    width: 100%;
   }
 
   .lw-mobile-row {
@@ -818,16 +822,17 @@
 
   /* Login & profile shortcuts at the bottom of the drawer */
   .lw-mobile-auth-links {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 8px;
     margin-top: 14px;
     padding-top: 10px;
     border-top: 1px solid var(--lw-line);
+    width: 100%;
   }
 
   .lw-mobile-only {
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
     padding: 11px;
